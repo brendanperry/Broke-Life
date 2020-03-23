@@ -1,8 +1,13 @@
+import javax.swing.JFrame;
+
 // main class
 
 public class Main {
 
     public static void main(String args[]) {
-        System.out.println("Hello World");
+        MainFrame frame = new MainFrame();
+        frame.setVisible(true);
+        frame.setTitle("BrokeLife");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 }
