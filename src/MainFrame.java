@@ -50,21 +50,10 @@ public class MainFrame extends JFrame {
 		JTabbedPane centerPanel = new JTabbedPane();
 		getContentPane().add(centerPanel, BorderLayout.CENTER);
 		
-		// BUDGET PANEL
 		
-		JPanel budgetPanel = new BudgetPanel();
-		
-		// CALENDAR PANEL
-		
-		JPanel calendarPanel = new JPanel();
-		JLabel calendarText = new JLabel("Calendar");
-		calendarPanel.add(calendarText);
-		
-		// OVERVIEW PANEL
-		
-		JPanel overviewPanel = new JPanel();
-		JLabel overviewText = new JLabel("Overview");
-		overviewPanel.add(overviewText);
+		JPanel budgetPanel = new BudgetPanel();		
+		JPanel calendarPanel = new CalendarPanel();
+		JPanel overviewPanel = new OverviewPanel();
 		
 		centerPanel.addTab("Budget", budgetPanel);
 		centerPanel.addTab("Calendar", calendarPanel);
