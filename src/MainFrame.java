@@ -1,3 +1,4 @@
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
@@ -49,17 +50,10 @@ public class MainFrame extends JFrame {
 		JTabbedPane centerPanel = new JTabbedPane();
 		getContentPane().add(centerPanel, BorderLayout.CENTER);
 		
-		JPanel budgetPanel = new JPanel();
-		JLabel budgetText = new JLabel("Budget");
-		budgetPanel.add(budgetText);
 		
-		JPanel calendarPanel = new JPanel();
-		JLabel calendarText = new JLabel("Calendar");
-		calendarPanel.add(calendarText);
-		
-		JPanel overviewPanel = new JPanel();
-		JLabel overviewText = new JLabel("Overview");
-		overviewPanel.add(overviewText);
+		JPanel budgetPanel = new BudgetPanel();		
+		JPanel calendarPanel = new CalendarPanel();
+		JPanel overviewPanel = new OverviewPanel();
 		
 		centerPanel.addTab("Budget", budgetPanel);
 		centerPanel.addTab("Calendar", calendarPanel);
