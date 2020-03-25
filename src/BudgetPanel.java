@@ -1,5 +1,6 @@
 /*
  * Contains the GUI for the budget panel
+ * 
  */
 
 import java.awt.BorderLayout;
