@@ -23,7 +23,7 @@ import javax.swing.border.EmptyBorder;
 @SuppressWarnings("serial")
 public class BudgetPanel extends JPanel {
 	
-	public BudgetPanel() {
+	public BudgetPanel(UserProfile user) {
 		setLayout(new BorderLayout(0, 0));
 		
 		// EXPENSES PANEL
