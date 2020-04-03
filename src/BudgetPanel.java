@@ -38,6 +38,7 @@ import javax.swing.table.DefaultTableModel;
 public class BudgetPanel extends JPanel {
 		
 	DefaultTableModel model;
+	ArrayList<String[]> data;
 	
 	JTextField name;
 	JTextField cost;
@@ -51,7 +52,9 @@ public class BudgetPanel extends JPanel {
 	JTextField repeatingModified;
 	JTextField categoryModified;
 	
-	JPanel modifiedEventPanel;
+	JPanel centerBottomPanel;
+	JLabel modifiedText;
+	JPanel bottomPanel;
 	
 	JButton submitChanges;
 	JPanel centerAddPanel;
@@ -60,6 +63,7 @@ public class BudgetPanel extends JPanel {
 	
 	public BudgetPanel(UserProfile user) {
 		setLayout(new BorderLayout(0, 0));
+		data = new ArrayList<String[]>();
 		
 		// EXPENSES PANEL
 		
@@ -82,6 +86,8 @@ public class BudgetPanel extends JPanel {
 				return false;
 			}
 		};
+		
+		
 		
 		JTable table = new JTable(model);
 		model.addColumn("Item");
@@ -175,19 +181,24 @@ public class BudgetPanel extends JPanel {
 		
 		// Event Panel
 		
-		JTabbedPane eventPanel = new JTabbedPane();
+		bottomPanel = new JPanel();
+		bottomPanel.setLayout(new BorderLayout());
 		
 		// ADD EVENT TAB
 		
-		JPanel addEventPanel = new JPanel();
-		addEventPanel.setLayout(new BorderLayout());
+		JPanel eventPanel = new JPanel();
+		eventPanel.setLayout(new BorderLayout());
 		
-		String[] interactions = {"Add", "Modify", "Delete"};
+		String[] interactions = {"Add Event", "Modify Event", "Delete Event"};
 		comboBox = new JComboBox<String>(interactions);
 		ActionHandler actionHandler = new ActionHandler();
 		comboBox.addActionListener(actionHandler);
-		addEventPanel.add(comboBox, BorderLayout.NORTH);
+		eventPanel.add(comboBox, BorderLayout.NORTH);
+		
 		centerAddPanel = new JPanel();
+		centerAddPanel.setLayout(new BorderLayout());
+		JPanel centerTopPanel = new JPanel();
+		centerBottomPanel = new JPanel();
 		
 		name = new JTextField();
 		name.setPreferredSize(new Dimension(100,20));
@@ -206,21 +217,19 @@ public class BudgetPanel extends JPanel {
 		JLabel repeatingText = new JLabel("Repeating");
 		JLabel categoryText = new JLabel("Category");
 		
-		centerAddPanel.add(nameText);
-		centerAddPanel.add(name);
-		centerAddPanel.add(costText);
-		centerAddPanel.add(cost);
-		centerAddPanel.add(dayText);
-		centerAddPanel.add(day);
-		centerAddPanel.add(repeatingText);
-		centerAddPanel.add(repeating);
-		centerAddPanel.add(categoryText);
-		centerAddPanel.add(category);
+		centerTopPanel.add(nameText);
+		centerTopPanel.add(name);
+		centerTopPanel.add(costText);
+		centerTopPanel.add(cost);
+		centerTopPanel.add(dayText);
+		centerTopPanel.add(day);
+		centerTopPanel.add(repeatingText);
+		centerTopPanel.add(repeating);
+		centerTopPanel.add(categoryText);
+		centerTopPanel.add(category);
 		
 		// Only needed if modify event is selected
-		
-		modifiedEventPanel = new JPanel();
-		
+				
 		nameModified = new JTextField();
 		nameModified.setPreferredSize(new Dimension(100,20));
 		costModified = new JTextField();
@@ -232,41 +241,40 @@ public class BudgetPanel extends JPanel {
 		categoryModified = new JTextField();
 		categoryModified.setPreferredSize(new Dimension(100,20));
 		
-		JLabel modifiedText = new JLabel("Updated Information");
+		modifiedText = new JLabel("Updated Information");
 		JLabel nameTextModified = new JLabel("Name");
 		JLabel costTextModified = new JLabel("Cost");
 		JLabel dayTextModified = new JLabel("Day");
 		JLabel repeatingTextModified = new JLabel("Repeating");
 		JLabel categoryTextModified = new JLabel("Category");
 		
+		centerBottomPanel.add(nameTextModified);
+		centerBottomPanel.add(nameModified);
+		centerBottomPanel.add(costTextModified);
+		centerBottomPanel.add(costModified);
+		centerBottomPanel.add(dayTextModified);
+		centerBottomPanel.add(dayModified);
+		centerBottomPanel.add(repeatingTextModified);
+		centerBottomPanel.add(repeatingModified);
+		centerBottomPanel.add(categoryTextModified);
+		centerBottomPanel.add(categoryModified);
 		
-		modifiedEventPanel.add(nameTextModified);
-		modifiedEventPanel.add(nameModified);
-		modifiedEventPanel.add(costTextModified);
-		modifiedEventPanel.add(costModified);
-		modifiedEventPanel.add(dayTextModified);
-		modifiedEventPanel.add(dayModified);
-		modifiedEventPanel.add(repeatingTextModified);
-		modifiedEventPanel.add(repeatingModified);
-		modifiedEventPanel.add(categoryTextModified);
-		modifiedEventPanel.add(categoryModified);
+		centerAddPanel.add(centerTopPanel, BorderLayout.NORTH);
+		centerAddPanel.add(modifiedText, BorderLayout.CENTER);
+		centerAddPanel.add(centerBottomPanel, BorderLayout.SOUTH);
 		
-		addEventPanel.add(centerAddPanel, BorderLayout.CENTER);
+		centerBottomPanel.setVisible(false);
+		modifiedText.setVisible(false);
 		
-		submitChanges = new JButton("Add Event");
+		eventPanel.add(centerAddPanel, BorderLayout.CENTER);
+		
+		submitChanges = new JButton("Add");
 		submitChanges.addActionListener(actionHandler);
-		addEventPanel.add(submitChanges, BorderLayout.SOUTH);
+		eventPanel.add(submitChanges, BorderLayout.SOUTH);
 		
-		eventPanel.addTab("ADD", addEventPanel);
+		bottomPanel.add(eventPanel, BorderLayout.CENTER);
 		
-		
-		
-		
-		
-		
-		
-		
-		add(eventPanel, BorderLayout.SOUTH);
+		add(bottomPanel, BorderLayout.SOUTH);
 		add(expensesPanel, BorderLayout.CENTER);
 		add(rightPanel, BorderLayout.EAST);
 	}
@@ -278,7 +286,9 @@ public class BudgetPanel extends JPanel {
 				
 				if(comboBox.getSelectedIndex() == 0) {
 					// add event
-					model.addRow(new Object[] {name.getText(), cost.getText(), day.getText(), repeating.getText(), category.getText()});
+					String[] newData = {name.getText(), cost.getText(), day.getText(), repeating.getText(), category.getText()};
+					data.add(newData);
+					model.addRow(newData);
 				}
 				else if(comboBox.getSelectedIndex() == 1) {
 					// modify event
@@ -286,27 +296,56 @@ public class BudgetPanel extends JPanel {
 				}
 				else {
 					// delete event
+					String[] dataToRemove = {name.getText(), cost.getText(), day.getText(), repeating.getText(), category.getText()};
+
+					int row = -1;
+					for(int i = 0; i < data.size(); i++) {
+						int count = 0;
+						for(int j = 0; j < 5; j++) {
+							if(!data.get(i)[j].equals(dataToRemove[j])) {
+								break;
+							}
+							else {
+								count++;
+							}
+						}
+						
+						if(count == 5) {
+							row = i;
+							break;
+						}
+					}
+					
+					System.out.println(row);
+					
+					if(row == -1) {
+						System.out.println("Not found");
+						// Add a pop up
+					}
+					else {
+						model.removeRow(row);
+					}
 				}
-				
-				name.setText("");
-				cost.setText("");
-				day.setText("");
-				repeating.setText("");
-				category.setText("");
 			}
 			
 			if(e.getSource() == comboBox) {
 				if(comboBox.getSelectedIndex() == 0) {
 					// add event
-					submitChanges.setText("Add Event");
+					submitChanges.setText("Add");
+					centerBottomPanel.setVisible(false);
+					modifiedText.setVisible(false);
 				}
 				else if(comboBox.getSelectedIndex() == 1) {
 					// modify event
-					submitChanges.setText("Modify Event");
+					submitChanges.setText("Modify");
+					centerBottomPanel.setVisible(true);
+					modifiedText.setVisible(true);
 				}
 				else {
 					// delete event
-					submitChanges.setText("Delete Event");
+					submitChanges.setText("Delete");
+					centerBottomPanel.setVisible(false);
+					modifiedText.setVisible(false);
 				}
 			}
 		}
