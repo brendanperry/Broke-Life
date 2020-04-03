@@ -10,18 +10,22 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 
 /*
  * This class contains the GUI for the Budget Panel and allows 
@@ -32,8 +36,27 @@ import javax.swing.border.EmptyBorder;
 
 @SuppressWarnings("serial")
 public class BudgetPanel extends JPanel {
+		
+	DefaultTableModel model;
 	
-	public String[][] data = {};
+	JTextField name;
+	JTextField cost;
+	JTextField day;
+	JTextField repeating;
+	JTextField category;
+	
+	JTextField nameModified;
+	JTextField costModified;
+	JTextField dayModified;
+	JTextField repeatingModified;
+	JTextField categoryModified;
+	
+	JPanel modifiedEventPanel;
+	
+	JButton submitChanges;
+	JPanel centerAddPanel;
+	
+	JComboBox<String> comboBox;
 	
 	public BudgetPanel(UserProfile user) {
 		setLayout(new BorderLayout(0, 0));
@@ -50,12 +73,24 @@ public class BudgetPanel extends JPanel {
 		expensesText.setForeground(Color.WHITE);
 		expensesText.setFont(new Font("Arial", Font.BOLD, 20));
 		expensesPanel.add(expensesText, BorderLayout.NORTH);
+						
+		// Disables the users ability to edit individual cells
+		model = new DefaultTableModel() {
+			
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			}
+		};
 		
-		String[] columnNames = {"Item", "Cost", "Day", "Repeating", "Category"};
-				
-		JTable expensesTable = new JTable(data, columnNames);
+		JTable table = new JTable(model);
+		model.addColumn("Item");
+		model.addColumn("Cost");
+		model.addColumn("Day");
+		model.addColumn("Repeating");
+		model.addColumn("Category");
 		
-		JScrollPane scrollPane = new JScrollPane(expensesTable);
+		JScrollPane scrollPane = new JScrollPane(table);
 		
 		expensesPanel.add(scrollPane, BorderLayout.CENTER);
 		
@@ -140,19 +175,29 @@ public class BudgetPanel extends JPanel {
 		
 		// Event Panel
 		
-		JPanel eventPanel = new JPanel();
-		JLabel events = new JLabel("EVENTS");
-		eventPanel.add(events);
+		JTabbedPane eventPanel = new JTabbedPane();
 		
-		JTextField name = new JTextField();
+		// ADD EVENT TAB
+		
+		JPanel addEventPanel = new JPanel();
+		addEventPanel.setLayout(new BorderLayout());
+		
+		String[] interactions = {"Add", "Modify", "Delete"};
+		comboBox = new JComboBox<String>(interactions);
+		ActionHandler actionHandler = new ActionHandler();
+		comboBox.addActionListener(actionHandler);
+		addEventPanel.add(comboBox, BorderLayout.NORTH);
+		centerAddPanel = new JPanel();
+		
+		name = new JTextField();
 		name.setPreferredSize(new Dimension(100,20));
-		JTextField cost = new JTextField();
+		cost = new JTextField();
 		cost.setPreferredSize(new Dimension(100,20));
-		JTextField day = new JTextField();
+		day = new JTextField();
 		day.setPreferredSize(new Dimension(100,20));
-		JTextField repeating = new JTextField();
+		repeating = new JTextField();
 		repeating.setPreferredSize(new Dimension(100,20));
-		JTextField category = new JTextField();
+		category = new JTextField();
 		category.setPreferredSize(new Dimension(100,20));
 		
 		JLabel nameText = new JLabel("Name");
@@ -161,19 +206,65 @@ public class BudgetPanel extends JPanel {
 		JLabel repeatingText = new JLabel("Repeating");
 		JLabel categoryText = new JLabel("Category");
 		
-		eventPanel.add(nameText);
-		eventPanel.add(name);
-		eventPanel.add(costText);
-		eventPanel.add(cost);
-		eventPanel.add(dayText);
-		eventPanel.add(day);
-		eventPanel.add(repeatingText);
-		eventPanel.add(repeating);
-		eventPanel.add(categoryText);
-		eventPanel.add(category);
+		centerAddPanel.add(nameText);
+		centerAddPanel.add(name);
+		centerAddPanel.add(costText);
+		centerAddPanel.add(cost);
+		centerAddPanel.add(dayText);
+		centerAddPanel.add(day);
+		centerAddPanel.add(repeatingText);
+		centerAddPanel.add(repeating);
+		centerAddPanel.add(categoryText);
+		centerAddPanel.add(category);
 		
-		JButton add = new JButton("Add Event");
-		eventPanel.add(add);
+		// Only needed if modify event is selected
+		
+		modifiedEventPanel = new JPanel();
+		
+		nameModified = new JTextField();
+		nameModified.setPreferredSize(new Dimension(100,20));
+		costModified = new JTextField();
+		costModified.setPreferredSize(new Dimension(100,20));
+		dayModified = new JTextField();
+		dayModified.setPreferredSize(new Dimension(100,20));
+		repeatingModified = new JTextField();
+		repeatingModified.setPreferredSize(new Dimension(100,20));
+		categoryModified = new JTextField();
+		categoryModified.setPreferredSize(new Dimension(100,20));
+		
+		JLabel modifiedText = new JLabel("Updated Information");
+		JLabel nameTextModified = new JLabel("Name");
+		JLabel costTextModified = new JLabel("Cost");
+		JLabel dayTextModified = new JLabel("Day");
+		JLabel repeatingTextModified = new JLabel("Repeating");
+		JLabel categoryTextModified = new JLabel("Category");
+		
+		
+		modifiedEventPanel.add(nameTextModified);
+		modifiedEventPanel.add(nameModified);
+		modifiedEventPanel.add(costTextModified);
+		modifiedEventPanel.add(costModified);
+		modifiedEventPanel.add(dayTextModified);
+		modifiedEventPanel.add(dayModified);
+		modifiedEventPanel.add(repeatingTextModified);
+		modifiedEventPanel.add(repeatingModified);
+		modifiedEventPanel.add(categoryTextModified);
+		modifiedEventPanel.add(categoryModified);
+		
+		addEventPanel.add(centerAddPanel, BorderLayout.CENTER);
+		
+		submitChanges = new JButton("Add Event");
+		submitChanges.addActionListener(actionHandler);
+		addEventPanel.add(submitChanges, BorderLayout.SOUTH);
+		
+		eventPanel.addTab("ADD", addEventPanel);
+		
+		
+		
+		
+		
+		
+		
 		
 		add(eventPanel, BorderLayout.SOUTH);
 		add(expensesPanel, BorderLayout.CENTER);
@@ -183,10 +274,40 @@ public class BudgetPanel extends JPanel {
 	public class ActionHandler implements ActionListener {
 		
 		public void actionPerformed(ActionEvent e) {
-			if(e.getSource() == "add") {
-				// add the stuff
-				String[] newEventList = {"Meat", "Fridge", "Toast", "500", "No"};
-				data[0] = newEventList;
+			if(e.getSource() == submitChanges) {
+				
+				if(comboBox.getSelectedIndex() == 0) {
+					// add event
+					model.addRow(new Object[] {name.getText(), cost.getText(), day.getText(), repeating.getText(), category.getText()});
+				}
+				else if(comboBox.getSelectedIndex() == 1) {
+					// modify event
+					
+				}
+				else {
+					// delete event
+				}
+				
+				name.setText("");
+				cost.setText("");
+				day.setText("");
+				repeating.setText("");
+				category.setText("");
+			}
+			
+			if(e.getSource() == comboBox) {
+				if(comboBox.getSelectedIndex() == 0) {
+					// add event
+					submitChanges.setText("Add Event");
+				}
+				else if(comboBox.getSelectedIndex() == 1) {
+					// modify event
+					submitChanges.setText("Modify Event");
+				}
+				else {
+					// delete event
+					submitChanges.setText("Delete Event");
+				}
 			}
 		}
 	}
