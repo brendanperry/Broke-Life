@@ -87,8 +87,7 @@ public class InitialWindow extends JFrame{
         	okay.addActionListener(new ActionListener() {
         		public void actionPerformed(ActionEvent arg0) {
         			try {
-        				String filename = profileList.getSelectedValue() + ".bl";
-						File file = new File(new File(".").getCanonicalPath() + "/Profiles/" + filename);
+						File file = new File(new File(".").getCanonicalPath() + "/Profiles/" + profileList.getSelectedValue());
 						FileInputStream fileInput = new FileInputStream(file); 
 			            ObjectInputStream decode = new ObjectInputStream(fileInput); 
 			             
@@ -96,8 +95,8 @@ public class InitialWindow extends JFrame{
 			            
 			            decode.close(); 
 			            fileInput.close();
-			            MainFrame mf = new MainFrame(profile);
 			            dispose();
+			            MainFrame mf = new MainFrame(profile);
 					} catch(Exception e) {
 						JOptionPane.showMessageDialog(null, "Profile selection invalid");
 					}

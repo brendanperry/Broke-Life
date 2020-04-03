@@ -7,22 +7,28 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 /**
+ * This class is responsible for the display of the program.
+ * It contains the GUI JFrame that holds all other JPanels
  * @author brendanperry
+ * 03/20/20
  *
  */
 public class MainFrame extends JFrame implements ActionListener {
-
 	private static final long serialVersionUID = 1L;
 	JMenuItem save, load;
-	
+	UserProfile user;
 
 	public MainFrame(UserProfile user) {
 		setTitle("BrokeLife");
@@ -80,12 +86,32 @@ public class MainFrame extends JFrame implements ActionListener {
 		
 		file.add(save);
 		
+		setVisible(true);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == save) {
+			try {
+			String filename = user.getName() + ".bl";
+			File profile = new File(new File(".").getCanonicalPath() + "/Profiles/" + filename);
 			
+			//deleting existing file to prevent duplicate files of the same name
+			if(profile.canRead()) {
+				profile.delete();
+			}
+			
+			FileOutputStream file = new FileOutputStream(profile);
+			ObjectOutputStream out = new ObjectOutputStream(file);
+			
+			out.writeObject(user);
+			file.close();
+			out.close();
+			
+			JOptionPane.showMessageDialog(null, "Profile has been saved." );
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(null, "Error has occured, profile has not been saved" );
+			}
 		} else if(e.getSource() == load) {
 			
 		}
