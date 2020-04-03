@@ -8,7 +8,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -29,6 +33,8 @@ import javax.swing.border.EmptyBorder;
 @SuppressWarnings("serial")
 public class BudgetPanel extends JPanel {
 	
+	public String[][] data = {};
+	
 	public BudgetPanel(UserProfile user) {
 		setLayout(new BorderLayout(0, 0));
 		
@@ -46,9 +52,7 @@ public class BudgetPanel extends JPanel {
 		expensesPanel.add(expensesText, BorderLayout.NORTH);
 		
 		String[] columnNames = {"Item", "Cost", "Day", "Repeating", "Category"};
-		
-		String[][] data = {{"Toast", "$5.99", "15", "No", "Food"}, {"Tea", "$1.99", "15", "No", "Food"}};
-		
+				
 		JTable expensesTable = new JTable(data, columnNames);
 		
 		JScrollPane scrollPane = new JScrollPane(expensesTable);
@@ -134,7 +138,56 @@ public class BudgetPanel extends JPanel {
 		rightPanel.add(reviewPanel, BorderLayout.SOUTH);
 		rightPanel.setSize(300, 300);
 		
+		// Event Panel
+		
+		JPanel eventPanel = new JPanel();
+		JLabel events = new JLabel("EVENTS");
+		eventPanel.add(events);
+		
+		JTextField name = new JTextField();
+		name.setPreferredSize(new Dimension(100,20));
+		JTextField cost = new JTextField();
+		cost.setPreferredSize(new Dimension(100,20));
+		JTextField day = new JTextField();
+		day.setPreferredSize(new Dimension(100,20));
+		JTextField repeating = new JTextField();
+		repeating.setPreferredSize(new Dimension(100,20));
+		JTextField category = new JTextField();
+		category.setPreferredSize(new Dimension(100,20));
+		
+		JLabel nameText = new JLabel("Name");
+		JLabel costText = new JLabel("Cost");
+		JLabel dayText = new JLabel("Day");
+		JLabel repeatingText = new JLabel("Repeating");
+		JLabel categoryText = new JLabel("Category");
+		
+		eventPanel.add(nameText);
+		eventPanel.add(name);
+		eventPanel.add(costText);
+		eventPanel.add(cost);
+		eventPanel.add(dayText);
+		eventPanel.add(day);
+		eventPanel.add(repeatingText);
+		eventPanel.add(repeating);
+		eventPanel.add(categoryText);
+		eventPanel.add(category);
+		
+		JButton add = new JButton("Add Event");
+		eventPanel.add(add);
+		
+		add(eventPanel, BorderLayout.SOUTH);
 		add(expensesPanel, BorderLayout.CENTER);
 		add(rightPanel, BorderLayout.EAST);
+	}
+	
+	public class ActionHandler implements ActionListener {
+		
+		public void actionPerformed(ActionEvent e) {
+			if(e.getSource() == "add") {
+				// add the stuff
+				String[] newEventList = {"Meat", "Fridge", "Toast", "500", "No"};
+				data[0] = newEventList;
+			}
+		}
 	}
 }
