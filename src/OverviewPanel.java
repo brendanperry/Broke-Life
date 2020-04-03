@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class OverviewPanel extends JPanel {
 	
-	public OverviewPanel() {
+	public OverviewPanel(UserProfile user) {
 		JLabel overviewText = new JLabel("Overview");
 		add(overviewText);
 	}

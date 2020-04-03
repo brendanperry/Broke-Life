@@ -4,6 +4,9 @@ import javax.swing.JFrame;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -15,17 +18,19 @@ import javax.swing.JMenuItem;
  * @author brendanperry
  *
  */
-public class MainFrame extends JFrame {
+public class MainFrame extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
+	JMenuItem save, load;
+	
 
-	public MainFrame() {
+	public MainFrame(UserProfile user) {
+		setTitle("BrokeLife");
 		setSize(1000, 700);
 		JMenuBar menuBar = new JMenuBar();
-		JMenuItem file = new JMenuItem("File");
-		menuBar.add(file);
 		setJMenuBar(menuBar);
 		getContentPane().setLayout(new BorderLayout(0, 0));
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
 		// TOP PANEL
 		
@@ -51,13 +56,40 @@ public class MainFrame extends JFrame {
 		getContentPane().add(centerPanel, BorderLayout.CENTER);
 		
 		
-		JPanel budgetPanel = new BudgetPanel();		
-		JPanel calendarPanel = new CalendarPanel();
-		JPanel overviewPanel = new OverviewPanel();
+		JPanel budgetPanel = new BudgetPanel(user);		
+		JPanel calendarPanel = new CalendarPanel(user);
+		JPanel overviewPanel = new OverviewPanel(user);
 		
 		centerPanel.addTab("Budget", budgetPanel);
 		centerPanel.addTab("Calendar", calendarPanel);
 		centerPanel.addTab("Overview", overviewPanel);
 		
+		// MENU BAR
+
+		JMenuItem file = new JMenuItem("File");
+		menuBar.add(file);
+		file.setMnemonic(KeyEvent.VK_F);
+		
+		JMenuItem save = new JMenuItem("Save Profile");
+		JMenuItem load = new JMenuItem("Load Profile");
+		
+		
+		
+		save.addActionListener(this);
+		load.addActionListener(this);
+		
+		file.add(save);
+		
 	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if(e.getSource() == save) {
+			
+		} else if(e.getSource() == load) {
+			
+		}
+		
+	}
+	
 }

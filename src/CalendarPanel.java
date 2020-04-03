@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class CalendarPanel extends JPanel {
 	
-	public CalendarPanel() {
+	public CalendarPanel(UserProfile user) {
 		JLabel calendarText = new JLabel("Calendar");
 		add(calendarText);
 	}
