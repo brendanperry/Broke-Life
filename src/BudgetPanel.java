@@ -8,7 +8,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,6 +18,13 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+
+/*
+ * This class contains the GUI for the Budget Panel and allows 
+ * users to enter in transactions and income.
+ * @author brendanperry
+ * 03/20/20
+ */
 
 @SuppressWarnings("serial")
 public class BudgetPanel extends JPanel {

@@ -15,7 +15,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
 /**
+ * This class is responsible for the display of the program.
+ * It contains the GUI JFrame that holds all other JPanels
  * @author brendanperry
+ * 03/20/20
  *
  */
 public class MainFrame extends JFrame implements ActionListener {
