@@ -1,8 +1,3 @@
-/*
- * Contains the GUI for the budget panel
- * 
- */
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -10,20 +5,17 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.NumberFormat;
 import java.util.ArrayList;
-
-import javax.swing.BorderFactory;
+import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
@@ -43,13 +35,15 @@ public class BudgetPanel extends JPanel {
 	JTextField name;
 	JTextField cost;
 	JTextField day;
-	JTextField repeating;
+	@SuppressWarnings("rawtypes")
+	JComboBox repeating;
 	JTextField category;
 	
 	JTextField nameModified;
 	JTextField costModified;
 	JTextField dayModified;
-	JTextField repeatingModified;
+	@SuppressWarnings("rawtypes")
+	JComboBox repeatingModified;
 	JTextField categoryModified;
 	
 	JPanel centerBottomPanel;
@@ -206,8 +200,8 @@ public class BudgetPanel extends JPanel {
 		cost.setPreferredSize(new Dimension(100,20));
 		day = new JTextField();
 		day.setPreferredSize(new Dimension(100,20));
-		repeating = new JTextField();
-		repeating.setPreferredSize(new Dimension(100,20));
+		String[] interactionsRepeating = {"None", "Weekly", "Biweekly", "Monthly", "Yearly"};
+		repeating = new JComboBox<String>(interactionsRepeating);
 		category = new JTextField();
 		category.setPreferredSize(new Dimension(100,20));
 		
@@ -236,8 +230,8 @@ public class BudgetPanel extends JPanel {
 		costModified.setPreferredSize(new Dimension(100,20));
 		dayModified = new JTextField();
 		dayModified.setPreferredSize(new Dimension(100,20));
-		repeatingModified = new JTextField();
-		repeatingModified.setPreferredSize(new Dimension(100,20));
+		String[] interactionsRepeatingModified = {"None", "Weekly", "Biweekly", "Monthly", "Yearly"};
+		repeatingModified = new JComboBox<String>(interactionsRepeatingModified);
 		categoryModified = new JTextField();
 		categoryModified.setPreferredSize(new Dimension(100,20));
 		
@@ -286,43 +280,49 @@ public class BudgetPanel extends JPanel {
 				
 				if(comboBox.getSelectedIndex() == 0) {
 					// add event
-					String[] newData = {name.getText(), cost.getText(), day.getText(), repeating.getText(), category.getText()};
-					data.add(newData);
-					model.addRow(newData);
+					String[] newData = {name.getText(), cost.getText(), day.getText(), repeating.getSelectedItem().toString(), category.getText()};
+					
+					String[] checkedData = checkDataValidity(newData);
+					
+					if(checkedData != null) {
+						data.add(checkedData);
+						model.addRow(checkedData);
+					}
 				}
 				else if(comboBox.getSelectedIndex() == 1) {
 					// modify event
+					if(model.getRowCount() == 0) {
+						return;
+					}
 					
+					String[] dataToRemove = {name.getText(), cost.getText(), day.getText(), repeating.getSelectedItem().toString(), category.getText()};
+					String[] dataToAdd = {nameModified.getText(), costModified.getText(), dayModified.getText(), repeatingModified.getSelectedItem().toString(), categoryModified.getText()};
+					
+					String[] checkedData = checkDataValidity(dataToAdd);
+					String[] removeCheckedData = checkDataValidity(dataToRemove);
+					int row = removeData(data, removeCheckedData);
+					
+					if(checkedData != null && row != -1) {
+						data.add(checkedData);
+						model.addRow(checkedData);
+						
+						data.remove(row);
+						model.removeRow(row);
+					}
 				}
 				else {
 					// delete event
-					String[] dataToRemove = {name.getText(), cost.getText(), day.getText(), repeating.getText(), category.getText()};
-
-					int row = -1;
-					for(int i = 0; i < data.size(); i++) {
-						int count = 0;
-						for(int j = 0; j < 5; j++) {
-							if(!data.get(i)[j].equals(dataToRemove[j])) {
-								break;
-							}
-							else {
-								count++;
-							}
-						}
-						
-						if(count == 5) {
-							row = i;
-							break;
-						}
+					if(model.getRowCount() == 0) {
+						return;
 					}
 					
-					System.out.println(row);
+					String[] dataToRemove = {name.getText(), cost.getText(), day.getText(), repeating.getSelectedItem().toString(), category.getText()};
 					
-					if(row == -1) {
-						System.out.println("Not found");
-						// Add a pop up
-					}
-					else {
+					String[] removeCheckedData = checkDataValidity(dataToRemove);
+					int row = removeData(data, removeCheckedData);
+					
+					if(row != -1) {
+						data.remove(row);
 						model.removeRow(row);
 					}
 				}
@@ -348,6 +348,85 @@ public class BudgetPanel extends JPanel {
 					modifiedText.setVisible(false);
 				}
 			}
+		}
+		
+		/*
+		 * This method removes data from the users events and is reflected in the table.
+		 * @author brendanperry
+		 * @params String[] data is an array of all the event data
+		 * @return int of row number to remove, -1 if not found
+		 */
+		private int removeData(ArrayList<String[]> data, String[] dataToRemove) {
+			int row = -1;
+			for(int i = 0; i < data.size(); i++) {
+				int count = 0;
+				for(int j = 0; j < 5; j++) {
+					if(!data.get(i)[j].equals(dataToRemove[j])) {
+						break;
+					}
+					else {
+						count++;
+					}
+				}
+				
+				if(count == 5) {
+					row = i;
+					break;
+				}
+			}
+								
+			if(row == -1) {
+				System.out.println("Not found");
+				// Add a pop up
+			}
+			
+			return row;
+		}
+		
+		/*
+		 * This method checks the data to see if its valid and properly formats it for the table
+		 * @author brendanperry
+		 * @params String[] data is an array of all the event data
+		 * @return returns the newly formatted string array
+		 */
+		private String[] checkDataValidity(String[] data) {
+			String[] returnData = data;
+			
+			for(int i = 0; i < 5; i++) {
+				if(data[i].isEmpty()) {
+					System.out.println("Missing Data");
+					return null;
+				}
+			}
+						
+			double cost = -1;
+			try {
+				cost = Double.parseDouble(data[1]);
+				
+				NumberFormat us = NumberFormat.getCurrencyInstance(Locale.US);
+				returnData[1] = us.format(cost);
+			}
+			catch (Exception ex) {
+				// pop up here
+				System.out.println("Invalid Cost");
+				return null;
+			}
+			
+			int day = -1;
+			
+			try {
+				day = Integer.parseInt(data[2]);
+				if(day < 0 || day > 31) {
+					System.out.println("Invalid Day");
+					return null;
+				}
+			}
+			catch (Exception exc) {
+				System.out.println("Invalid Day");
+				return null;
+			}
+			
+			return returnData;
 		}
 	}
 }
