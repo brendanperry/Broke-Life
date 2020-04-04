@@ -18,7 +18,7 @@ import javax.swing.border.LineBorder;
 import java.awt.Color;
 
 @SuppressWarnings("serial")
-public class CalendarPanel extends JFrame {
+public class CalendarPanel extends JPanel {
 	static JLabel lblCurrentMonth;
 	static JLabel lblCalendarMonth;
 	static JButton btnNextMonth;
@@ -39,7 +39,7 @@ public class CalendarPanel extends JFrame {
 	static String[] days = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
 	
-	public CalendarPanel() {
+	public CalendarPanel(UserProfile user) {
 		getContentPane().setLayout(null);
 		setSize(470,375);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
