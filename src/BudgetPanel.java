@@ -5,6 +5,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -16,7 +18,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 
 /*
@@ -31,6 +36,24 @@ public class BudgetPanel extends JPanel {
 		
 	DefaultTableModel model;
 	ArrayList<String[]> data;
+	
+	JTextField totalIncome;
+	JTextField totalBudgeted;
+	JTextField leftToBudget;
+	
+	JTextField payOne;
+	JTextField payTwo;
+	JTextField payThree;
+	JTextField payFour;
+	JTextField payFive;
+	JTextField tips;
+	
+	double oldPayOne = 0.0;
+	double oldPayTwo = 0.0;
+	double oldPayThree = 0.0;
+	double oldPayFour = 0.0;
+	double oldTips = 0.0;
+	double sum = 0.0;
 	
 	JTextField name;
 	JTextField cost;
@@ -58,6 +81,8 @@ public class BudgetPanel extends JPanel {
 	public BudgetPanel(UserProfile user) {
 		setLayout(new BorderLayout(0, 0));
 		data = new ArrayList<String[]>();
+		
+		ActionHandler actionHandler = new ActionHandler();
 		
 		// EXPENSES PANEL
 		
@@ -116,10 +141,24 @@ public class BudgetPanel extends JPanel {
 		incomePanel.add(payText);
 		payText.setForeground(Color.WHITE);
 		
-		JTextField payOne = new JTextField();
-		JTextField payTwo = new JTextField();
-		JTextField payThree = new JTextField();
-		JTextField payFour = new JTextField();
+		FocusHandler focusHandler = new FocusHandler();
+		
+		payOne = new JTextField();
+		payOne.addActionListener(actionHandler);
+		payOne.addFocusListener(focusHandler);
+		
+		payTwo = new JTextField();
+		payTwo.addActionListener(actionHandler);
+		payTwo.addFocusListener(focusHandler);
+		
+		payThree = new JTextField();
+		payThree.addActionListener(actionHandler);
+		payThree.addFocusListener(focusHandler);
+		
+		payFour = new JTextField();
+		payFour.addActionListener(actionHandler);
+		payFour.addFocusListener(focusHandler);
+		
 		
 		incomePanel.add(payOne);
 		incomePanel.add(payTwo);
@@ -130,7 +169,9 @@ public class BudgetPanel extends JPanel {
 		tipsText.setForeground(Color.WHITE);
 		incomePanel.add(tipsText);
 		
-		JTextField tips = new JTextField();
+		tips = new JTextField();
+		tips.addActionListener(actionHandler);
+		tips.addFocusListener(focusHandler);
 		
 		incomePanel.add(tips);
 		
@@ -148,17 +189,17 @@ public class BudgetPanel extends JPanel {
 		
 		JLabel totalIncomeText = new JLabel("Total Income");
 		totalIncomeText.setForeground(Color.WHITE);
-		JTextField totalIncome = new JTextField("$500.00");
+		totalIncome = new JTextField("$0.00");
 		totalIncome.setEditable(false);
 		
 		JLabel totalBudgetedText = new JLabel("Total Budgeted");
 		totalBudgetedText.setForeground(Color.WHITE);
-		JTextField totalBudgeted = new JTextField("$400.00");
+		totalBudgeted = new JTextField("$0.00");
 		totalBudgeted.setEditable(false);
 		
 		JLabel leftToBudgetText = new JLabel("Left to Budget");
 		leftToBudgetText.setForeground(Color.WHITE);
-		JTextField leftToBudget = new JTextField("$100.00");
+		leftToBudget = new JTextField("$0.00");
 		leftToBudget.setEditable(false);
 		
 		reviewPanel.add(reviewText);
@@ -185,7 +226,6 @@ public class BudgetPanel extends JPanel {
 		
 		String[] interactions = {"Add Event", "Modify Event", "Delete Event"};
 		comboBox = new JComboBox<String>(interactions);
-		ActionHandler actionHandler = new ActionHandler();
 		comboBox.addActionListener(actionHandler);
 		eventPanel.add(comboBox, BorderLayout.NORTH);
 		
@@ -273,6 +313,116 @@ public class BudgetPanel extends JPanel {
 		add(rightPanel, BorderLayout.EAST);
 	}
 	
+	public class FocusHandler implements FocusListener {
+
+		@Override
+		public void focusGained(FocusEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void focusLost(FocusEvent e) {
+			// TODO Auto-generated method stub
+			
+			if(e.getSource() == payOne) {				
+				updateStats(payOne, 1);
+			}
+			else if(e.getSource() == payTwo) {
+				updateStats(payTwo, 2);
+			}
+			else if(e.getSource() == payThree) {
+				updateStats(payThree, 3);
+			}
+			else if(e.getSource() == payFour) {
+				updateStats(payFour, 4);
+			}
+			else if(e.getSource() == tips) {
+				updateStats(tips, 5);
+			}
+		}
+		
+		public void updateStats(JTextField textField, int num) {
+			
+			String text = textField.getText();
+			Double temp = 0.00;
+			
+			NumberFormat us = NumberFormat.getCurrencyInstance(Locale.US);
+			
+			try {
+				if(!text.isEmpty()) {
+					if(text.toCharArray()[0] == '$') {
+						temp = Double.parseDouble(text.substring(1, text.length()));
+					}
+					else {
+						temp = Double.parseDouble(text);
+					}
+						
+					textField.setText(us.format(temp));
+				}
+			
+				if(num == 1) {
+					sum -= oldPayOne;
+					sum += temp;
+					oldPayOne = temp;
+				}
+				else if(num == 2) {
+					sum -= oldPayTwo;
+					sum += temp;
+					oldPayTwo = temp;
+				}
+				else if(num == 3) {
+					sum -= oldPayThree;
+					sum += temp;
+					oldPayThree = temp;
+				}
+				else if(num == 4) {
+					sum -= oldPayFour;
+					sum += temp;
+					oldPayFour = temp;
+				}
+				else if(num == 5) {
+					sum -= oldTips;
+					sum += temp;
+					oldTips = temp;
+				}
+				
+				totalIncome.setText(us.format(sum));
+				leftToBudget.setText(us.format(sum - Double.parseDouble(totalBudgeted.getText().substring(1, 4))));
+			}
+			catch (Exception e) {
+				totalIncome.setText("NaN");
+				leftToBudget.setText("NaN");
+				
+				if(num == 1) {
+					sum -= oldPayOne;
+					sum += temp;
+					oldPayOne = temp;
+				}
+				else if(num == 2) {
+					sum -= oldPayTwo;
+					sum += temp;
+					oldPayTwo = temp;
+				}
+				else if(num == 3) {
+					sum -= oldPayThree;
+					sum += temp;
+					oldPayThree = temp;
+				}
+				else if(num == 4) {
+					sum -= oldPayFour;
+					sum += temp;
+					oldPayFour = temp;
+				}
+				else if(num == 5) {
+					sum -= oldTips;
+					sum += temp;
+					oldTips = temp;
+				}
+			}
+		}
+	}
+	
 	public class ActionHandler implements ActionListener {
 		
 		public void actionPerformed(ActionEvent e) {
@@ -347,6 +497,24 @@ public class BudgetPanel extends JPanel {
 					centerBottomPanel.setVisible(false);
 					modifiedText.setVisible(false);
 				}
+			}
+			
+			FocusHandler focusHandler = new FocusHandler();
+			
+			if(e.getSource() == payOne) {				
+				focusHandler.updateStats(payOne, 1);
+			}
+			else if(e.getSource() == payTwo) {
+				focusHandler.updateStats(payTwo, 2);
+			}
+			else if(e.getSource() == payThree) {
+				focusHandler.updateStats(payThree, 3);
+			}
+			else if(e.getSource() == payFour) {
+				focusHandler.updateStats(payFour, 4);
+			}
+			else if(e.getSource() == tips) {
+				focusHandler.updateStats(tips, 5);
 			}
 		}
 		
