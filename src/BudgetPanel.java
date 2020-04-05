@@ -435,6 +435,13 @@ public class BudgetPanel extends JPanel {
 					String[] checkedData = checkDataValidity(newData);
 					
 					if(checkedData != null) {
+					
+						NumberFormat us = NumberFormat.getCurrencyInstance(Locale.US);
+						
+						double num = currencyToDouble(checkedData[1]);
+						
+						totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + num));
+						
 						data.add(checkedData);
 						model.addRow(checkedData);
 					}
@@ -450,14 +457,25 @@ public class BudgetPanel extends JPanel {
 					
 					String[] checkedData = checkDataValidity(dataToAdd);
 					String[] removeCheckedData = checkDataValidity(dataToRemove);
-					int row = removeData(data, removeCheckedData);
 					
-					if(checkedData != null && row != -1) {
-						data.add(checkedData);
-						model.addRow(checkedData);
+					if(checkedData != null) {
+						int row = removeData(data, removeCheckedData);
 						
-						data.remove(row);
-						model.removeRow(row);
+						if(row != -1) {
+							data.add(checkedData);
+							model.addRow(checkedData);
+							
+							data.remove(row);
+							model.removeRow(row);
+							
+							NumberFormat us = NumberFormat.getCurrencyInstance(Locale.US);
+							double num = currencyToDouble(removeCheckedData[1]);
+							totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) - num));
+						
+							double numToAdd = currencyToDouble(checkedData[1]);
+							totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + numToAdd));
+							
+						}
 					}
 				}
 				else {
@@ -469,11 +487,20 @@ public class BudgetPanel extends JPanel {
 					String[] dataToRemove = {name.getText(), cost.getText(), day.getText(), repeating.getSelectedItem().toString(), category.getText()};
 					
 					String[] removeCheckedData = checkDataValidity(dataToRemove);
-					int row = removeData(data, removeCheckedData);
 					
-					if(row != -1) {
-						data.remove(row);
-						model.removeRow(row);
+					if(removeCheckedData != null) {
+						int row = removeData(data, removeCheckedData);
+						
+						if(row != -1) {
+							data.remove(row);
+							model.removeRow(row);
+							
+							NumberFormat us = NumberFormat.getCurrencyInstance(Locale.US);
+							
+							double num = currencyToDouble(removeCheckedData[1]);
+							
+							totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) - num));
+						}
 					}
 				}
 			}
@@ -516,6 +543,11 @@ public class BudgetPanel extends JPanel {
 			else if(e.getSource() == tips) {
 				focusHandler.updateStats(tips, 5);
 			}
+		}
+		
+		public double currencyToDouble(String numberText) {
+			String noFormatting = numberText.replaceAll("[$,]", "");
+			return Double.parseDouble(noFormatting);
 		}
 		
 		/*
@@ -569,7 +601,7 @@ public class BudgetPanel extends JPanel {
 						
 			double cost = -1;
 			try {
-				cost = Double.parseDouble(data[1]);
+				cost = currencyToDouble(data[1]);
 				
 				NumberFormat us = NumberFormat.getCurrencyInstance(Locale.US);
 				returnData[1] = us.format(cost);
