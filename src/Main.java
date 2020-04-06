@@ -18,7 +18,9 @@ public class Main {
 		ArrayList<String> profiles = new ArrayList<String>();
 		File profileDir = new File(new File(".").getCanonicalPath() + "/Profiles/");
 		listFilesForFolder(profileDir, profiles);
-		InitialWindow start = new InitialWindow(profiles);  
+		//InitialWindow start = new InitialWindow(profiles);  
+		MainFrame mf = new MainFrame(null);
+		mf.setVisible(true);
     }
     
 	/**
