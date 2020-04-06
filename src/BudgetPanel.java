@@ -18,15 +18,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 
 /*
  * This class contains the GUI for the Budget Panel and allows 
- * users to enter in transactions and income.
+ * users to enter in transactions and income. From here, the user
+ * can add, modify, and delete events. The event data will be loaded
+ * from the user profile.
  * @author brendanperry
  * 03/20/20
  */
@@ -35,7 +34,9 @@ import javax.swing.table.DefaultTableModel;
 public class BudgetPanel extends JPanel {
 		
 	DefaultTableModel model;
+	JTable table;
 	ArrayList<String[]> data;
+	NumberFormat us;
 	
 	JTextField totalIncome;
 	JTextField totalBudgeted;
@@ -58,31 +59,24 @@ public class BudgetPanel extends JPanel {
 	JTextField name;
 	JTextField cost;
 	JTextField day;
+	JTextField percentage;
 	@SuppressWarnings("rawtypes")
 	JComboBox repeating;
 	JTextField category;
 	
-	JTextField nameModified;
-	JTextField costModified;
-	JTextField dayModified;
-	@SuppressWarnings("rawtypes")
-	JComboBox repeatingModified;
-	JTextField categoryModified;
-	
-	JPanel centerBottomPanel;
-	JLabel modifiedText;
-	JPanel bottomPanel;
-	
 	JButton submitChanges;
-	JPanel centerAddPanel;
 	
-	JComboBox<String> comboBox;
+	JComboBox<String> eventComboBox;
 	
 	public BudgetPanel(UserProfile user) {
 		setLayout(new BorderLayout(0, 0));
-		data = new ArrayList<String[]>();
 		
+		data = new ArrayList<String[]>();
+		us = NumberFormat.getCurrencyInstance(Locale.US);
+		
+		// These are the two classes that handle user input 
 		ActionHandler actionHandler = new ActionHandler();
+		FocusHandler focusHandler = new FocusHandler();
 		
 		// EXPENSES PANEL
 		
@@ -99,22 +93,21 @@ public class BudgetPanel extends JPanel {
 						
 		// Disables the users ability to edit individual cells
 		model = new DefaultTableModel() {
-			
 			@Override
 			public boolean isCellEditable(int row, int column) {
 				return false;
 			}
-		};
+		};	
 		
-		
-		
-		JTable table = new JTable(model);
+		table = new JTable(model);
 		model.addColumn("Item");
 		model.addColumn("Cost");
+		model.addColumn("Percentage");
 		model.addColumn("Day");
 		model.addColumn("Repeating");
 		model.addColumn("Category");
 		
+		// The table is in a scroll pane so more events than can fit in the pane can be added
 		JScrollPane scrollPane = new JScrollPane(table);
 		
 		expensesPanel.add(scrollPane, BorderLayout.CENTER);
@@ -141,8 +134,6 @@ public class BudgetPanel extends JPanel {
 		incomePanel.add(payText);
 		payText.setForeground(Color.WHITE);
 		
-		FocusHandler focusHandler = new FocusHandler();
-		
 		payOne = new JTextField();
 		payOne.addActionListener(actionHandler);
 		payOne.addFocusListener(focusHandler);
@@ -158,7 +149,6 @@ public class BudgetPanel extends JPanel {
 		payFour = new JTextField();
 		payFour.addActionListener(actionHandler);
 		payFour.addFocusListener(focusHandler);
-		
 		
 		incomePanel.add(payOne);
 		incomePanel.add(payTwo);
@@ -214,30 +204,24 @@ public class BudgetPanel extends JPanel {
 		rightPanel.add(reviewPanel, BorderLayout.SOUTH);
 		rightPanel.setSize(300, 300);
 		
-		// Event Panel
-		
-		bottomPanel = new JPanel();
-		bottomPanel.setLayout(new BorderLayout());
-		
-		// ADD EVENT TAB
+		// EVENT PANEL
 		
 		JPanel eventPanel = new JPanel();
 		eventPanel.setLayout(new BorderLayout());
 		
 		String[] interactions = {"Add Event", "Modify Event", "Delete Event"};
-		comboBox = new JComboBox<String>(interactions);
-		comboBox.addActionListener(actionHandler);
-		eventPanel.add(comboBox, BorderLayout.NORTH);
+		eventComboBox = new JComboBox<String>(interactions);
+		eventComboBox.addActionListener(actionHandler);
+		eventPanel.add(eventComboBox, BorderLayout.NORTH);
 		
-		centerAddPanel = new JPanel();
-		centerAddPanel.setLayout(new BorderLayout());
-		JPanel centerTopPanel = new JPanel();
-		centerBottomPanel = new JPanel();
+		JPanel centerEventPanel = new JPanel();
 		
 		name = new JTextField();
 		name.setPreferredSize(new Dimension(100,20));
 		cost = new JTextField();
 		cost.setPreferredSize(new Dimension(100,20));
+		percentage = new JTextField("0");
+		percentage.setPreferredSize(new Dimension(100,20));
 		day = new JTextField();
 		day.setPreferredSize(new Dimension(100,20));
 		String[] interactionsRepeating = {"None", "Weekly", "Biweekly", "Monthly", "Yearly"};
@@ -247,80 +231,50 @@ public class BudgetPanel extends JPanel {
 		
 		JLabel nameText = new JLabel("Name");
 		JLabel costText = new JLabel("Cost");
+		JLabel percentageText = new JLabel("Percentage");
 		JLabel dayText = new JLabel("Day");
 		JLabel repeatingText = new JLabel("Repeating");
 		JLabel categoryText = new JLabel("Category");
 		
-		centerTopPanel.add(nameText);
-		centerTopPanel.add(name);
-		centerTopPanel.add(costText);
-		centerTopPanel.add(cost);
-		centerTopPanel.add(dayText);
-		centerTopPanel.add(day);
-		centerTopPanel.add(repeatingText);
-		centerTopPanel.add(repeating);
-		centerTopPanel.add(categoryText);
-		centerTopPanel.add(category);
-		
-		// Only needed if modify event is selected
+		centerEventPanel.add(nameText);
+		centerEventPanel.add(name);
+		centerEventPanel.add(costText);
+		centerEventPanel.add(cost);
+		centerEventPanel.add(percentageText);
+		centerEventPanel.add(percentage);
+		centerEventPanel.add(dayText);
+		centerEventPanel.add(day);
+		centerEventPanel.add(repeatingText);
+		centerEventPanel.add(repeating);
+		centerEventPanel.add(categoryText);
+		centerEventPanel.add(category);
 				
-		nameModified = new JTextField();
-		nameModified.setPreferredSize(new Dimension(100,20));
-		costModified = new JTextField();
-		costModified.setPreferredSize(new Dimension(100,20));
-		dayModified = new JTextField();
-		dayModified.setPreferredSize(new Dimension(100,20));
-		String[] interactionsRepeatingModified = {"None", "Weekly", "Biweekly", "Monthly", "Yearly"};
-		repeatingModified = new JComboBox<String>(interactionsRepeatingModified);
-		categoryModified = new JTextField();
-		categoryModified.setPreferredSize(new Dimension(100,20));
-		
-		modifiedText = new JLabel("Updated Information");
-		JLabel nameTextModified = new JLabel("Name");
-		JLabel costTextModified = new JLabel("Cost");
-		JLabel dayTextModified = new JLabel("Day");
-		JLabel repeatingTextModified = new JLabel("Repeating");
-		JLabel categoryTextModified = new JLabel("Category");
-		
-		centerBottomPanel.add(nameTextModified);
-		centerBottomPanel.add(nameModified);
-		centerBottomPanel.add(costTextModified);
-		centerBottomPanel.add(costModified);
-		centerBottomPanel.add(dayTextModified);
-		centerBottomPanel.add(dayModified);
-		centerBottomPanel.add(repeatingTextModified);
-		centerBottomPanel.add(repeatingModified);
-		centerBottomPanel.add(categoryTextModified);
-		centerBottomPanel.add(categoryModified);
-		
-		centerAddPanel.add(centerTopPanel, BorderLayout.NORTH);
-		centerAddPanel.add(modifiedText, BorderLayout.CENTER);
-		centerAddPanel.add(centerBottomPanel, BorderLayout.SOUTH);
-		
-		centerBottomPanel.setVisible(false);
-		modifiedText.setVisible(false);
-		
-		eventPanel.add(centerAddPanel, BorderLayout.CENTER);
+		eventPanel.add(centerEventPanel, BorderLayout.CENTER);
 		
 		submitChanges = new JButton("Add");
 		submitChanges.addActionListener(actionHandler);
 		eventPanel.add(submitChanges, BorderLayout.SOUTH);
 		
-		bottomPanel.add(eventPanel, BorderLayout.CENTER);
-		
-		add(bottomPanel, BorderLayout.SOUTH);
 		add(expensesPanel, BorderLayout.CENTER);
 		add(rightPanel, BorderLayout.EAST);
+		add(eventPanel, BorderLayout.SOUTH);
 	}
 	
+	/*
+	 * The FocusHandler is used to see when the user has entered in text into the
+	 * income section of the GUI. This is used to format the text when they are done
+	 * and update other values.
+	 * @author brendanperry
+	 */
 	public class FocusHandler implements FocusListener {
-
-		@Override
-		public void focusGained(FocusEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
+		
+		/*
+		 * focusLost fires when the user clicks out of one of the text boxes on the 
+		 * income panel
+		 * @params e is the focus event that can be used to see which text box called
+		 * the function
+		 * @author brendanperry
+		 */
 		@Override
 		public void focusLost(FocusEvent e) {
 			// TODO Auto-generated method stub
@@ -342,13 +296,17 @@ public class BudgetPanel extends JPanel {
 			}
 		}
 		
+		/*
+		 * updateStats is used to update the the total income and left to budget text fields.
+		 * It is called when the user adds new pay information.
+		 * @params textField is the text field that the data should be updated from, num is the 
+		 * paycheck number (1 - 5) with 5 being tips.
+		 * @author brendanperry
+		 */
 		public void updateStats(JTextField textField, int num) {
-			
 			String text = textField.getText();
 			Double temp = 0.00;
-			
-			NumberFormat us = NumberFormat.getCurrencyInstance(Locale.US);
-			
+					
 			try {
 				if(!text.isEmpty()) {
 					if(text.toCharArray()[0] == '$') {
@@ -388,7 +346,18 @@ public class BudgetPanel extends JPanel {
 				}
 				
 				totalIncome.setText(us.format(sum));
-				leftToBudget.setText(us.format(sum - Double.parseDouble(totalBudgeted.getText().substring(1, 4))));
+
+				ActionHandler actionHandler = new ActionHandler();
+				
+				actionHandler.updatePercentages();
+				
+				double left = sum - actionHandler.currencyToDouble(totalBudgeted.getText());
+				if(left < 0) {
+					leftToBudget.setText("$0.00");
+				}
+				else {
+					leftToBudget.setText(us.format(sum - actionHandler.currencyToDouble(totalBudgeted.getText())));
+				}			
 			}
 			catch (Exception e) {
 				totalIncome.setText("NaN");
@@ -421,108 +390,113 @@ public class BudgetPanel extends JPanel {
 				}
 			}
 		}
+		
+		/*
+		 * focusGained is not used but required by Java
+		 */
+		@Override
+		public void focusGained(FocusEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
+	/*
+	 * ActionHandler is responsible for the Add, Modify, and Delete event button.
+	 * From here, the data will be updated based on the value of the button at the time.
+	 * It is also used for the combo boxes for swapping between add, modify, and delete and for
+	 * changing the repeating frequency.
+	 * @author brendanperry
+	 */
 	public class ActionHandler implements ActionListener {
 		
+		/*
+		 * actionPerformed is called when the button or a combo box is clicked.
+		 * @params e provides action event data that can be used to see what called the function.
+		 * @author brendanperry
+		 */
 		public void actionPerformed(ActionEvent e) {
 			if(e.getSource() == submitChanges) {
 				
-				if(comboBox.getSelectedIndex() == 0) {
+				if(eventComboBox.getSelectedIndex() == 0) {
 					// add event
-					String[] newData = {name.getText(), cost.getText(), day.getText(), repeating.getSelectedItem().toString(), category.getText()};
-					
+					String[] newData = {name.getText(), cost.getText(), percentage.getText(), day.getText(), repeating.getSelectedItem().toString(), category.getText()};
 					String[] checkedData = checkDataValidity(newData);
 					
-					if(checkedData != null) {
-					
-						NumberFormat us = NumberFormat.getCurrencyInstance(Locale.US);
-						
+					if(checkedData != null) {						
 						double num = currencyToDouble(checkedData[1]);
-						
 						totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + num));
+						double left = sum - currencyToDouble(totalBudgeted.getText());
+						
+						if(left < 0) {
+							leftToBudget.setText("$0.00");
+						}
+						else {
+							leftToBudget.setText(us.format(sum - currencyToDouble(totalBudgeted.getText())));
+						}
 						
 						data.add(checkedData);
 						model.addRow(checkedData);
 					}
 				}
-				else if(comboBox.getSelectedIndex() == 1) {
+				else if(eventComboBox.getSelectedIndex() == 1) {
 					// modify event
 					if(model.getRowCount() == 0) {
 						return;
 					}
 					
-					String[] dataToRemove = {name.getText(), cost.getText(), day.getText(), repeating.getSelectedItem().toString(), category.getText()};
-					String[] dataToAdd = {nameModified.getText(), costModified.getText(), dayModified.getText(), repeatingModified.getSelectedItem().toString(), categoryModified.getText()};
-					
-					String[] checkedData = checkDataValidity(dataToAdd);
-					String[] removeCheckedData = checkDataValidity(dataToRemove);
+					String[] dataToRemove = {name.getText(), cost.getText(), percentage.getText(), day.getText(), repeating.getSelectedItem().toString(), category.getText()};
+					String[] checkedData = checkDataValidity(dataToRemove);
 					
 					if(checkedData != null) {
-						int row = removeData(data, removeCheckedData);
+						int row = table.getSelectedRow();
 						
 						if(row != -1) {
-							data.add(checkedData);
-							model.addRow(checkedData);
+							double oldCost = currencyToDouble(data.get(row)[1]);
 							
-							data.remove(row);
-							model.removeRow(row);
+							for(int i = 0; i < 6; i++) {
+								data.get(row)[i] = checkedData[i];
+								model.setValueAt(checkedData[i], row, i);
+							}
 							
-							NumberFormat us = NumberFormat.getCurrencyInstance(Locale.US);
-							double num = currencyToDouble(removeCheckedData[1]);
-							totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) - num));
-						
+							totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) - oldCost));
 							double numToAdd = currencyToDouble(checkedData[1]);
 							totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + numToAdd));
+							double left = sum - currencyToDouble(totalBudgeted.getText());
 							
+							if(left < 0) {
+								leftToBudget.setText("$0.00");
+							}
+							else {
+								leftToBudget.setText(us.format(sum - currencyToDouble(totalBudgeted.getText())));
+							}
 						}
 					}
 				}
 				else {
 					// delete event
-					if(model.getRowCount() == 0) {
-						return;
-					}
+					int row = table.getSelectedRow();
 					
-					String[] dataToRemove = {name.getText(), cost.getText(), day.getText(), repeating.getSelectedItem().toString(), category.getText()};
-					
-					String[] removeCheckedData = checkDataValidity(dataToRemove);
-					
-					if(removeCheckedData != null) {
-						int row = removeData(data, removeCheckedData);
-						
-						if(row != -1) {
-							data.remove(row);
-							model.removeRow(row);
-							
-							NumberFormat us = NumberFormat.getCurrencyInstance(Locale.US);
-							
-							double num = currencyToDouble(removeCheckedData[1]);
-							
-							totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) - num));
-						}
+					if(row != -1) {
+						data.remove(row);
+						model.removeRow(row);
 					}
 				}
 			}
 			
-			if(e.getSource() == comboBox) {
-				if(comboBox.getSelectedIndex() == 0) {
+			// changes the text on the button
+			if(e.getSource() == eventComboBox) {
+				if(eventComboBox.getSelectedIndex() == 0) {
 					// add event
-					submitChanges.setText("Add");
-					centerBottomPanel.setVisible(false);
-					modifiedText.setVisible(false);
+					submitChanges.setText("Add Row");
 				}
-				else if(comboBox.getSelectedIndex() == 1) {
+				else if(eventComboBox.getSelectedIndex() == 1) {
 					// modify event
-					submitChanges.setText("Modify");
-					centerBottomPanel.setVisible(true);
-					modifiedText.setVisible(true);
+					submitChanges.setText("Modify Selected Row");
 				}
 				else {
 					// delete event
-					submitChanges.setText("Delete");
-					centerBottomPanel.setVisible(false);
-					modifiedText.setVisible(false);
+					submitChanges.setText("Delete Selected Row");
 				}
 			}
 			
@@ -545,42 +519,29 @@ public class BudgetPanel extends JPanel {
 			}
 		}
 		
-		public double currencyToDouble(String numberText) {
-			String noFormatting = numberText.replaceAll("[$,]", "");
-			return Double.parseDouble(noFormatting);
+		/*
+		 * This function is used to update the cost of items that depend on a certain percentage
+		 * of the users income. It will be called whenever the total income has changed.
+		 * @author brendanperry
+		 */
+		public void updatePercentages() {
+			for(int i = 0; i < data.size(); i++) {
+				if(Integer.parseInt(data.get(i)[2]) > 0) {
+					data.get(i)[1] = us.format((currencyToDouble(data.get(i)[2]) / 100.0) * currencyToDouble(totalIncome.getText()));
+					model.setValueAt(data.get(i)[1], i, 1);
+				}
+			}
 		}
 		
 		/*
-		 * This method removes data from the users events and is reflected in the table.
+		 * This function is used to convert text that is formatted using NumberFormat to a double value.
+		 * @params numberText is the formatted text to be converted
+		 * @return returns a decimal value with no '$' or ','
 		 * @author brendanperry
-		 * @params String[] data is an array of all the event data
-		 * @return int of row number to remove, -1 if not found
 		 */
-		private int removeData(ArrayList<String[]> data, String[] dataToRemove) {
-			int row = -1;
-			for(int i = 0; i < data.size(); i++) {
-				int count = 0;
-				for(int j = 0; j < 5; j++) {
-					if(!data.get(i)[j].equals(dataToRemove[j])) {
-						break;
-					}
-					else {
-						count++;
-					}
-				}
-				
-				if(count == 5) {
-					row = i;
-					break;
-				}
-			}
-								
-			if(row == -1) {
-				System.out.println("Not found");
-				// Add a pop up
-			}
-			
-			return row;
+		public double currencyToDouble(String numberText) {
+			String noFormatting = numberText.replaceAll("[$,]", "");
+			return Double.parseDouble(noFormatting);
 		}
 		
 		/*
@@ -598,24 +559,42 @@ public class BudgetPanel extends JPanel {
 					return null;
 				}
 			}
-						
-			double cost = -1;
+			
 			try {
-				cost = currencyToDouble(data[1]);
-				
-				NumberFormat us = NumberFormat.getCurrencyInstance(Locale.US);
-				returnData[1] = us.format(cost);
+				int percent = Integer.parseInt(data[2]);
+				if(percent < 0 || percent > 100) {
+					System.out.println("Invalid Percentage");
+					return null;
+				}
+				else {
+					double cost = -1;
+					
+					if(percent > 0) {
+						cost = (percent / 100.0) * currencyToDouble(totalIncome.getText());
+						returnData[1] = us.format(cost);
+					}
+					else {
+						try {
+							cost = currencyToDouble(data[1]);
+							returnData[1] = us.format(cost);
+						}
+						catch (Exception ex) {
+							// pop up here
+							System.out.println("Invalid Cost");
+							return null;
+						}
+					}
+				}
 			}
-			catch (Exception ex) {
-				// pop up here
-				System.out.println("Invalid Cost");
+			catch(Exception per) {
+				System.out.println("Invalid Percentage");
 				return null;
 			}
 			
 			int day = -1;
 			
 			try {
-				day = Integer.parseInt(data[2]);
+				day = Integer.parseInt(data[3]);
 				if(day < 0 || day > 31) {
 					System.out.println("Invalid Day");
 					return null;
