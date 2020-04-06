@@ -13,6 +13,7 @@ import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -218,15 +219,15 @@ public class BudgetPanel extends JPanel {
 		
 		name = new JTextField();
 		name.setPreferredSize(new Dimension(100,20));
-		cost = new JTextField();
+		cost = new JTextField("0");
 		cost.setPreferredSize(new Dimension(100,20));
 		percentage = new JTextField("0");
 		percentage.setPreferredSize(new Dimension(100,20));
-		day = new JTextField();
+		day = new JTextField("1");
 		day.setPreferredSize(new Dimension(100,20));
 		String[] interactionsRepeating = {"None", "Weekly", "Biweekly", "Monthly", "Yearly"};
 		repeating = new JComboBox<String>(interactionsRepeating);
-		category = new JTextField();
+		category = new JTextField("default");
 		category.setPreferredSize(new Dimension(100,20));
 		
 		JLabel nameText = new JLabel("Name");
@@ -315,7 +316,11 @@ public class BudgetPanel extends JPanel {
 					else {
 						temp = Double.parseDouble(text);
 					}
-						
+					
+					if(temp < 0) {
+						temp = 0.0;
+					}
+					
 					textField.setText(us.format(temp));
 				}
 			
@@ -348,7 +353,6 @@ public class BudgetPanel extends JPanel {
 				totalIncome.setText(us.format(sum));
 
 				ActionHandler actionHandler = new ActionHandler();
-				
 				actionHandler.updatePercentages();
 				
 				double left = sum - actionHandler.currencyToDouble(totalBudgeted.getText());
@@ -437,6 +441,13 @@ public class BudgetPanel extends JPanel {
 						
 						data.add(checkedData);
 						model.addRow(checkedData);
+						
+						name.setText("");
+						cost.setText("0");
+						percentage.setText("0");
+						day.setText("1");
+						repeating.setSelectedIndex(0);
+						category.setText("default");
 					}
 				}
 				else if(eventComboBox.getSelectedIndex() == 1) {
@@ -470,6 +481,13 @@ public class BudgetPanel extends JPanel {
 							else {
 								leftToBudget.setText(us.format(sum - currencyToDouble(totalBudgeted.getText())));
 							}
+							
+							name.setText("");
+							cost.setText("0");
+							percentage.setText("0");
+							day.setText("1");
+							repeating.setSelectedIndex(0);
+							category.setText("default");
 						}
 					}
 				}
@@ -478,6 +496,9 @@ public class BudgetPanel extends JPanel {
 					int row = table.getSelectedRow();
 					
 					if(row != -1) {
+						totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) - currencyToDouble(data.get(row)[1])));
+						leftToBudget.setText(us.format(currencyToDouble(totalIncome.getText()) - currencyToDouble(totalBudgeted.getText())));
+						
 						data.remove(row);
 						model.removeRow(row);
 					}
@@ -527,7 +548,12 @@ public class BudgetPanel extends JPanel {
 		public void updatePercentages() {
 			for(int i = 0; i < data.size(); i++) {
 				if(Integer.parseInt(data.get(i)[2]) > 0) {
-					data.get(i)[1] = us.format((currencyToDouble(data.get(i)[2]) / 100.0) * currencyToDouble(totalIncome.getText()));
+					double oldValue = currencyToDouble(data.get(i)[1]);
+					double newValue = currencyToDouble(data.get(i)[2]) / 100.0 * currencyToDouble(totalIncome.getText());
+					
+					totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) - oldValue));
+					totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + newValue));
+					data.get(i)[1] = us.format(newValue);
 					model.setValueAt(data.get(i)[1], i, 1);
 				}
 			}
@@ -555,7 +581,7 @@ public class BudgetPanel extends JPanel {
 			
 			for(int i = 0; i < 5; i++) {
 				if(data[i].isEmpty()) {
-					System.out.println("Missing Data");
+					JOptionPane.showMessageDialog(null, "Missing Data");
 					return null;
 				}
 			}
@@ -563,7 +589,7 @@ public class BudgetPanel extends JPanel {
 			try {
 				int percent = Integer.parseInt(data[2]);
 				if(percent < 0 || percent > 100) {
-					System.out.println("Invalid Percentage");
+					JOptionPane.showMessageDialog(null, "Invalid Percentage");
 					return null;
 				}
 				else {
@@ -576,18 +602,23 @@ public class BudgetPanel extends JPanel {
 					else {
 						try {
 							cost = currencyToDouble(data[1]);
+							
+							if(cost < 0) {
+								JOptionPane.showMessageDialog(null, "Invalid Cost");
+								return null;
+							}
+							
 							returnData[1] = us.format(cost);
 						}
 						catch (Exception ex) {
-							// pop up here
-							System.out.println("Invalid Cost");
+							JOptionPane.showMessageDialog(null, "Invalid Cost");
 							return null;
 						}
 					}
 				}
 			}
 			catch(Exception per) {
-				System.out.println("Invalid Percentage");
+				JOptionPane.showMessageDialog(null, "Invalid Percentage");
 				return null;
 			}
 			
@@ -596,12 +627,12 @@ public class BudgetPanel extends JPanel {
 			try {
 				day = Integer.parseInt(data[3]);
 				if(day < 0 || day > 31) {
-					System.out.println("Invalid Day");
+					JOptionPane.showMessageDialog(null, "Invalid Day");
 					return null;
 				}
 			}
 			catch (Exception exc) {
-				System.out.println("Invalid Day");
+				JOptionPane.showMessageDialog(null, "Invalid Day");
 				return null;
 			}
 			
