@@ -9,6 +9,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -259,6 +260,40 @@ public class BudgetPanel extends JPanel {
 		add(expensesPanel, BorderLayout.CENTER);
 		add(rightPanel, BorderLayout.EAST);
 		add(eventPanel, BorderLayout.SOUTH);
+	}
+	
+	private void loadUserData(UserProfile userProfile) {
+		Date startDate = new Date();
+		Date endDate = new Date();
+		Event[] events = userProfile.getEvents(startDate, endDate);
+		
+		for(int i = 0; i < events.length; i++) {
+			String title = events[i].getTitle();
+			Double cost = events[i].getAmount();
+			int repeating = events[i].getRecurPeriod();
+			String category = events[i].getTag();	
+			String day = Integer.toString(events[i].getDate().getDay());
+			
+			String[] newData = {title, us.format(cost), "10", day, category};
+			
+			data.add(newData);
+			model.addColumn(newData);
+		}
+	}
+	
+	private void clearData() {
+		for(int i = 0; i < data.size(); i++) {
+			data.remove(i);
+			model.removeRow(i);
+		}
+	}
+	
+	private void saveUserData(UserProfile userProfile, String[] info) {
+		Date date = new Date();
+		// convert cost to double
+		// convert day to date
+		Event event = new Event(info[0], info[1], info[2], info[3], info[4]);
+		userProfile.addEvent(event);
 	}
 	
 	/*
