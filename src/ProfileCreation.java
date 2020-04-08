@@ -36,6 +36,10 @@ public class ProfileCreation extends JFrame {
 	 * @author Drew Albert
 	 */
 	public ProfileCreation(ArrayList<String> profileList) {
+		nameEntry = false;
+		balanceEntry = false;
+		passwordEntry = false;
+		
 		setAlwaysOnTop(true);
 		setForeground(Color.WHITE);
 		setSize(299, 208);
@@ -90,7 +94,7 @@ public class ProfileCreation extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					String filename = name.getText() + ".bl";
-					System.out.println(new File(".").getCanonicalPath() + "/Profiles/" + filename);
+					File profileDir = new File(new File(".").getCanonicalPath() + "/Profiles/");
 					FileOutputStream file = new FileOutputStream(new File(".").getCanonicalPath() + "/Profiles/" + filename);
 					ObjectOutputStream out = new ObjectOutputStream(file);
 
@@ -99,9 +103,9 @@ public class ProfileCreation extends JFrame {
 					out.writeObject(profile);
 					file.close();
 					out.close();
-					
+		
 					JOptionPane.showMessageDialog(null, "Profile " + name.getText() + " has been created!" );
-					profileList.add(name.getText() + ".bl");
+					profileList.add(filename);
 					InitialWindow iw = new InitialWindow(profileList);
 					dispose();
 				} catch (Exception ex) {

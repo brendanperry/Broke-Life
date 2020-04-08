@@ -28,9 +28,10 @@ public class Main {
      * @author Drew Albert
      */
 	public static void listFilesForFolder(final File folder, ArrayList<String> profiles) {
-        for (final File fileEntry : folder.listFiles()) {
+		for (final File fileEntry : folder.listFiles()) {
             if(fileEntry.getName().contains(".bl"))
-            	profiles.add(fileEntry.getName());
+            	if(!profiles.contains(fileEntry.getName()))
+            		profiles.add(fileEntry.getName());
         }
 	}
 }

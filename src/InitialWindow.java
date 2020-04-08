@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -62,8 +63,11 @@ public class InitialWindow extends JFrame{
         	profileList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         	panel.add(profileList);
         	
-    		for(int i = 0; i < profileNames.size(); i++) 
+    		for(int i = 0; i < profileNames.size(); i++) { 
+    			if(!list.contains(profileNames.get(i)))
     			list.addElement(profileNames.get(i));
+    			
+    		}
     		
         	text = new JTextArea("Select a User Profile from the list below");
         	text.setEditable(false);
@@ -91,17 +95,21 @@ public class InitialWindow extends JFrame{
 						File file = new File(new File(".").getCanonicalPath() + "/Profiles/" + filename);
 						FileInputStream fileInput = new FileInputStream(file); 
 			            ObjectInputStream decode = new ObjectInputStream(fileInput); 
-			             
-			            profile = (UserProfile)decode.readObject(); 
+			            
+			            ArrayList<Event> events = new ArrayList<Event>();
+			            
+			            profile = (UserProfile)decode.readObject();
+			            
 			            
 			            decode.close(); 
 			            fileInput.close();
 			            MainFrame mf = new MainFrame(profile);
 			            mf.setVisible(true);
 			            dispose();
-					} catch(Exception e) {
+					} catch(ClassNotFoundException e) {
 						JOptionPane.showMessageDialog(null, "Profile selection invalid");
-						System.out.println(e);
+					} catch (IOException e) {
+						JOptionPane.showMessageDialog(null, "Profile selection invalid");
 					}
         		}
         	});

@@ -7,12 +7,17 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 /**
  * This class is responsible for the display of the program.
@@ -21,13 +26,14 @@ import javax.swing.JMenuItem;
  * 03/20/20
  *
  */
-public class MainFrame extends JFrame implements ActionListener {
+public class MainFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	JMenuItem save, load;
-	
+	UserProfile user;
 
 	public MainFrame(UserProfile user) {
+		this.user = user;
 		setTitle("BrokeLife");
 		setSize(1000, 700);
 		JMenuBar menuBar = new JMenuBar();
@@ -69,26 +75,47 @@ public class MainFrame extends JFrame implements ActionListener {
 		
 		// MENU BAR
 
-		JMenuItem file = new JMenuItem("File");
+		JMenu file = new JMenu("File");
 		menuBar.add(file);
 		file.setMnemonic(KeyEvent.VK_F);
 		
 		JMenuItem save = new JMenuItem("Save Profile");
 		JMenuItem load = new JMenuItem("Load Profile");
 		
-		save.addActionListener(this);
-		load.addActionListener(this);
+		save.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					String filename =  user.getName() + ".bl";
+					FileOutputStream file = new FileOutputStream(new File(".").getCanonicalPath() + "/Profiles/" + filename);
+					ObjectOutputStream out = new ObjectOutputStream(file);
+					
+					out.writeObject(user);
+					file.close();
+					out.close();
+
+					JOptionPane.showMessageDialog(null, "Profile has been saved!" );
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(null, "Save failed!");
+			}
+			}
+			
+		});
+		
+		load.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			});
+		
 		
 		file.add(save);
-		
+		file.add(load);
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == save) {
-			
-		} else if(e.getSource() == load) {
-			
-		}
-	}
 }
+

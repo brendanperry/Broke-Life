@@ -1,3 +1,7 @@
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,10 +15,10 @@ import java.util.Date;
 public class Event implements Serializable{
 	private static final long serialVersionUID = 1L;
 	public String title;
-	private double amount;
+	private Double amount;
 	private Date date;
 	private String tag;
-	private int recurPeriod = 0;
+	private Integer recurPeriod = 0;
 	
 	/**
 	 * Constructor creates a new Event given user input. A tag value of "Misc." is given to 
@@ -40,7 +44,7 @@ public class Event implements Serializable{
 	 * @param date - The date where an event takes place. For recurring events, this is the first date of occurrence
 	 * @param recurring - The number of days between event repetition. Value of 0 used for one-time events
 	 */
-	public Event(String title, double amount, Date date, String tag) {
+	public Event(String title, Double amount, Date date, String tag) {
 		this.title = title;
 		this.tag = tag;
 		this.amount = amount;
@@ -86,5 +90,5 @@ public class Event implements Serializable{
 				"\nAmount: " + amount;
 		return output;
 	}
-	
+
 }
