@@ -76,8 +76,6 @@ public class MainFrame extends JFrame implements ActionListener {
 		JMenuItem save = new JMenuItem("Save Profile");
 		JMenuItem load = new JMenuItem("Load Profile");
 		
-		
-		
 		save.addActionListener(this);
 		load.addActionListener(this);
 		
@@ -92,7 +90,5 @@ public class MainFrame extends JFrame implements ActionListener {
 		} else if(e.getSource() == load) {
 			
 		}
-		
 	}
-	
 }
