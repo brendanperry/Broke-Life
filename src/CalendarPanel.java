@@ -40,29 +40,28 @@ public class CalendarPanel extends JPanel {
 
 	
 	public CalendarPanel(UserProfile user) {
-		getContentPane().setLayout(null);
+		setLayout(null);
 		setSize(470,375);
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		JLabel calendarText = new JLabel("Calendar");
 		calendarText.setHorizontalAlignment(SwingConstants.CENTER);
 		calendarText.setBounds(168, 5, 114, 14);
-		getContentPane().add(calendarText);
+		add(calendarText);
 		
 		lblCurrentMonth = new JLabel("January");
 		lblCurrentMonth.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblCurrentMonth.setHorizontalAlignment(SwingConstants.CENTER);
 		lblCurrentMonth.setBounds(168, 28, 114, 23);
-		getContentPane().add(lblCurrentMonth);
+		add(lblCurrentMonth);
 		
 		btnNextMonth = new JButton("\u2192");
 		btnNextMonth.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnNextMonth.setBounds(376, 30, 55, 23);
-		getContentPane().add(btnNextMonth);
+		add(btnNextMonth);
 		
 		btnPreviousMonth = new JButton("\u2190");
 		btnPreviousMonth.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnPreviousMonth.setBounds(23, 30, 55, 23);
-		getContentPane().add(btnPreviousMonth);
+		add(btnPreviousMonth);
 		
 		btnPreviousMonth.addActionListener(new btnPreviousMonthClicked());
         btnNextMonth.addActionListener(new btnNextMonthClicked());
@@ -70,7 +69,7 @@ public class CalendarPanel extends JPanel {
 		lblCalendarMonth = new JLabel("January");
 		lblCalendarMonth.setHorizontalAlignment(SwingConstants.CENTER);
 		lblCalendarMonth.setBounds(23, 55, 235, 23);
-		getContentPane().add(lblCalendarMonth);		
+		add(lblCalendarMonth);		
 		
 		//Creation of the calendar
 		JPanel monthlyCalendarPanel = new JPanel();
@@ -119,7 +118,7 @@ public class CalendarPanel extends JPanel {
         monthTable.setColumnCount(7);
         monthTable.setRowCount(6);
      
-		getContentPane().add(monthlyCalendarPanel);
+		add(monthlyCalendarPanel);
 		monthlyCalendarPanel.setLayout(new GridLayout(1, 0, 0, 0));
 		
 		refreshCalendar(realMonth, realYear);
@@ -127,7 +126,7 @@ public class CalendarPanel extends JPanel {
 		//Create panel used to display events for the selected day
 		JPanel selectedDayPanel = new JPanel();
 		selectedDayPanel.setBounds(276, 55, 155, 155);
-		getContentPane().add(selectedDayPanel);
+		add(selectedDayPanel);
 		selectedDayPanel.setLayout(null);
 		
 		//Selected day defaults to current date
@@ -144,7 +143,7 @@ public class CalendarPanel extends JPanel {
 		//Create panel used to display upcoming events
 		JPanel upcomingEventsPanel = new JPanel();
 		upcomingEventsPanel.setBounds(276, 215, 155, 110);
-		getContentPane().add(upcomingEventsPanel);
+		add(upcomingEventsPanel);
 		upcomingEventsPanel.setLayout(null);
 		
 		JLabel lblUpcomingEvents = new JLabel("Upcoming Events");
@@ -158,7 +157,7 @@ public class CalendarPanel extends JPanel {
 		upcomingEventsPanel.add(listUpcomingEvents);
 		
 		//Display CalendarPanel
-		setVisible(true);
+		//setVisible(true);
 	}
 	
 	//Cycles through months as next and previous buttons are clicked, correctly formatting the calendar for each month
