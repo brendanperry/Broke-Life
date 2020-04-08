@@ -7,7 +7,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -262,7 +265,12 @@ public class BudgetPanel extends JPanel {
 		add(eventPanel, BorderLayout.SOUTH);
 	}
 	
-	private void loadUserData(UserProfile userProfile) {
+	/*
+	 * This function loads data about from the user profile and inserts it into the table
+	 * @params userProfile is the profile of the current user
+	 * @author brendanperry
+	 */
+	public void loadUserData(UserProfile userProfile) {
 		Date startDate = new Date();
 		Date endDate = new Date();
 		Event[] events = userProfile.getEvents(startDate, endDate);
@@ -281,6 +289,10 @@ public class BudgetPanel extends JPanel {
 		}
 	}
 	
+	/*
+	 * This functions removes all data that is stored and shown in the table.
+	 * @author brendanperry
+	 */
 	private void clearData() {
 		for(int i = 0; i < data.size(); i++) {
 			data.remove(i);
@@ -288,12 +300,28 @@ public class BudgetPanel extends JPanel {
 		}
 	}
 	
-	private void saveUserData(UserProfile userProfile, String[] info) {
+	// name, cost, percent, day, repeating, category
+	private void saveUserData(UserProfile userProfile, String[] info) throws ParseException {
 		Date date = new Date();
-		// convert cost to double
-		// convert day to date
-		Event event = new Event(info[0], info[1], info[2], info[3], info[4]);
-		userProfile.addEvent(event);
+		ActionHandler actionHandler = new ActionHandler();
+		
+		// need to get month and year from header
+		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String dateString = "year-" + "month-" + info[3];
+		Date dateObject = sdf.parse(dateString);
+		
+		double cost = actionHandler.currencyToDouble(info[1]);
+		int day = Integer.parseInt(info[5]);
+		
+		if(info[4].equals("None")) {
+			// create non repeating event
+		}
+		else {
+			// create repeating event
+		}
+		
+		//Event event = new Event(info[0], cost, info[2], info[3], info[4]);
+		//userProfile.addEvent(event);
 	}
 	
 	/*
