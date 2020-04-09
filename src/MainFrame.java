@@ -1,16 +1,16 @@
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
@@ -28,8 +28,13 @@ public class MainFrame extends JFrame implements ActionListener {
 	
 
 	public MainFrame(UserProfile user) {
+		getContentPane().setBackground(Color.decode("#25ced1"));
 		setTitle("BrokeLife");
-		setSize(1000, 700);
+		setSize(1250, 800);
+		setResizable(false);
+		
+		setIconImage(Toolkit.getDefaultToolkit().getImage("src/logo.png"));
+		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		getContentPane().setLayout(new BorderLayout(0, 0));
@@ -38,24 +43,26 @@ public class MainFrame extends JFrame implements ActionListener {
 		// TOP PANEL
 		
 		JPanel topPanel = new JPanel();
-		topPanel.setBackground(Color.gray);
+		topPanel.setBackground(Color.decode("#25ced1"));
 		getContentPane().add(topPanel, BorderLayout.NORTH);
 		
 		JButton leftButton = new JButton();
-		leftButton.setText("Left");
+		leftButton.setText("\u2190");
 		topPanel.add(leftButton);
 		
-		JLabel monthHeading = new JLabel("MARCH");
+		JLabel monthHeading = new JLabel("April 2020");
 		monthHeading.setFont(new Font("Arial", Font.BOLD, 30));
+		monthHeading.setForeground(Color.WHITE);
 		topPanel.add(monthHeading);
 		
 		JButton rightButton = new JButton();
-		rightButton.setText("Right");
+		rightButton.setText("\u2192");
 		topPanel.add(rightButton);
 		
 		// CENTER PANEL
-		
 		JTabbedPane centerPanel = new JTabbedPane();
+		centerPanel.setForeground(Color.RED);
+		centerPanel.setBackground(Color.decode("#25ced1"));
 		getContentPane().add(centerPanel, BorderLayout.CENTER);
 		
 		
@@ -66,11 +73,10 @@ public class MainFrame extends JFrame implements ActionListener {
 		centerPanel.addTab("Budget", budgetPanel);
 		centerPanel.addTab("Calendar", calendarPanel);
 		centerPanel.addTab("Overview", overviewPanel);
-		
+				
 		// MENU BAR
 
-		JMenuItem file = new JMenuItem("File");
-		menuBar.add(file);
+		JMenu file = new JMenu("File");
 		file.setMnemonic(KeyEvent.VK_F);
 		
 		JMenuItem save = new JMenuItem("Save Profile");
@@ -80,7 +86,9 @@ public class MainFrame extends JFrame implements ActionListener {
 		load.addActionListener(this);
 		
 		file.add(save);
+		file.add(load);
 		
+		menuBar.add(file);
 	}
 
 	@Override

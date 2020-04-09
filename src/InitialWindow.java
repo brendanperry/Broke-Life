@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -15,7 +16,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -39,6 +42,20 @@ public class InitialWindow extends JFrame{
 	 * 
 	 */
 	public InitialWindow(ArrayList<String> profileNames) throws IOException {
+		// sets the look and feel of the GUI
+		try {
+		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+		        if ("Nimbus".equals(info.getName())) {
+		            UIManager.setLookAndFeel(info.getClassName());
+		            break;
+		        }
+		    }
+		} catch (Exception e) {
+		    // If Nimbus is not available, you can set the GUI to another look and feel.
+		}
+		
+		setIconImage(Toolkit.getDefaultToolkit().getImage("src/logo.png"));
+		
     	JTextArea text;
     	JList<String> profileList = new JList<String>(list);
     	JButton okay, close, newProfile;
@@ -84,7 +101,7 @@ public class InitialWindow extends JFrame{
         	okay = new JButton("Okay");
         	okay.setBounds(20, 250, 90, 23);
         	okay.setEnabled(false);
-        	okay.addActionListener(new ActionListener() {
+        	okay.addActionListener(new ActionListener() { 
         		public void actionPerformed(ActionEvent arg0) {
         			try {
         				String filename = profileList.getSelectedValue();
