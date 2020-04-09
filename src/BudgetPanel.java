@@ -1,5 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -83,6 +84,9 @@ public class BudgetPanel extends JPanel {
 		data = new ArrayList<String[]>();
 		us = NumberFormat.getCurrencyInstance(Locale.US);
 		
+		Color bgColor = Color.decode("#3e92cc");
+		Color foregroundColor = Color.decode("#25ced1");
+		
 		// These are the two classes that handle user input 
 		ActionHandler actionHandler = new ActionHandler();
 		FocusHandler focusHandler = new FocusHandler();
@@ -92,7 +96,7 @@ public class BudgetPanel extends JPanel {
 		JPanel expensesPanel = new JPanel();
 		expensesPanel.setSize(new Dimension(300, 300));
 		expensesPanel.setLayout(new BorderLayout(0, 0));
-		expensesPanel.setBackground(Color.GRAY);
+		expensesPanel.setBackground(bgColor);
 		expensesPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		
 		JLabel expensesText = new JLabel("Expenses", SwingConstants.CENTER);
@@ -109,6 +113,7 @@ public class BudgetPanel extends JPanel {
 		};	
 		
 		table = new JTable(model);
+		table.getTableHeader().setBackground(foregroundColor);
 		model.addColumn("Item");
 		model.addColumn("Cost");
 		model.addColumn("Percentage");
@@ -118,7 +123,7 @@ public class BudgetPanel extends JPanel {
 		
 		// The table is in a scroll pane so more events than can fit in the pane can be added
 		JScrollPane scrollPane = new JScrollPane(table);
-		
+		scrollPane.getViewport().setBackground(Color.WHITE);
 		expensesPanel.add(scrollPane, BorderLayout.CENTER);
 		
 		// RIGHT PANEL
@@ -129,7 +134,7 @@ public class BudgetPanel extends JPanel {
 		// INCOME PANEL
 		
 		JPanel incomePanel = new JPanel();
-		incomePanel.setBackground(Color.GRAY);
+		incomePanel.setBackground(bgColor);
 		incomePanel.setPreferredSize(new Dimension(300, 300));
 		incomePanel.setLayout(new GridLayout(8, 1));
 		incomePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -179,7 +184,7 @@ public class BudgetPanel extends JPanel {
 		JPanel reviewPanel = new JPanel();
 		reviewPanel.setPreferredSize(new Dimension(300,300));
 		reviewPanel.setLayout(new GridLayout(7, 1));
-		reviewPanel.setBackground(Color.GRAY);
+		reviewPanel.setBackground(bgColor);
 		reviewPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		
 		JLabel reviewText = new JLabel("Review", SwingConstants.CENTER);
@@ -190,16 +195,19 @@ public class BudgetPanel extends JPanel {
 		totalIncomeText.setForeground(Color.WHITE);
 		totalIncome = new JTextField("$0.00");
 		totalIncome.setEditable(false);
+		totalIncome.setBackground(Color.WHITE);
 		
 		JLabel totalBudgetedText = new JLabel("Total Budgeted");
 		totalBudgetedText.setForeground(Color.WHITE);
 		totalBudgeted = new JTextField("$0.00");
 		totalBudgeted.setEditable(false);
+		totalBudgeted.setBackground(Color.WHITE);
 		
 		JLabel leftToBudgetText = new JLabel("Left to Budget");
 		leftToBudgetText.setForeground(Color.WHITE);
 		leftToBudget = new JTextField("$0.00");
 		leftToBudget.setEditable(false);
+		leftToBudget.setBackground(Color.WHITE);
 		
 		reviewPanel.add(reviewText);
 		reviewPanel.add(totalIncomeText);
@@ -221,6 +229,7 @@ public class BudgetPanel extends JPanel {
 		String[] interactions = {"Add Event", "Modify Event", "Delete Event"};
 		eventComboBox = new JComboBox<String>(interactions);
 		eventComboBox.addActionListener(actionHandler);
+		eventComboBox.setBackground(foregroundColor);
 		eventPanel.add(eventComboBox, BorderLayout.NORTH);
 		
 		JPanel centerEventPanel = new JPanel();
@@ -245,6 +254,8 @@ public class BudgetPanel extends JPanel {
 		JLabel repeatingText = new JLabel("Repeating");
 		JLabel categoryText = new JLabel("Category");
 		
+		centerEventPanel.setBackground(foregroundColor);
+		
 		centerEventPanel.add(nameText);
 		centerEventPanel.add(name);
 		centerEventPanel.add(costText);
@@ -261,6 +272,8 @@ public class BudgetPanel extends JPanel {
 		eventPanel.add(centerEventPanel, BorderLayout.CENTER);
 		
 		submitChanges = new JButton("Add");
+		submitChanges.setForeground(Color.WHITE);
+		submitChanges.setBackground(bgColor);
 		submitChanges.addActionListener(actionHandler);
 		eventPanel.add(submitChanges, BorderLayout.SOUTH);
 		
@@ -268,12 +281,13 @@ public class BudgetPanel extends JPanel {
 		add(rightPanel, BorderLayout.EAST);
 		add(eventPanel, BorderLayout.SOUTH);
 		
+		/*
 		try {
 			loadUserData();
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 	}
 	
 	/*
