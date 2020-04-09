@@ -191,15 +191,28 @@ public class ProfileCreation extends JFrame implements ActionListener, KeyListen
 		}//End of if statement
 		
 		if(e.getSource().equals(balance)) {
-			fieldsFilled();
+			if(balance.getText().length() > 0) {
+				try {
+					if(Double.parseDouble(balance.getText()) > 1000000.00)
+						balanceEntry = false;
+				}
+				catch(Exception i){
+					JOptionPane.showMessageDialog(null, "Invalid character");
+					try {
+						balance.setText(balance.getText(0, balance.getText().length()-1));
+					}
+					catch(Exception j) {
+						JOptionPane.showMessageDialog(null, "null");
+					}
+				}
+			}
+			
 			if(balance.getText().isEmpty()) 
 				balanceEntry = false;
-			else if(balance.getText().contains("!@#%^&*()_-+="))
-				balanceEntry = false;
-			else if(balance.getText().length() > 1000000.00)
-				balanceEntry = false;
+			
 			else
 				balanceEntry = true;
+			fieldsFilled();
 		}//End of if statement
 		
 		if(e.getSource().equals(password)) {
