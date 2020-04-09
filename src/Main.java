@@ -2,6 +2,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
+
 // main class
 /**
  * Main class acts as the starting point of the program. Profile selection occurs before launching the main program
@@ -15,6 +19,18 @@ public class Main {
 	 * @throws IOException
 	 */
 	public static void main(String args[]) throws IOException {
+		// sets the look and feel of the GUI
+		try {
+		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+		        if ("Nimbus".equals(info.getName())) {
+		            UIManager.setLookAndFeel(info.getClassName());
+		            break;
+		        }
+		    }
+		} catch (Exception e) {
+		    // If Nimbus is not available, you can set the GUI to another look and feel.
+		}
+		
 		ArrayList<String> profiles = new ArrayList<String>();
 		File profileDir = new File(new File(".").getCanonicalPath() + "/Profiles/");
 		listFilesForFolder(profileDir, profiles);

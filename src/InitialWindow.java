@@ -84,7 +84,7 @@ public class InitialWindow extends JFrame{
         	okay = new JButton("Okay");
         	okay.setBounds(20, 250, 90, 23);
         	okay.setEnabled(false);
-        	okay.addActionListener(new ActionListener() {
+        	okay.addActionListener(new ActionListener() { 
         		public void actionPerformed(ActionEvent arg0) {
         			try {
         				String filename = profileList.getSelectedValue();
