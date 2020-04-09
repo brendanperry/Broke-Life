@@ -141,7 +141,6 @@ public class BudgetPanel extends JPanel {
 		JLabel incomeText = new JLabel("Income", SwingConstants.CENTER);
 		incomeText.setForeground(Color.WHITE);
 		incomeText.setFont(new Font("Arial", Font.BOLD, 20));
-		incomeText.setFont(new Font("Arial", Font.BOLD, 13));
 		incomePanel.add(incomeText);
 		
 		JLabel payText = new JLabel("PAY");
