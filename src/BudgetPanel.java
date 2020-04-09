@@ -7,8 +7,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -34,6 +38,8 @@ import javax.swing.table.DefaultTableModel;
 @SuppressWarnings("serial")
 public class BudgetPanel extends JPanel {
 		
+	UserProfile user;
+	
 	DefaultTableModel model;
 	JTable table;
 	ArrayList<String[]> data;
@@ -69,8 +75,10 @@ public class BudgetPanel extends JPanel {
 	
 	JComboBox<String> eventComboBox;
 	
-	public BudgetPanel(UserProfile user) {
+	public BudgetPanel(UserProfile userProfile) {
 		setLayout(new BorderLayout(0, 0));
+		
+		user = userProfile;
 		
 		data = new ArrayList<String[]>();
 		us = NumberFormat.getCurrencyInstance(Locale.US);
@@ -259,6 +267,95 @@ public class BudgetPanel extends JPanel {
 		add(expensesPanel, BorderLayout.CENTER);
 		add(rightPanel, BorderLayout.EAST);
 		add(eventPanel, BorderLayout.SOUTH);
+		
+		try {
+			loadUserData();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/*
+	 * This function loads data about from the user profile and inserts it into the table
+	 * @params userProfile is the profile of the current user
+	 * @author brendanperry
+	 */
+	public void loadUserData() throws ParseException {
+		clearData();
+		
+		// will need to get date from the top header
+		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String startDate = "2020-04-01";
+		String endDate = "2020-04-30";
+		Date dateObject1 = sdf.parse(startDate);
+		Date dateObject2 = sdf.parse(endDate);
+		
+		Event[] events = user.getEvents(dateObject1, dateObject2);
+		
+		for(int i = 0; i < events.length; i++) {
+			String title = events[i].getTitle();
+			Double cost = events[i].getAmount();
+			int repeating = events[i].getRecurPeriod();
+			String category = events[i].getTag();	
+			@SuppressWarnings("deprecation")
+			String day = Integer.toString(events[i].getDate().getDay());
+			
+			// name, cost, percent, day, repeating, category
+			String[] newData = {title, us.format(cost), "0", day, "0", category};
+			
+			data.add(newData);
+			model.addColumn(newData);
+		}
+	}
+	
+	/*
+	 * This functions removes all data that is stored and shown in the table.
+	 * @author brendanperry
+	 */
+	private void clearData() {
+		for(int i = 0; i < data.size(); i++) {
+			data.remove(i);
+			model.removeRow(i);
+		}
+	}
+	
+	// name, cost, percent, day, repeating, category
+	private void saveUserData(String[] info) throws ParseException {
+		ActionHandler actionHandler = new ActionHandler();
+		
+		// need to get month and year from header
+		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String dateString = "2020-" + "04-" + info[3];
+		Date dateObject = sdf.parse(dateString);
+		
+		double cost = actionHandler.currencyToDouble(info[1]);
+		
+		//String title, double amount, Date date, String tag
+		if(info[4].equals("None")) {
+			// create non repeating event
+			Event event = new Event(info[0], cost, dateObject, info[5]);
+			user.addEvent(event);
+		}
+		else {
+			// create repeating event
+			int recurPeriod = 0;
+			if(info[4].equals("Weekly")) {
+				recurPeriod = 7;
+			}
+			else if(info[4].equals("Biweekly")) {
+				recurPeriod = 14;
+			}
+			else if(info[4].equals("Monthly")) {
+				recurPeriod = 30;
+			}
+			else {
+				recurPeriod = 365;
+			}
+			
+			Event event = new Event(info[0], cost, dateObject, recurPeriod);
+			user.addEvent(event);
+		}
 	}
 	
 	/*
@@ -441,6 +538,13 @@ public class BudgetPanel extends JPanel {
 						
 						data.add(checkedData);
 						model.addRow(checkedData);
+						
+						try {
+							saveUserData(checkedData);
+						} catch (ParseException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 						
 						name.setText("");
 						cost.setText("0");
