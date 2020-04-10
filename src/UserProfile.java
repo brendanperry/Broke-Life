@@ -17,7 +17,6 @@ public class UserProfile implements Serializable {
 	private String name, password;
 	private double balance;
 	private ArrayList<Event> events = new ArrayList<Event>();
-	private ArrayList<Event> recurring = new ArrayList<Event>();
 	
 	public UserProfile() {}
 	
@@ -41,9 +40,6 @@ public class UserProfile implements Serializable {
 	
 	
 	public void addEvent(Event e) {
-		if(e.getRecurPeriod() > 0) {
-			recurring.add(e);
-		} else
 			events.add(e);
 	}
 	
@@ -102,13 +98,7 @@ public class UserProfile implements Serializable {
 			}
 		}
 		
-		Event[] events = new Event[list.size()];
-		
-		for(int j = 0; j < list.size(); j++) {
-			events[j] = list.get(j);
-		}
-		
-		return events;
+		return compileEvents(list);
 	}
 	
 	/**
@@ -124,13 +114,37 @@ public class UserProfile implements Serializable {
 				list.add(events[i]);
 		}
 		
-		Event[] event = new Event[list.size()];
-		
-		for(int j = 0; j < list.size(); j++) {
-			event[j] = list.get(j);
+		return compileEvents(list);
+	}
+	
+	/**
+	 * Generate a list of recurring events from a given list of events
+	 * @param events - The list of events being searched
+	 * @return - A list of recurring events from the given array
+	 */
+	public Event[] getRecurringEvents(Event[] events) {
+		ArrayList<Event> list = new ArrayList<Event>();
+		for(int i = 0; i < events.length; i ++) {
+			if(events[i].getRecurPeriod() > 0)
+				list.add(events[i]);
 		}
 		
-		return event;
+		return compileEvents(list);
+	}
+	
+	/**
+	 * Generate a list of non-recurring events from a given list of events
+	 * @param events - The list of events being searched
+	 * @return - A list of recurring events from the given array
+	 */
+	public Event[] getNonRecuringEvents(Event[] events) {
+		ArrayList<Event> list = new ArrayList<Event>();
+		for(int i = 0; i < events.length; i ++) {
+			if(events[i].getRecurPeriod() == 0)
+				list.add(events[i]);
+		}
+		
+		return compileEvents(list);
 	}
 	
 	/**
@@ -167,4 +181,19 @@ public class UserProfile implements Serializable {
 		return total;
 	}
 
+	/**
+	 * Helper method which copies the values of an ArrayList of events to a statically-sized Array
+	 * @param list - The ArrayList of events being condensed
+	 * @return - The compiled array of events
+	 */
+	private Event[] compileEvents(ArrayList<Event> list) {
+		Event[] events = new Event[list.size()];
+		for(int i = 0; i < list.size(); i++) {
+			events[i] = list.get(i);
+		}
+		
+		return events;
+	}
+	
+	
 }

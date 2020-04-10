@@ -7,6 +7,8 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
@@ -45,7 +47,41 @@ public class MainFrame extends JFrame {
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		getContentPane().setLayout(new BorderLayout(0, 0));
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent we) {
+				Object[] options = {"Save and exit", "Exit without saving"};
+				
+				int input = JOptionPane.showOptionDialog(null,
+		                 "Do you want to save your work?",
+		                 "Exit",
+		                 JOptionPane.OK_CANCEL_OPTION,
+		                 JOptionPane.QUESTION_MESSAGE,
+		                 null,
+		                 options,
+		                 null);	
+				if(input == JOptionPane.OK_OPTION) {
+					try {
+						String filename =  user.getName() + ".bl";
+						FileOutputStream file = new FileOutputStream(new File(".").getCanonicalPath() + "/Profiles/" + filename);
+						ObjectOutputStream out = new ObjectOutputStream(file);
+						
+						out.writeObject(user);
+						file.close();
+						out.close();
+						
+						System.exit(0);
+					} catch (Exception ex) {
+						JOptionPane.showMessageDialog(null, "Save failed!");
+					}
+				}
+				else {
+					System.exit(0);
+				}
+			}
+		});
 		
 		// TOP PANEL
 		
@@ -93,7 +129,7 @@ public class MainFrame extends JFrame {
 		JMenu file = new JMenu("File");
 		file.setMnemonic(KeyEvent.VK_F);
 		
-		JMenuItem save = new JMenuItem("Save Profile");
+		JMenuItem save = new JMenuItem("Save Profile");		
 		JMenuItem load = new JMenuItem("Load Profile");
 		
 		menuBar.add(file);
@@ -124,13 +160,48 @@ public class MainFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				
 			}
 			});
 		
 		
 		file.add(save);
 		file.add(load);
+		
+		JMenu education = new JMenu("Education");
+		education.setMnemonic(KeyEvent.VK_E);
+		
+		JMenuItem tutorial = new JMenuItem("Tutorial");
+		JMenuItem learning = new JMenuItem("Learning");
+		
+		education.add(tutorial);
+		education.add(learning);
+		
+		menuBar.add(education);
+		
+		learning.addActionListener(new ActionListener() {
+      		@Override
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					EducationPanel educationPanel = new EducationPanel(1);
+					educationPanel.setVisible(true);
+				} catch (Exception ex) {
+					JOptionPane.showMessageDialog(null, "Load Failed");
+				}
+			}
+		});
+		
+		tutorial.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					EducationPanel educationPanel = new EducationPanel(0);
+					educationPanel.setVisible(true);
+				} catch (Exception ex) {
+					JOptionPane.showMessageDialog(null, "Load Failed");
+				}
+			}
+		});
 	}
 
 	//If currentMonth is January, decrement current year and change current month to December
