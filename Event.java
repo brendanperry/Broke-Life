@@ -28,9 +28,9 @@ public class Event implements Serializable{
 	 * @param date - The date where an event takes place. For recurring events, this is the first date of occurrence
 	 * @param recurring - The number of days between event repetition. Value of 0 used for one-time events
 	 */
-	public Event(String title, double amount, int percentage, Date date, int recurPeriod) {
+	public Event(String title, double amount, int percentage, Date date, int recurPeriod, String tag) {
 		this.title = title;
-		this.tag = "Misc.";
+		this.tag = tag;
 		this.amount = amount;
 		this.date = date;
 		this.recurPeriod = recurPeriod;
