@@ -17,6 +17,7 @@ public class UserProfile implements Serializable {
 	private String name, password;
 	private double balance;
 	private ArrayList<Event> events = new ArrayList<Event>();
+	private ArrayList<Income> monthlyIncome = new ArrayList<Income>();
 	
 	public UserProfile() {}
 	
@@ -181,6 +182,41 @@ public class UserProfile implements Serializable {
 		return total;
 	}
 
+	public void addIncome(int year, int month) {
+		Income income = new Income(year, month);
+		monthlyIncome.add(income);
+	}
+	
+	/**
+	 * Retrieve the user's income from a given month
+	 * @param year - The specified year
+	 * @param month - the specified month
+	 */
+	public Income getIncome(int year, int month) {
+		Income income = new Income(year, month);
+		for(int i = 0; i < monthlyIncome.size(); i++) {
+			if(monthlyIncome.get(i).equals(income))
+				return monthlyIncome.get(i);
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Calculate the sum of income from a given year
+	 * @param year - The specified year of earnings
+	 * @return - The total amount of income gained during the year
+	 */
+	public double annualIncome(int year) {
+		double sum = 0.0;
+		for(int i = 0; i < monthlyIncome.size(); i++) {
+			if(monthlyIncome.get(i).getYear() == year)
+				sum += monthlyIncome.get(i).sumIncome();
+		}
+		
+		return sum;
+	}
+	
 	/**
 	 * Helper method which copies the values of an ArrayList of events to a statically-sized Array
 	 * @param list - The ArrayList of events being condensed
