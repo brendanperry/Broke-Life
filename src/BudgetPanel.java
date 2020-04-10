@@ -195,21 +195,21 @@ public class BudgetPanel extends JPanel {
 		reviewText.setForeground(Color.WHITE);
 		reviewText.setFont(new Font("Arial", Font.BOLD, 20));
 		
-		JLabel totalIncomeText = new JLabel("Total Income");
+		JLabel totalIncomeText = new JLabel("TOTAL INCOME");
 		totalIncomeText.setFont(new Font("Arial", Font.BOLD, 13));
 		totalIncomeText.setForeground(Color.WHITE);
 		totalIncome = new JTextField("$0.00");
 		totalIncome.setEditable(false);
 		totalIncome.setBackground(Color.WHITE);
 		
-		JLabel totalBudgetedText = new JLabel("Total Budgeted");
+		JLabel totalBudgetedText = new JLabel("TOTAL BUDGETED");
 		totalBudgetedText.setFont(new Font("Arial", Font.BOLD, 13));
 		totalBudgetedText.setForeground(Color.WHITE);
 		totalBudgeted = new JTextField("$0.00");
 		totalBudgeted.setEditable(false);
 		totalBudgeted.setBackground(Color.WHITE);
 		
-		JLabel leftToBudgetText = new JLabel("Left to Budget");
+		JLabel leftToBudgetText = new JLabel("LEFT TO BUDGET");
 		leftToBudgetText.setFont(new Font("Arial", Font.BOLD, 13));
 		leftToBudgetText.setForeground(Color.WHITE);
 		leftToBudget = new JTextField("$0.00");
@@ -326,41 +326,32 @@ public class BudgetPanel extends JPanel {
 		
 		Event[] events = user.getEvents(dateObject1, dateObject2);
 		
-		System.out.println(events.length);
+		System.out.println("TOTAL EVENTS: " + events.length);
 		
 		for(int i = 0; i < events.length; i++) {
 			String title = events[i].getTitle();
-			System.out.println(title);
 			Double cost = events[i].getAmount();
 			
 			String repeating = Integer.toString(events[i].getRecurPeriod());
 
-			String percent = Integer.toString(events[i].getPercentage(0));
+			String percent = Integer.toString(events[i].getPercentage());
 			String category = events[i].getTag();	
 			
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(events[i].getDate());			
 			String day = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
-			System.out.println("DAY: " + day);
 			
 			// name, cost, percent, day, repeating, category
 			if(repeating.equals("0")) {
 				String[] newData = {title, us.format(cost), percent, day, "0", category};
-				System.out.println(title);
-				System.out.println(us.format(cost));
-				System.out.println(percent);
-				System.out.println(day);
-				System.out.println(category);
 				data.add(newData);
 				model.addRow(newData);
-				System.out.println("here");
 			}
 			else {
 				String[] newData = {title, us.format(cost), percent, day, repeating, category};
 				
 				data.add(newData);
 				model.addRow(newData);
-				System.out.println("hi");
 			}
 		}
 	}
@@ -378,7 +369,6 @@ public class BudgetPanel extends JPanel {
 	
 	// name, cost, percent, day, repeating, category
 	private void saveUserData(String[] info) throws ParseException {
-		System.out.println("at the function");
 		ActionHandler actionHandler = new ActionHandler();
 		
 		// need to get month and year from header
@@ -388,19 +378,20 @@ public class BudgetPanel extends JPanel {
 		Date dateObject = sdf.parse(dateString);
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(dateObject);
-		System.out.println("DAY: " + cal.get(Calendar.DAY_OF_MONTH));
+		
+		Event event;
 		
 		//String title, double amount, Date date, String tag
 		if(info[4].equals("None")) {
 			// create non repeating event
-			Event event = new Event(info[0], actionHandler.currencyToDouble(info[1]), Integer.parseInt(info[2]), dateObject, 0, info[5]);
-			user.addEvent(event);
-			System.out.println("event added");
+			event = new Event(info[0], actionHandler.currencyToDouble(info[1]), Integer.parseInt(info[2]), dateObject, 0, info[5]);
 		}
 		else {
+			System.out.println(info[4]);
 			// create repeating event
 			int recurPeriod = 0;
 			if(info[4].equals("Weekly")) {
+				System.out.println("Equals");
 				recurPeriod = 7;
 			}
 			else if(info[4].equals("Biweekly")) {
@@ -413,10 +404,17 @@ public class BudgetPanel extends JPanel {
 				recurPeriod = 365;
 			}
 			
-			Event event = new Event(info[0], actionHandler.currencyToDouble(info[1]), Integer.parseInt(info[2]), dateObject, recurPeriod, info[5]);
-			user.addEvent(event);
-			System.out.println("event added");
+			System.out.println("RECUR: " + recurPeriod);
+			System.out.println(info[0]);
+			System.out.println(actionHandler.currencyToDouble(info[1]));
+			System.out.println(Integer.parseInt(info[2]));
+			System.out.println(dateObject);
+			System.out.println(recurPeriod);
+			System.out.println(info[5]);
+			event = new Event(info[0], actionHandler.currencyToDouble(info[1]), Integer.parseInt(info[2]), dateObject, recurPeriod, info[5]);
 		}
+		
+		user.addEvent(event);
 	}
 	
 	/*
