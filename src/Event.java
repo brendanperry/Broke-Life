@@ -58,36 +58,48 @@ public class Event implements Serializable{
 		return date;
 	}
 	
+	public void setDate(Date date) {
+		this.date = date;
+	}
+	
 	public String getTitle() {
 		return title;
+	}
+	
+	public void setTitle(String title) {
+		this.title = title;
 	}
 	
 	public double getAmount() {
 		return amount;
 	}
 	
-	public String getTag() {
-		return tag;
-	}
-	
 	public void setAmount(double amount) {
 		this.amount = amount;
 	}
 	
-	public void setRecurPeriod(int period) {
-		this.recurPeriod = period;
+	public String getTag() {
+		return tag;
+	}
+	
+	public void setTag(String tag) {
+		this.tag = tag;
 	}
 	
 	public int getRecurPeriod() {
 		return this.recurPeriod;
 	}
 	
-	public void setPercentage(int percentage) {
-		this.percentage = percentage;
+	public void setRecurPeriod(int period) {
+		this.recurPeriod = period;
 	}
 	
-	public int getPercentage() {
-		return this.percentage;
+	public int getPercentage(int percentage) {
+		return percentage;
+	}
+	
+	public void setPercentage(int percentage) {
+		this.percentage = percentage;
 	}
 	
 	public String dateString(Date day) {
