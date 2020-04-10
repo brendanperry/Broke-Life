@@ -1,4 +1,6 @@
 import java.awt.BorderLayout;
+import java.awt.Toolkit;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
@@ -20,7 +22,7 @@ public class EducationPanel extends JFrame {
 		setSize(500, 500);
 		setTitle("Education");
 		setLayout(new BorderLayout());
-		
+		setIconImage(Toolkit.getDefaultToolkit().getImage("src/logo.png"));
 		JLabel title;
 		JTextArea information;
 		
