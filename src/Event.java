@@ -94,8 +94,8 @@ public class Event implements Serializable{
 		this.recurPeriod = period;
 	}
 	
-	public int getPercentage(int percentage) {
-		return percentage;
+	public int getPercentage() {
+		return this.percentage;
 	}
 	
 	public void setPercentage(int percentage) {
