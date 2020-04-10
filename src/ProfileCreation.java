@@ -1,33 +1,30 @@
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.WindowConstants;
-import javax.swing.JButton;
-import javax.swing.JTextField;
-import javax.swing.JTextArea;
-import javax.swing.JPanel;
-
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.io.*;
+import java.util.*;
 /**
  * GUI class used to create new UserProfiles, prompted by InitialWindow
  * Drew Albert
  * 04/02/2020
  */
 
-public class ProfileCreation extends JFrame {
+public class ProfileCreation extends JFrame implements ActionListener, KeyListener {
 	private static final long serialVersionUID = 1L;
 	private static boolean nameEntry, balanceEntry, passwordEntry;
 	private JTextField name, balance, password;
-	private static JButton create;
+	private JLabel nameLabel, balanceLabel, passwordLabel;
+	private static JButton create, cancel;
+	
+	
+	
+	
+	private static String title = "Create A User Profile";
+	
+	private Container pane;
+	private JPanel mainPanel, buttonPanel;
+	
+	private ArrayList<String> pList;
 	
 	/**
 	 * Constructor method. Draws GUI window containing text fields to input
@@ -35,66 +32,99 @@ public class ProfileCreation extends JFrame {
 	 * @throws IOException - Resulting from issues in saving profile
 	 * @author Drew Albert
 	 */
+	
+	/**
+	 * Altered By Andrew Hansel 4/8/2020
+	 * -fixed bug that allowed empty fields to pass into profiles.
+	 * -reorganized code to try to implement the dry method.
+	 * -pulled from original code commented out at the bottom
+	 */
 	public ProfileCreation(ArrayList<String> profileList) {
-		nameEntry = false;
-		balanceEntry = false;
-		passwordEntry = false;
-		
+		super(title);
+
+		pList = profileList;
+
+		pane = new Container();
+		pane.setBackground(Color.GREEN);
+		pane.setLayout(new BorderLayout(10,10));
+
+		setSize(350, 300);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setAlwaysOnTop(true);
-		setForeground(Color.WHITE);
-		setSize(299, 208);
-		setTitle("Create a new profile");
-		getContentPane().setLayout(null);
-		JPanel panel = new JPanel();
-		panel.setBounds(0, 0, 293, 179);
-		getContentPane().add(panel);
-		panel.setLayout(null);
 
-		JTextArea startingBalance = new JTextArea();
-		startingBalance.setBounds(10, 90, 136, 22);
-		panel.add(startingBalance);
-		startingBalance.setText("Starting Balance :");
-		startingBalance.setBackground(null);
-		startingBalance.setEditable(false);
-		startingBalance.setHighlighter(null);
+		buildWindow();
 
-		JTextArea profileName = new JTextArea();
-		profileName.setBounds(10, 10, 102, 22);
-		panel.add(profileName);
-		profileName.setText("Profile Name :");
-		profileName.setBackground(null);
-		profileName.setEditable(false);
-		profileName.setHighlighter(null);
+		add(pane);
 
-		JTextArea passwordField = new JTextArea();
-		passwordField.setText("Password :");
-		passwordField.setEditable(false);
-		passwordField.setBackground((Color) null);
-		passwordField.setBounds(10, 50, 136, 22);
-		passwordField.setHighlighter(null);
+		setVisible(true);
+	}
 
-		panel.add(passwordField);
+	private void buildWindow() {
 
-		JButton cancel = new JButton("Cancel");
-		cancel.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				dispose();
-			}
-		});
+		mainPanel = new JPanel();
+		mainPanel.setLayout(new GridLayout(4,2,5,10));
+		mainPanel.setBorder(BorderFactory.createEmptyBorder(50,50,50,50));
+		mainPanel.setBounds(0, 0, 293, 179);
 
-		cancel.setBounds(186, 130, 100, 23);
-		panel.add(cancel);
+
+		buttonPanel = new JPanel();
+		buttonPanel.setLayout(new GridLayout(0,2));
+
+		name = new JTextField(10);
+		name.setBounds(200, 10, 85, 20);
+		nameLabel = new JLabel("Name:");
+		name.addKeyListener(this);
+
+
+
+		balance = new JTextField();
+		balance.setBounds(200, 90, 85, 20);
+		balanceLabel = new JLabel("Balance:");
+		balance.addKeyListener(this);
+
+		password = new JTextField(10);
+		password.setBounds(200, 50, 86, 20);
+		passwordLabel = new JLabel("Password:");
+		password.addKeyListener(this);
+
 
 		create = new JButton("Create");
+		create.setEnabled(false);
 		create.setBounds(10, 130, 100, 23);
-		panel.add(create);
-		create.addActionListener(new ActionListener() {
+		create.addActionListener(this);
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+
+		cancel = new JButton("Cancel");
+		cancel.setBounds(186, 130, 100, 23);
+		cancel.addActionListener(this);
+
+
+		setVisible(true);
+
+		mainPanel.add(nameLabel);
+		mainPanel.add(name);
+		mainPanel.add(balanceLabel);
+		mainPanel.add(balance);
+		mainPanel.add(passwordLabel);
+		mainPanel.add(password);
+		mainPanel.add(create);
+		mainPanel.add(cancel);
+
+
+		pane.add(mainPanel, BorderLayout.CENTER);
+
+
+
+	}//End of buildWindow
+
+	//ActionListener for buttons
+	public void actionPerformed(ActionEvent e) {
+
+			if(e.getSource().equals(create)) {
+
 				try {
 					String filename = name.getText() + ".bl";
-					File profileDir = new File(new File(".").getCanonicalPath() + "/Profiles/");
+					System.out.println(new File(".").getCanonicalPath() + "/Profiles/" + filename);
 					FileOutputStream file = new FileOutputStream(new File(".").getCanonicalPath() + "/Profiles/" + filename);
 					ObjectOutputStream out = new ObjectOutputStream(file);
 
@@ -103,84 +133,104 @@ public class ProfileCreation extends JFrame {
 					out.writeObject(profile);
 					file.close();
 					out.close();
-		
+
 					JOptionPane.showMessageDialog(null, "Profile " + name.getText() + " has been created!" );
-					profileList.add(filename);
-					InitialWindow iw = new InitialWindow(profileList);
+					pList.add(name.getText() + ".bl");
+					new InitialWindow(pList);
 					dispose();
-				} catch (Exception ex) {
+				}catch (Exception ex) {
 					JOptionPane.showMessageDialog(null, "Profile initialization failed");
+				}//End of Catch
+
+			}//End of if statement for create
+
+
+
+		if(e.getSource().equals(cancel))
+			dispose();
+
+
+
+	}//End of actionPerformed method
+
+	//ActionListener for Text fields
+	public void keyReleased(KeyEvent e) {
+		fieldsFilled();
+		textFieldTest(e);
+
+	}//End of keyReleased method
+
+	public void keyPressed(KeyEvent e) {
+		fieldsFilled();
+		textFieldTest(e);
+	}//End of keyPressed method
+
+
+	public void keyTyped(KeyEvent e) {
+		fieldsFilled();
+		textFieldTest(e);
+	}//End of keyTyped method
+
+	//Helper method that checks the input of the text field inputs to make sure they are not empty
+	//and that the input is valid
+	//For these we can implement more rigorous tests to check if the input is valid.
+	public void textFieldTest(KeyEvent e) {
+		if(e.getSource().equals(name)) {
+			fieldsFilled();
+			if(name.getText().isEmpty()) 
+				nameEntry = false;
+			else if(name.getText().contains(".bl"))
+				nameEntry = false;
+			else if(name.getText().length() > 30)
+				nameEntry = false;
+			else
+				nameEntry = true;
+		}//End of if statement
+
+		if(e.getSource().equals(balance)) {
+			if(balance.getText().length() > 0) {
+				try {
+					if(Double.parseDouble(balance.getText()) > 1000000.00)
+						balanceEntry = false;
 				}
-
-			}
-		});
-		
-		name = new JTextField();
-		name.setBounds(200, 10, 85, 20);
-		panel.add(name);
-		name.setColumns(10);
-		name.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				if (name.getText().trim() != "" && !name.getText().contains(".bl")) {
-					nameEntry = true;
-					if (balanceEntry == true && passwordEntry == true)
-						create.setEnabled(true);
-				} else {
-					nameEntry = false;
-					create.setEnabled(false);
+				catch(Exception i){
+					JOptionPane.showMessageDialog(null, "Invalid character");
+					try {
+						balance.setText(balance.getText(0, balance.getText().length()-1));
+					}
+					catch(Exception j) {
+						JOptionPane.showMessageDialog(null, "null");
+					}
 				}
 			}
-		});
 
-		balance = new JTextField();
-		balance.setBounds(200, 90, 85, 20);
-		panel.add(balance);
-		balance.setColumns(10);
-		balance.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				if (balance.getText().matches("^[0-9]+$")) {
-					balanceEntry = true;
+			if(balance.getText().isEmpty()) 
+				balanceEntry = false;
 
-					if (nameEntry == true && passwordEntry == true)
-						create.setEnabled(true);
-				} else {
-					balanceEntry = false;
-					create.setEnabled(false);
-				}
-			}
-		});
+			else
+				balanceEntry = true;
+			fieldsFilled();
+		}//End of if statement
 
-		password = new JTextField();
-		password.setBounds(200, 50, 86, 20);
-		panel.add(password);
-		password.setColumns(10);
-		password.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent e) {
-				if (password.getText().trim() != "") {
-					passwordEntry = true;
+		if(e.getSource().equals(password)) {
+			fieldsFilled();
+			if(password.getText().isEmpty())
+				passwordEntry = false;
+			else if(password.getText().length() <= 3)
+				passwordEntry = false;
 
-					if (balanceEntry == true && nameEntry == true)
-						create.setEnabled(true);
-				} else {
-					passwordEntry = false;
-					create.setEnabled(false);
-				}
-			}
-		});
+			else
+				passwordEntry = true;
+		}//End of if statement
+	}//End of textFieldTest method
 
-		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		setResizable(false);
-		create.setEnabled(false);
-
-		JTextArea dollarSign = new JTextArea();
-		dollarSign.setText("$");
-		dollarSign.setBounds(186, 90, 11, 22);
-		dollarSign.setEditable(false);
-		dollarSign.setBackground(null);
-
-		panel.add(dollarSign);
-
-		setVisible(true);
-
-	}
+	//This method checks if the fields are full
+	//If they are the create button is active
+	private void fieldsFilled() {
+		if(nameEntry == true && balanceEntry == true && passwordEntry == true)
+			create.setEnabled(true);
+		else
+			create.setEnabled(false);
+	}//End of fieldsFilled
+	
 }

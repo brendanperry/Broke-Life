@@ -111,12 +111,24 @@ public class InitialWindow extends JFrame{
 			            ObjectInputStream decode = new ObjectInputStream(fileInput); 
 			             
 			            profile = (UserProfile)decode.readObject(); 
-			            
+			            	
 			            decode.close(); 
 			            fileInput.close();
-			            MainFrame mf = new MainFrame(profile);
-			            mf.setVisible(true);
-			            dispose();
+			            
+			            //Password entry required before accessing MainFrame
+			            while(true) {
+			            	 String input = JOptionPane.showInputDialog("Enter Password for Profile: " + profile.getName(), "");
+			            	 if(input != null) {
+			            		 if(input.equals(profile.getPassword())) {
+			            			 MainFrame mf = new MainFrame(profile);
+			            			 mf.setVisible(true);
+			            			 dispose();
+			            			 break;
+			            		 }
+			            	 } else break;
+			            }
+			            
+			            
 					} catch(Exception e) {
 						JOptionPane.showMessageDialog(null, "Profile selection invalid");
 						System.out.println(e);
