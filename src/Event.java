@@ -1,3 +1,7 @@
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,11 +15,11 @@ import java.util.Date;
 public class Event implements Serializable{
 	private static final long serialVersionUID = 1L;
 	public String title;
-	private double amount;
+	private Double amount;
 	private Date date;
 	private String tag;
-	private int recurPeriod = 0;
-	
+	private Integer recurPeriod = 0;
+	private Integer percentage;
 	/**
 	 * Constructor creates a new Event given user input. A tag value of "Misc." is given to 
 	 * Events created without user-specified tags 
@@ -24,12 +28,13 @@ public class Event implements Serializable{
 	 * @param date - The date where an event takes place. For recurring events, this is the first date of occurrence
 	 * @param recurring - The number of days between event repetition. Value of 0 used for one-time events
 	 */
-	public Event(String title, double amount, Date date, int recurPeriod) {
+	public Event(String title, double amount, int percentage, Date date, int recurPeriod, String tag) {
 		this.title = title;
-		this.tag = "Misc.";
+		this.tag = tag;
 		this.amount = amount;
 		this.date = date;
 		this.recurPeriod = recurPeriod;
+		this.percentage = percentage;
 	}
 	
 	/**
@@ -40,12 +45,13 @@ public class Event implements Serializable{
 	 * @param date - The date where an event takes place. For recurring events, this is the first date of occurrence
 	 * @param recurring - The number of days between event repetition. Value of 0 used for one-time events
 	 */
-	public Event(String title, double amount, Date date, String tag) {
+	public Event(String title, double amount, int percentage, Date date, String tag) {
 		this.title = title;
 		this.tag = tag;
 		this.amount = amount;
 		this.date = date;
 		this.tag = tag;
+		this.percentage = percentage;
 	}
 	
 	public Date getDate() {
@@ -76,6 +82,14 @@ public class Event implements Serializable{
 		return this.recurPeriod;
 	}
 	
+	public void setPercentage(int percentage) {
+		this.percentage = percentage;
+	}
+	
+	public int getPercentage(int percentage) {
+		return percentage;
+	}
+	
 	public String dateString(Date day) {
 		return day.getMonth() + " " + day.getDay() + " " + day.getYear();
 	}
@@ -86,5 +100,5 @@ public class Event implements Serializable{
 				"\nAmount: " + amount;
 		return output;
 	}
-	
+
 }

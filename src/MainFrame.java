@@ -7,12 +7,17 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 /**
  * This class is responsible for the display of the program.
@@ -21,7 +26,7 @@ import javax.swing.JMenuItem;
  * 03/20/20
  *
  */
-public class MainFrame extends JFrame implements ActionListener {
+public class MainFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	JMenuItem save, load;
@@ -29,7 +34,7 @@ public class MainFrame extends JFrame implements ActionListener {
 
 	public MainFrame(UserProfile user) {
 		getContentPane().setBackground(Color.decode("#25ced1"));
-		setTitle("BrokeLife");
+		setTitle("BrokeLife - " + user.getName());
 		setSize(1250, 800);
 		setResizable(false);
 		
@@ -73,30 +78,51 @@ public class MainFrame extends JFrame implements ActionListener {
 		centerPanel.addTab("Budget", budgetPanel);
 		centerPanel.addTab("Calendar", calendarPanel);
 		centerPanel.addTab("Overview", overviewPanel);
-				
+		
 		// MENU BAR
-
+		
 		JMenu file = new JMenu("File");
 		file.setMnemonic(KeyEvent.VK_F);
 		
 		JMenuItem save = new JMenuItem("Save Profile");
 		JMenuItem load = new JMenuItem("Load Profile");
 		
-		save.addActionListener(this);
-		load.addActionListener(this);
+		menuBar.add(file);
+		
+		save.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					String filename =  user.getName() + ".bl";
+					FileOutputStream file = new FileOutputStream(new File(".").getCanonicalPath() + "/Profiles/" + filename);
+					ObjectOutputStream out = new ObjectOutputStream(file);
+					
+					out.writeObject(user);
+					file.close();
+					out.close();
+
+					JOptionPane.showMessageDialog(null, "Profile has been saved!" );
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(null, "Save failed!");
+			}
+			}
+			
+		});
+		
+		load.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			});
+		
 		
 		file.add(save);
 		file.add(load);
-		
-		menuBar.add(file);
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == save) {
-			
-		} else if(e.getSource() == load) {
-			
-		}
-	}
 }
+

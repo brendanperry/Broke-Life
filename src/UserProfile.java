@@ -1,3 +1,7 @@
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,12 +13,15 @@ import java.util.Date;
  * 02/29/2020
  */
 public class UserProfile implements Serializable {
+	private static final long serialVersionUID = 14L;
 	private String name, password;
 	private double balance;
-	private ArrayList<Event> events;
-	private ArrayList<Event> recurring;
+	private ArrayList<Event> events = new ArrayList<Event>();
+	private ArrayList<Event> recurring = new ArrayList<Event>();
 	
-	public UserProfile(String name, String password, double balance) {
+	public UserProfile() {}
+	
+	public UserProfile(String name, String password, Double balance) {
 		this.name = name;
 		this.balance = balance;
 		this.password = password;
@@ -76,9 +83,9 @@ public class UserProfile implements Serializable {
 		return output;
 	}
 	
-	public void sortEvents() {
-		
-	}
+//	public void sortEvents() {
+//		
+//	}
 	
 	/**
 	 * Generates a list of events which occur during a specified time period
@@ -95,8 +102,13 @@ public class UserProfile implements Serializable {
 			}
 		}
 		
-		return (Event[])list.toArray();
+		Event[] events = new Event[list.size()];
 		
+		for(int j = 0; j < list.size(); j++) {
+			events[j] = list.get(j);
+		}
+		
+		return events;
 	}
 	
 	/**
@@ -112,7 +124,13 @@ public class UserProfile implements Serializable {
 				list.add(events[i]);
 		}
 		
-		return (Event[])list.toArray();
+		Event[] event = new Event[list.size()];
+		
+		for(int j = 0; j < list.size(); j++) {
+			event[j] = list.get(j);
+		}
+		
+		return event;
 	}
 	
 	/**
@@ -148,4 +166,5 @@ public class UserProfile implements Serializable {
 		
 		return total;
 	}
+
 }

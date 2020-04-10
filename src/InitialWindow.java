@@ -150,4 +150,3 @@ public class InitialWindow extends JFrame{
         	setVisible(true);
     }
 }
-
