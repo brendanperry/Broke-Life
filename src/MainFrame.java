@@ -10,7 +10,6 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
-
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JLabel;
@@ -30,7 +29,10 @@ public class MainFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	JMenuItem save, load;
-	
+	JLabel monthHeading;
+	BudgetPanel budgetPanel;		
+	CalendarPanel calendarPanel;
+	OverviewPanel overviewPanel;
 
 	public MainFrame(UserProfile user) {
 		getContentPane().setBackground(Color.decode("#25ced1"));
@@ -51,18 +53,23 @@ public class MainFrame extends JFrame {
 		topPanel.setBackground(Color.decode("#25ced1"));
 		getContentPane().add(topPanel, BorderLayout.NORTH);
 		
-		JButton leftButton = new JButton();
-		leftButton.setText("\u2190");
-		topPanel.add(leftButton);
+		JButton btnPreviousMonth = new JButton();
+		btnPreviousMonth.setText("\u2190");
+		btnPreviousMonth.setFont(new Font("Arial", Font.PLAIN, 18));
+		topPanel.add(btnPreviousMonth);
 		
-		JLabel monthHeading = new JLabel("April 2020");
+		monthHeading = new JLabel("January");
 		monthHeading.setFont(new Font("Arial", Font.BOLD, 30));
 		monthHeading.setForeground(Color.WHITE);
 		topPanel.add(monthHeading);
 		
-		JButton rightButton = new JButton();
-		rightButton.setText("\u2192");
-		topPanel.add(rightButton);
+		JButton btnNextMonth = new JButton();
+		btnNextMonth.setText("\u2192");
+		btnNextMonth.setFont(new Font("Arial", Font.PLAIN, 18));
+		topPanel.add(btnNextMonth);
+		
+		btnPreviousMonth.addActionListener(new btnPreviousMonthClicked());
+		btnNextMonth.addActionListener(new btnNextMonthClicked());
 		
 		// CENTER PANEL
 		JTabbedPane centerPanel = new JTabbedPane();
@@ -71,13 +78,15 @@ public class MainFrame extends JFrame {
 		getContentPane().add(centerPanel, BorderLayout.CENTER);
 		
 		
-		JPanel budgetPanel = new BudgetPanel(user);		
-		JPanel calendarPanel = new CalendarPanel(user);
-		JPanel overviewPanel = new OverviewPanel(user);
+		budgetPanel = new BudgetPanel(user);		
+		calendarPanel = new CalendarPanel(user);
+		overviewPanel = new OverviewPanel(user);
 		
 		centerPanel.addTab("Budget", budgetPanel);
 		centerPanel.addTab("Calendar", calendarPanel);
 		centerPanel.addTab("Overview", overviewPanel);
+		
+		monthHeading.setText(calendarPanel.getCurrentMonthString());
 		
 		// MENU BAR
 		
@@ -124,5 +133,36 @@ public class MainFrame extends JFrame {
 		file.add(load);
 	}
 
+	//If currentMonth is January, decrement current year and change current month to December
+    //Otherwise, change currentMonth to previous month
+	//Refresh calendar
+	 class btnPreviousMonthClicked implements ActionListener{
+        public void actionPerformed (ActionEvent e){
+        	if (calendarPanel.getCurrentMonth() == 0){
+        		calendarPanel.setCurrentMonth(11);
+        		calendarPanel.setCurrentYear(calendarPanel.getCurrentYear()-1);
+            } else{
+                calendarPanel.setCurrentMonth(calendarPanel.getCurrentMonth()-1);
+            }
+            calendarPanel.refreshCalendar(calendarPanel.getCurrentMonth(), calendarPanel.getCurrentYear());
+    		monthHeading.setText(calendarPanel.getCurrentMonthString());
+        }
+    }
+	
+	//If currentMonth is December, increment current year and change current month to January
+    //Otherwise, change currentMonth to next month
+	//Refresh calendar
+     class btnNextMonthClicked implements ActionListener{
+        public void actionPerformed (ActionEvent e){
+            if (calendarPanel.getCurrentMonth() == 11){
+        		calendarPanel.setCurrentMonth(0);
+        		calendarPanel.setCurrentYear(calendarPanel.getCurrentYear()+1);
+            } else{
+                calendarPanel.setCurrentMonth(calendarPanel.getCurrentMonth()+1);
+            }
+            calendarPanel.refreshCalendar(calendarPanel.getCurrentMonth(), calendarPanel.getCurrentYear());
+    		monthHeading.setText(calendarPanel.getCurrentMonthString());
+        }
+    }
 }
 
