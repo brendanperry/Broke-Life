@@ -83,9 +83,6 @@ public class BudgetPanel extends JPanel {
 		data = new ArrayList<String[]>();
 		us = NumberFormat.getCurrencyInstance(Locale.US);
 		
-		Color bgColor = Color.decode("#3e92cc");
-		Color foregroundColor = Color.decode("#25ced1");
-		
 		// These are the two classes that handle user input 
 		ActionHandler actionHandler = new ActionHandler();
 		FocusHandler focusHandler = new FocusHandler();
@@ -95,7 +92,7 @@ public class BudgetPanel extends JPanel {
 		JPanel expensesPanel = new JPanel();
 		expensesPanel.setSize(new Dimension(300, 300));
 		expensesPanel.setLayout(new BorderLayout(0, 0));
-		expensesPanel.setBackground(bgColor);
+		expensesPanel.setBackground(Color.GRAY);
 		expensesPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		
 		JLabel expensesText = new JLabel("Expenses", SwingConstants.CENTER);
@@ -112,7 +109,6 @@ public class BudgetPanel extends JPanel {
 		};	
 		
 		table = new JTable(model);
-		table.getTableHeader().setBackground(foregroundColor);
 		model.addColumn("Item");
 		model.addColumn("Cost");
 		model.addColumn("Percentage");
@@ -122,7 +118,7 @@ public class BudgetPanel extends JPanel {
 		
 		// The table is in a scroll pane so more events than can fit in the pane can be added
 		JScrollPane scrollPane = new JScrollPane(table);
-		scrollPane.getViewport().setBackground(Color.WHITE);
+		
 		expensesPanel.add(scrollPane, BorderLayout.CENTER);
 		
 		// RIGHT PANEL
@@ -133,7 +129,7 @@ public class BudgetPanel extends JPanel {
 		// INCOME PANEL
 		
 		JPanel incomePanel = new JPanel();
-		incomePanel.setBackground(bgColor);
+		incomePanel.setBackground(Color.GRAY);
 		incomePanel.setPreferredSize(new Dimension(300, 300));
 		incomePanel.setLayout(new GridLayout(8, 1));
 		incomePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -146,7 +142,6 @@ public class BudgetPanel extends JPanel {
 		JLabel payText = new JLabel("PAY");
 		incomePanel.add(payText);
 		payText.setForeground(Color.WHITE);
-		payText.setFont(new Font("Arial", Font.BOLD, 13));
 		
 		payOne = new JTextField();
 		payOne.addActionListener(actionHandler);
@@ -171,7 +166,6 @@ public class BudgetPanel extends JPanel {
 		
 		JLabel tipsText = new JLabel("TIPS");
 		tipsText.setForeground(Color.WHITE);
-		tipsText.setFont(new Font("Arial", Font.BOLD, 13));
 		incomePanel.add(tipsText);
 		
 		tips = new JTextField();
@@ -185,7 +179,7 @@ public class BudgetPanel extends JPanel {
 		JPanel reviewPanel = new JPanel();
 		reviewPanel.setPreferredSize(new Dimension(300,300));
 		reviewPanel.setLayout(new GridLayout(7, 1));
-		reviewPanel.setBackground(bgColor);
+		reviewPanel.setBackground(Color.GRAY);
 		reviewPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		
 		JLabel reviewText = new JLabel("Review", SwingConstants.CENTER);
@@ -193,25 +187,19 @@ public class BudgetPanel extends JPanel {
 		reviewText.setFont(new Font("Arial", Font.BOLD, 20));
 		
 		JLabel totalIncomeText = new JLabel("Total Income");
-		totalIncomeText.setFont(new Font("Arial", Font.BOLD, 13));
 		totalIncomeText.setForeground(Color.WHITE);
 		totalIncome = new JTextField("$0.00");
 		totalIncome.setEditable(false);
-		totalIncome.setBackground(Color.WHITE);
 		
 		JLabel totalBudgetedText = new JLabel("Total Budgeted");
-		totalBudgetedText.setFont(new Font("Arial", Font.BOLD, 13));
 		totalBudgetedText.setForeground(Color.WHITE);
 		totalBudgeted = new JTextField("$0.00");
 		totalBudgeted.setEditable(false);
-		totalBudgeted.setBackground(Color.WHITE);
 		
 		JLabel leftToBudgetText = new JLabel("Left to Budget");
-		leftToBudgetText.setFont(new Font("Arial", Font.BOLD, 13));
 		leftToBudgetText.setForeground(Color.WHITE);
 		leftToBudget = new JTextField("$0.00");
 		leftToBudget.setEditable(false);
-		leftToBudget.setBackground(Color.WHITE);
 		
 		reviewPanel.add(reviewText);
 		reviewPanel.add(totalIncomeText);
@@ -230,52 +218,32 @@ public class BudgetPanel extends JPanel {
 		JPanel eventPanel = new JPanel();
 		eventPanel.setLayout(new BorderLayout());
 		
-		JPanel topEventPanel = new JPanel();
-		
 		String[] interactions = {"Add Event", "Modify Event", "Delete Event"};
 		eventComboBox = new JComboBox<String>(interactions);
 		eventComboBox.addActionListener(actionHandler);
-		eventComboBox.setBackground(foregroundColor);
-		topEventPanel.add(eventComboBox, BorderLayout.WEST);
-		
-		submitChanges = new JButton("Add Row");
-		submitChanges.setForeground(Color.WHITE);
-		submitChanges.setBackground(bgColor);
-		submitChanges.addActionListener(actionHandler);
-		topEventPanel.add(submitChanges, BorderLayout.EAST);
-		topEventPanel.setBackground(foregroundColor);
-		
-		eventPanel.add(topEventPanel, BorderLayout.SOUTH);
+		eventPanel.add(eventComboBox, BorderLayout.NORTH);
 		
 		JPanel centerEventPanel = new JPanel();
 		
 		name = new JTextField();
-		name.setPreferredSize(new Dimension(100,30));
+		name.setPreferredSize(new Dimension(100,20));
 		cost = new JTextField("0");
-		cost.setPreferredSize(new Dimension(100,30));
+		cost.setPreferredSize(new Dimension(100,20));
 		percentage = new JTextField("0");
-		percentage.setPreferredSize(new Dimension(100,30));
+		percentage.setPreferredSize(new Dimension(100,20));
 		day = new JTextField("1");
-		day.setPreferredSize(new Dimension(100,30));
+		day.setPreferredSize(new Dimension(100,20));
 		String[] interactionsRepeating = {"None", "Weekly", "Biweekly", "Monthly", "Yearly"};
 		repeating = new JComboBox<String>(interactionsRepeating);
 		category = new JTextField("default");
-		category.setPreferredSize(new Dimension(100,30));
+		category.setPreferredSize(new Dimension(100,20));
 		
 		JLabel nameText = new JLabel("Name");
-		nameText.setFont(new Font("Arial", Font.BOLD, 13));
 		JLabel costText = new JLabel("Cost");
-		costText.setFont(new Font("Arial", Font.BOLD, 13));
 		JLabel percentageText = new JLabel("Percentage");
-		percentageText.setFont(new Font("Arial", Font.BOLD, 13));
 		JLabel dayText = new JLabel("Day");
-		dayText.setFont(new Font("Arial", Font.BOLD, 13));
 		JLabel repeatingText = new JLabel("Repeating");
-		repeatingText.setFont(new Font("Arial", Font.BOLD, 13));
 		JLabel categoryText = new JLabel("Category");
-		categoryText.setFont(new Font("Arial", Font.BOLD, 13));
-		
-		centerEventPanel.setBackground(foregroundColor);
 		
 		centerEventPanel.add(nameText);
 		centerEventPanel.add(name);
@@ -292,17 +260,20 @@ public class BudgetPanel extends JPanel {
 				
 		eventPanel.add(centerEventPanel, BorderLayout.CENTER);
 		
+		submitChanges = new JButton("Add");
+		submitChanges.addActionListener(actionHandler);
+		eventPanel.add(submitChanges, BorderLayout.SOUTH);
+		
 		add(expensesPanel, BorderLayout.CENTER);
 		add(rightPanel, BorderLayout.EAST);
 		add(eventPanel, BorderLayout.SOUTH);
 		
-		/*
 		try {
 			loadUserData();
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 	}
 	
 	/*

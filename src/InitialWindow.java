@@ -80,6 +80,7 @@ public class InitialWindow extends JFrame{
         	panel.add(profileList);
         	
     		for(int i = 0; i < profileNames.size(); i++) 
+    			if(!list.contains(profileNames.get(i)))
     			list.addElement(profileNames.get(i));
     		
         	text = new JTextArea("Select a User Profile from the list below");
@@ -150,4 +151,3 @@ public class InitialWindow extends JFrame{
         	setVisible(true);
     }
 }
-
