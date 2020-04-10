@@ -12,7 +12,6 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -77,6 +76,9 @@ public class BudgetPanel extends JPanel {
 	JButton submitChanges;
 	
 	JComboBox<String> eventComboBox;
+	
+	int tableYear = 2020;
+	int tableMonth = 4;
 	
 	public BudgetPanel(UserProfile userProfile) {
 		setLayout(new BorderLayout(0, 0));
@@ -231,27 +233,7 @@ public class BudgetPanel extends JPanel {
 		// EVENT PANEL
 		
 		JPanel eventPanel = new JPanel();
-		eventPanel.setLayout(new BorderLayout());
-		
-		JPanel topEventPanel = new JPanel();
-		
-		String[] interactions = {"Add Event", "Modify Event", "Delete Event"};
-		eventComboBox = new JComboBox<String>(interactions);
-		eventComboBox.addActionListener(actionHandler);
-		eventComboBox.setBackground(foregroundColor);
-		topEventPanel.add(eventComboBox, BorderLayout.WEST);
-		
-		submitChanges = new JButton("Add Row");
-		submitChanges.setForeground(Color.WHITE);
-		submitChanges.setBackground(bgColor);
-		submitChanges.addActionListener(actionHandler);
-		topEventPanel.add(submitChanges, BorderLayout.EAST);
-		topEventPanel.setBackground(foregroundColor);
-		
-		eventPanel.add(topEventPanel, BorderLayout.SOUTH);
-		
-		JPanel centerEventPanel = new JPanel();
-		
+						
 		name = new JTextField();
 		name.setPreferredSize(new Dimension(100,30));
 		cost = new JTextField("0");
@@ -260,9 +242,9 @@ public class BudgetPanel extends JPanel {
 		percentage.setPreferredSize(new Dimension(100,30));
 		day = new JTextField("1");
 		day.setPreferredSize(new Dimension(100,30));
-		String[] interactionsRepeating = {"None", "Weekly", "Biweekly", "Monthly", "Yearly"};
+		String[] interactionsRepeating = {"None", "Daily", "Weekly", "Biweekly", "Monthly", "Yearly"};
 		repeating = new JComboBox<String>(interactionsRepeating);
-		category = new JTextField("default");
+		category = new JTextField("Misc");
 		category.setPreferredSize(new Dimension(100,30));
 		
 		JLabel nameText = new JLabel("Name");
@@ -278,30 +260,40 @@ public class BudgetPanel extends JPanel {
 		JLabel categoryText = new JLabel("Category");
 		categoryText.setFont(new Font("Arial", Font.BOLD, 13));
 		
-		centerEventPanel.setBackground(foregroundColor);
+		eventPanel.setBackground(foregroundColor);
 		
-		centerEventPanel.add(nameText);
-		centerEventPanel.add(name);
-		centerEventPanel.add(costText);
-		centerEventPanel.add(cost);
-		centerEventPanel.add(percentageText);
-		centerEventPanel.add(percentage);
-		centerEventPanel.add(dayText);
-		centerEventPanel.add(day);
-		centerEventPanel.add(repeatingText);
-		centerEventPanel.add(repeating);
-		centerEventPanel.add(categoryText);
-		centerEventPanel.add(category);
+		eventPanel.add(nameText);
+		eventPanel.add(name);
+		eventPanel.add(costText);
+		eventPanel.add(cost);
+		eventPanel.add(percentageText);
+		eventPanel.add(percentage);
+		eventPanel.add(dayText);
+		eventPanel.add(day);
+		eventPanel.add(repeatingText);
+		eventPanel.add(repeating);
+		eventPanel.add(categoryText);
+		eventPanel.add(category);
 				
-		eventPanel.add(centerEventPanel, BorderLayout.CENTER);
+		String[] interactions = {"Add Event", "Modify Event", "Delete Event"};
+		eventComboBox = new JComboBox<String>(interactions);
+		eventComboBox.addActionListener(actionHandler);
+		eventComboBox.setBackground(foregroundColor);
+		eventPanel.add(eventComboBox);
+		
+		submitChanges = new JButton("Add Row");
+		submitChanges.setForeground(Color.WHITE);
+		submitChanges.setBackground(bgColor);
+		submitChanges.addActionListener(actionHandler);		
+		eventPanel.add(submitChanges);
 		
 		add(expensesPanel, BorderLayout.CENTER);
 		add(rightPanel, BorderLayout.EAST);
 		add(eventPanel, BorderLayout.SOUTH);
 		
 		try {
-			loadUserData();
-			System.out.println("load iniated");
+			LocalDate date = LocalDate.now();
+			loadUserData(date.getMonthValue(), date.getYear());
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -313,26 +305,46 @@ public class BudgetPanel extends JPanel {
 	 * @params userProfile is the profile of the current user
 	 * @author brendanperry
 	 */
-	public void loadUserData() throws ParseException {
+	public void loadUserData(int month, int year) throws ParseException {
 		clearData();
-		System.out.println("Data cleared");
 		
-		// will need to get date from the top header
-		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String startDate = "2020-04-01";
-		String endDate = "2020-04-30";
-		Date dateObject1 = sdf.parse(startDate);
-		Date dateObject2 = sdf.parse(endDate);
+		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = format.parse(Integer.toString(year) + "-" + Integer.toString(month) + "-01");
 		
-		Event[] events = user.getEvents(dateObject1, dateObject2);
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);		
+		String m = Integer.toString(month);
+		String y = Integer.toString(calendar.get(Calendar.YEAR));
 		
-		System.out.println("TOTAL EVENTS: " + events.length);
+		tableMonth = month;
+		tableYear = calendar.get(Calendar.YEAR);
 		
+		String startDay = y + "-" + m + "-" + "1";
+		String endDay = y + "-" + m + "-";
+		
+		if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
+			// last day is 31st
+			endDay += "31";
+		}
+		else if(month == 2) {
+			// last day is 28th
+			endDay += "28";
+		}
+		else {
+			// last day is 30th
+			endDay += "30";
+		}
+		
+		Date start = format.parse(startDay);
+		Date end = format.parse(endDay);
+
+		Event[] events = user.getEvents(start, end);
+
 		for(int i = 0; i < events.length; i++) {
 			String title = events[i].getTitle();
 			Double cost = events[i].getAmount();
 			
-			String repeating = Integer.toString(events[i].getRecurPeriod());
+			int repeating = events[i].getRecurPeriod();
 
 			String percent = Integer.toString(events[i].getPercentage());
 			String category = events[i].getTag();	
@@ -342,13 +354,31 @@ public class BudgetPanel extends JPanel {
 			String day = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
 			
 			// name, cost, percent, day, repeating, category
-			if(repeating.equals("0")) {
-				String[] newData = {title, us.format(cost), percent, day, "0", category};
+			if(repeating == 0) {
+				String[] newData = {title, us.format(cost), percent, day, "None", category};
 				data.add(newData);
 				model.addRow(newData);
 			}
 			else {
-				String[] newData = {title, us.format(cost), percent, day, repeating, category};
+				String recurring = "None";
+				
+				if(repeating == 1) {
+					recurring = "Daily";
+				}
+				else if(repeating == 7) {
+					recurring = "Weekly";
+				}
+				else if(repeating == 14) {
+					recurring = "Biweekly";
+				}
+				else if(repeating == 30) {
+					recurring = "Monthly";
+				}
+				else if(repeating == 365) {
+					recurring = "Yearly";
+				}
+				
+				String[] newData = {title, us.format(cost), percent, day, recurring, category};
 				
 				data.add(newData);
 				model.addRow(newData);
@@ -361,19 +391,25 @@ public class BudgetPanel extends JPanel {
 	 * @author brendanperry
 	 */
 	private void clearData() {
-		for(int i = 0; i < data.size(); i++) {
-			data.remove(i);
-			model.removeRow(i);
+		int size = data.size();
+		
+		for(int i = 0; i < size; i++) {
+			data.remove(0);
+			model.removeRow(0);
 		}
 	}
 	
-	// name, cost, percent, day, repeating, category
+	/*
+	 * This function saves user data that has been added to the table.
+	 * @params it takes info which is the list of all event information
+	 * @author brendanperry
+	 */
 	private void saveUserData(String[] info) throws ParseException {
 		ActionHandler actionHandler = new ActionHandler();
 		
 		// need to get month and year from header
 		DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-		String dateString = info[3] + "/04/2020";
+		String dateString = info[3] + "/" + tableMonth + "/" + tableYear;
 		
 		Date dateObject = sdf.parse(dateString);
 		Calendar cal = Calendar.getInstance();
@@ -399,6 +435,9 @@ public class BudgetPanel extends JPanel {
 			}
 			else if(info[4].equals("Monthly")) {
 				recurPeriod = 30;
+			}
+			else if(info[4].equals("Daily")) {
+				recurPeriod = 1;
 			}
 			else {
 				recurPeriod = 365;

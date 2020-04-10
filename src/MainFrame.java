@@ -12,6 +12,8 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
+import java.text.ParseException;
+
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JLabel;
@@ -161,7 +163,7 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 			}
-			});
+		});
 		
 		
 		file.add(save);
@@ -216,6 +218,14 @@ public class MainFrame extends JFrame {
                 calendarPanel.setCurrentMonth(calendarPanel.getCurrentMonth()-1);
             }
             calendarPanel.refreshCalendar(calendarPanel.getCurrentMonth(), calendarPanel.getCurrentYear());
+            
+            try {
+				budgetPanel.loadUserData(calendarPanel.getCurrentMonth() + 1, calendarPanel.getCurrentYear());
+			} catch (ParseException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+            
     		monthHeading.setText(calendarPanel.getCurrentMonthString());
         }
     }
@@ -232,6 +242,14 @@ public class MainFrame extends JFrame {
                 calendarPanel.setCurrentMonth(calendarPanel.getCurrentMonth()+1);
             }
             calendarPanel.refreshCalendar(calendarPanel.getCurrentMonth(), calendarPanel.getCurrentYear());
+            
+            try {
+				budgetPanel.loadUserData(calendarPanel.getCurrentMonth() + 1, calendarPanel.getCurrentYear());
+			} catch (ParseException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+            
     		monthHeading.setText(calendarPanel.getCurrentMonthString());
         }
     }
