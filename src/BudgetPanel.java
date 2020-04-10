@@ -11,7 +11,10 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import javax.swing.JButton;
@@ -296,13 +299,13 @@ public class BudgetPanel extends JPanel {
 		add(rightPanel, BorderLayout.EAST);
 		add(eventPanel, BorderLayout.SOUTH);
 		
-		/*
 		try {
 			loadUserData();
+			System.out.println("load iniated");
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 	}
 	
 	/*
@@ -312,6 +315,7 @@ public class BudgetPanel extends JPanel {
 	 */
 	public void loadUserData() throws ParseException {
 		clearData();
+		System.out.println("Data cleared");
 		
 		// will need to get date from the top header
 		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -322,19 +326,42 @@ public class BudgetPanel extends JPanel {
 		
 		Event[] events = user.getEvents(dateObject1, dateObject2);
 		
+		System.out.println(events.length);
+		
 		for(int i = 0; i < events.length; i++) {
 			String title = events[i].getTitle();
+			System.out.println(title);
 			Double cost = events[i].getAmount();
-			int repeating = events[i].getRecurPeriod();
+			
+			String repeating = Integer.toString(events[i].getRecurPeriod());
+
+			String percent = Integer.toString(events[i].getPercentage(0));
 			String category = events[i].getTag();	
-			@SuppressWarnings("deprecation")
-			String day = Integer.toString(events[i].getDate().getDay());
+			
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(events[i].getDate());			
+			String day = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
+			System.out.println("DAY: " + day);
 			
 			// name, cost, percent, day, repeating, category
-			String[] newData = {title, us.format(cost), "0", day, "0", category};
-			
-			data.add(newData);
-			model.addColumn(newData);
+			if(repeating.equals("0")) {
+				String[] newData = {title, us.format(cost), percent, day, "0", category};
+				System.out.println(title);
+				System.out.println(us.format(cost));
+				System.out.println(percent);
+				System.out.println(day);
+				System.out.println(category);
+				data.add(newData);
+				model.addRow(newData);
+				System.out.println("here");
+			}
+			else {
+				String[] newData = {title, us.format(cost), percent, day, repeating, category};
+				
+				data.add(newData);
+				model.addRow(newData);
+				System.out.println("hi");
+			}
 		}
 	}
 	
@@ -351,20 +378,24 @@ public class BudgetPanel extends JPanel {
 	
 	// name, cost, percent, day, repeating, category
 	private void saveUserData(String[] info) throws ParseException {
+		System.out.println("at the function");
 		ActionHandler actionHandler = new ActionHandler();
 		
 		// need to get month and year from header
-		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String dateString = "2020-" + "04-" + info[3];
-		Date dateObject = sdf.parse(dateString);
+		DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		String dateString = info[3] + "/04/2020";
 		
-		double cost = actionHandler.currencyToDouble(info[1]);
+		Date dateObject = sdf.parse(dateString);
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(dateObject);
+		System.out.println("DAY: " + cal.get(Calendar.DAY_OF_MONTH));
 		
 		//String title, double amount, Date date, String tag
 		if(info[4].equals("None")) {
 			// create non repeating event
-			Event event = new Event(info[0], cost, 1, dateObject, info[5]);
+			Event event = new Event(info[0], actionHandler.currencyToDouble(info[1]), Integer.parseInt(info[2]), dateObject, 0, info[5]);
 			user.addEvent(event);
+			System.out.println("event added");
 		}
 		else {
 			// create repeating event
@@ -382,8 +413,9 @@ public class BudgetPanel extends JPanel {
 				recurPeriod = 365;
 			}
 			
-			Event event = new Event(info[0], cost, 1, dateObject, "");
+			Event event = new Event(info[0], actionHandler.currencyToDouble(info[1]), Integer.parseInt(info[2]), dateObject, recurPeriod, info[5]);
 			user.addEvent(event);
+			System.out.println("event added");
 		}
 	}
 	
@@ -570,6 +602,7 @@ public class BudgetPanel extends JPanel {
 						
 						try {
 							saveUserData(checkedData);
+							System.out.println("Data save initiated");
 						} catch (ParseException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
