@@ -86,8 +86,8 @@ public class Event implements Serializable{
 		this.percentage = percentage;
 	}
 	
-	public int getPercentage(int percentage) {
-		return percentage;
+	public int getPercentage() {
+		return this.percentage;
 	}
 	
 	public String dateString(Date day) {

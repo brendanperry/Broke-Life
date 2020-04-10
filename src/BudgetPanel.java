@@ -11,7 +11,10 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import javax.swing.JButton;
@@ -192,21 +195,21 @@ public class BudgetPanel extends JPanel {
 		reviewText.setForeground(Color.WHITE);
 		reviewText.setFont(new Font("Arial", Font.BOLD, 20));
 		
-		JLabel totalIncomeText = new JLabel("Total Income");
+		JLabel totalIncomeText = new JLabel("TOTAL INCOME");
 		totalIncomeText.setFont(new Font("Arial", Font.BOLD, 13));
 		totalIncomeText.setForeground(Color.WHITE);
 		totalIncome = new JTextField("$0.00");
 		totalIncome.setEditable(false);
 		totalIncome.setBackground(Color.WHITE);
 		
-		JLabel totalBudgetedText = new JLabel("Total Budgeted");
+		JLabel totalBudgetedText = new JLabel("TOTAL BUDGETED");
 		totalBudgetedText.setFont(new Font("Arial", Font.BOLD, 13));
 		totalBudgetedText.setForeground(Color.WHITE);
 		totalBudgeted = new JTextField("$0.00");
 		totalBudgeted.setEditable(false);
 		totalBudgeted.setBackground(Color.WHITE);
 		
-		JLabel leftToBudgetText = new JLabel("Left to Budget");
+		JLabel leftToBudgetText = new JLabel("LEFT TO BUDGET");
 		leftToBudgetText.setFont(new Font("Arial", Font.BOLD, 13));
 		leftToBudgetText.setForeground(Color.WHITE);
 		leftToBudget = new JTextField("$0.00");
@@ -296,13 +299,13 @@ public class BudgetPanel extends JPanel {
 		add(rightPanel, BorderLayout.EAST);
 		add(eventPanel, BorderLayout.SOUTH);
 		
-		/*
 		try {
 			loadUserData();
+			System.out.println("load iniated");
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 	}
 	
 	/*
@@ -312,6 +315,7 @@ public class BudgetPanel extends JPanel {
 	 */
 	public void loadUserData() throws ParseException {
 		clearData();
+		System.out.println("Data cleared");
 		
 		// will need to get date from the top header
 		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -322,19 +326,33 @@ public class BudgetPanel extends JPanel {
 		
 		Event[] events = user.getEvents(dateObject1, dateObject2);
 		
+		System.out.println("TOTAL EVENTS: " + events.length);
+		
 		for(int i = 0; i < events.length; i++) {
 			String title = events[i].getTitle();
 			Double cost = events[i].getAmount();
-			int repeating = events[i].getRecurPeriod();
+			
+			String repeating = Integer.toString(events[i].getRecurPeriod());
+
+			String percent = Integer.toString(events[i].getPercentage());
 			String category = events[i].getTag();	
-			@SuppressWarnings("deprecation")
-			String day = Integer.toString(events[i].getDate().getDay());
+			
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(events[i].getDate());			
+			String day = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
 			
 			// name, cost, percent, day, repeating, category
-			String[] newData = {title, us.format(cost), "0", day, "0", category};
-			
-			data.add(newData);
-			model.addColumn(newData);
+			if(repeating.equals("0")) {
+				String[] newData = {title, us.format(cost), percent, day, "0", category};
+				data.add(newData);
+				model.addRow(newData);
+			}
+			else {
+				String[] newData = {title, us.format(cost), percent, day, repeating, category};
+				
+				data.add(newData);
+				model.addRow(newData);
+			}
 		}
 	}
 	
@@ -354,22 +372,26 @@ public class BudgetPanel extends JPanel {
 		ActionHandler actionHandler = new ActionHandler();
 		
 		// need to get month and year from header
-		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String dateString = "2020-" + "04-" + info[3];
-		Date dateObject = sdf.parse(dateString);
+		DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		String dateString = info[3] + "/04/2020";
 		
-		double cost = actionHandler.currencyToDouble(info[1]);
+		Date dateObject = sdf.parse(dateString);
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(dateObject);
+		
+		Event event;
 		
 		//String title, double amount, Date date, String tag
 		if(info[4].equals("None")) {
 			// create non repeating event
-			Event event = new Event(info[0], cost, 1, dateObject, info[5]);
-			user.addEvent(event);
+			event = new Event(info[0], actionHandler.currencyToDouble(info[1]), Integer.parseInt(info[2]), dateObject, 0, info[5]);
 		}
 		else {
+			System.out.println(info[4]);
 			// create repeating event
 			int recurPeriod = 0;
 			if(info[4].equals("Weekly")) {
+				System.out.println("Equals");
 				recurPeriod = 7;
 			}
 			else if(info[4].equals("Biweekly")) {
@@ -382,9 +404,17 @@ public class BudgetPanel extends JPanel {
 				recurPeriod = 365;
 			}
 			
-			Event event = new Event(info[0], cost, 1, dateObject, "");
-			user.addEvent(event);
+			System.out.println("RECUR: " + recurPeriod);
+			System.out.println(info[0]);
+			System.out.println(actionHandler.currencyToDouble(info[1]));
+			System.out.println(Integer.parseInt(info[2]));
+			System.out.println(dateObject);
+			System.out.println(recurPeriod);
+			System.out.println(info[5]);
+			event = new Event(info[0], actionHandler.currencyToDouble(info[1]), Integer.parseInt(info[2]), dateObject, recurPeriod, info[5]);
 		}
+		
+		user.addEvent(event);
 	}
 	
 	/*
@@ -570,6 +600,7 @@ public class BudgetPanel extends JPanel {
 						
 						try {
 							saveUserData(checkedData);
+							System.out.println("Data save initiated");
 						} catch (ParseException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
