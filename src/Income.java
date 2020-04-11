@@ -9,9 +9,9 @@ import java.util.Date;
 public class Income implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private int month, year;
-	private Double[] weeks = new Double[4];
-	private double tips;
-	private double misc;
+	private double[] weeks = new double[4];
+	private double tips = 0;
+	private double[] misc = new double[4];
 
 	/**
 	 * Constructor method which initializes an Income object that represents a certain month
@@ -34,7 +34,7 @@ public class Income implements Serializable {
 	}
 
 	public double getWeek(int index) {
-		if(!(index > 3) && index > 0)
+		if(index <=3 && index >= 0)
 			return weeks[index];
 		else return -1; //Invalid week selection
 	}
@@ -45,15 +45,18 @@ public class Income implements Serializable {
 	
 	public double getTips() {
 		return this.tips;
-		
 	}
 	
-	public void setMisc(double misc) {
-		this.misc = misc;
+	public void setMisc(double pay, int index) {
+		if(index <= 3 && index >= 0)
+			misc[index] = pay;
+		//Do nothing if index is invalid
 	}
-	
-	public double getMisc(double misc) {
-		return misc;
+
+	public double getMisc(int index) {
+		if(index <=3 && index >= 0)
+			return misc[index];
+		else return -1; //Invalid week selection
 	}
 	
 	public int getYear() {
@@ -77,9 +80,10 @@ public class Income implements Serializable {
 		
 		for(int i = 0; i < 4; i++) {
 			sum += weeks[i];
+			sum += misc[i];
 		}
 		
-		return sum + tips + misc;
+		return sum + tips;
 	}
 	
 	/**
