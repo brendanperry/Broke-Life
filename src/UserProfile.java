@@ -187,8 +187,7 @@ public class UserProfile implements Serializable {
 		return total;
 	}
 
-	public void addIncome(int year, int month) {
-		Income income = new Income(year, month);
+	public void addIncome(Income income) {
 		monthlyIncome.add(income);
 	}
 	
@@ -199,12 +198,14 @@ public class UserProfile implements Serializable {
 	 */
 	public Income getIncome(int year, int month) {
 		Income income = new Income(year, month);
+
 		for(int i = 0; i < monthlyIncome.size(); i++) {
 			if(monthlyIncome.get(i).equals(income))
 				return monthlyIncome.get(i);
 		}
 		
-		return null;
+		addIncome(income);
+		return income;
 	}
 	
 	/**
