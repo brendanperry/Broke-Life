@@ -128,7 +128,7 @@ public class ProfileCreation extends JFrame implements ActionListener, KeyListen
 					FileOutputStream file = new FileOutputStream(new File(".").getCanonicalPath() + "/Profiles/" + filename);
 					ObjectOutputStream out = new ObjectOutputStream(file);
 
-					UserProfile profile = new UserProfile(name.getText(), password.getText(), Double.parseDouble(balance.getText()));
+					UserProfile profile = new UserProfile(name.getText(), password.getText(), Double.parseDouble(balance.getText()), new Date());
 
 					out.writeObject(profile);
 					file.close();
