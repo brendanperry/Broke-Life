@@ -366,6 +366,26 @@ public class BudgetPanel extends JPanel {
 		clearData();
 		totalBudgeted.setText("$0.00");
 		
+		// load income
+		
+		Income income = new Income(tableMonth, tableYear);
+		
+		double pay1 = income.getWeek(0);
+		double pay2 = income.getWeek(1);
+		double pay3 = income.getWeek(2);
+		double pay4 = income.getWeek(3);
+		double tempTips = income.getTips();
+		double tempMisc = income.getMisc();
+		
+		payOne.setText(us.format(pay1));
+		payTwo.setText(us.format(pay2));
+		payThree.setText(us.format(pay3));
+		payFour.setText(us.format(pay4));
+		tips.setText(us.format(tempTips));
+		miscOne.setText(us.format(tempMisc));
+		
+		sum = pay1 + pay2 + pay3 + pay4 + tempTips + tempMisc;
+		
 		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		Date date = format.parse(Integer.toString(year) + "-" + Integer.toString(month) + "-01");
 		
@@ -576,6 +596,8 @@ public class BudgetPanel extends JPanel {
 		public void updateStats(JTextField textField, int num) {
 			String text = textField.getText();
 			Double temp = 0.00;
+			
+			Income income = new Income(tableMonth, tableYear);
 					
 			try {
 				if(!text.isEmpty()) {
@@ -597,31 +619,37 @@ public class BudgetPanel extends JPanel {
 					sum -= oldPayOne;
 					sum += temp;
 					oldPayOne = temp;
+					income.setWeek(temp, num - 1);
 				}
 				else if(num == 2) {
 					sum -= oldPayTwo;
 					sum += temp;
 					oldPayTwo = temp;
+					income.setWeek(temp, num - 1);
 				}
 				else if(num == 3) {
 					sum -= oldPayThree;
 					sum += temp;
 					oldPayThree = temp;
+					income.setWeek(temp, num - 1);
 				}
 				else if(num == 4) {
 					sum -= oldPayFour;
 					sum += temp;
 					oldPayFour = temp;
+					income.setWeek(temp, num - 1);
 				}
 				else if(num == 5) {
 					sum -= oldTips;
 					sum += temp;
 					oldTips = temp;
+					income.setTips(temp);
 				}
 				else if(num == 6) {
 					sum -= oldMiscOne;
 					sum += temp;
 					oldMiscOne = temp;
+					income.setMisc(temp);
 				}
 				else if(num == 7) {
 					sum -= oldMiscTwo;

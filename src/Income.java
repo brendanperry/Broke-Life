@@ -52,8 +52,8 @@ public class Income implements Serializable {
 		this.misc = misc;
 	}
 	
-	public double getMisc(double misc) {
-		return misc;
+	public double getMisc() {
+		return this.misc;
 	}
 	
 	public int getYear() {
