@@ -55,7 +55,10 @@ public class BudgetPanel extends JPanel {
 	JTextField payTwo;
 	JTextField payThree;
 	JTextField payFour;
-	JTextField payFive;
+	JTextField miscOne;
+	JTextField miscTwo;
+	JTextField miscThree;
+	JTextField miscFour;
 	JTextField tips;
 	
 	double oldPayOne = 0.0;
@@ -63,6 +66,10 @@ public class BudgetPanel extends JPanel {
 	double oldPayThree = 0.0;
 	double oldPayFour = 0.0;
 	double oldTips = 0.0;
+	double oldMiscOne = 0.0;
+	double oldMiscTwo = 0.0;
+	double oldMiscThree = 0.0;
+	double oldMiscFour = 0.0;
 	double sum = 0.0;
 	
 	JTextField name;
@@ -140,51 +147,101 @@ public class BudgetPanel extends JPanel {
 		JPanel incomePanel = new JPanel();
 		incomePanel.setBackground(bgColor);
 		incomePanel.setPreferredSize(new Dimension(300, 300));
-		incomePanel.setLayout(new GridLayout(8, 1));
+		incomePanel.setLayout(new BorderLayout());
 		incomePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		
+		JPanel payPanel = new JPanel();
+		payPanel.setLayout(new GridLayout(5, 1));
+		payPanel.setBackground(bgColor);
+		JPanel miscPanel = new JPanel(new GridLayout(5, 1));
+		miscPanel.setBackground(bgColor);
 		
 		JLabel incomeText = new JLabel("Income", SwingConstants.CENTER);
 		incomeText.setForeground(Color.WHITE);
 		incomeText.setFont(new Font("Arial", Font.BOLD, 20));
-		incomePanel.add(incomeText);
+		incomePanel.add(incomeText, BorderLayout.NORTH);
 		
 		JLabel payText = new JLabel("PAY");
-		incomePanel.add(payText);
+		payPanel.add(payText);
 		payText.setForeground(Color.WHITE);
 		payText.setFont(new Font("Arial", Font.BOLD, 13));
 		
 		payOne = new JTextField();
+		payOne.setPreferredSize(new Dimension(125, 50));
 		payOne.addActionListener(actionHandler);
 		payOne.addFocusListener(focusHandler);
 		
 		payTwo = new JTextField();
+		payTwo.setPreferredSize(new Dimension(125, 50));
 		payTwo.addActionListener(actionHandler);
 		payTwo.addFocusListener(focusHandler);
 		
 		payThree = new JTextField();
+		payThree.setPreferredSize(new Dimension(125, 50));
 		payThree.addActionListener(actionHandler);
 		payThree.addFocusListener(focusHandler);
 		
 		payFour = new JTextField();
+		payFour.setPreferredSize(new Dimension(125, 50));
 		payFour.addActionListener(actionHandler);
 		payFour.addFocusListener(focusHandler);
 		
-		incomePanel.add(payOne);
-		incomePanel.add(payTwo);
-		incomePanel.add(payThree);
-		incomePanel.add(payFour);
+		payPanel.add(payOne);
+		payPanel.add(payTwo);
+		payPanel.add(payThree);
+		payPanel.add(payFour);
+		
+		incomePanel.add(payPanel, BorderLayout.WEST);
+		
+		JLabel miscText = new JLabel("MISC");
+		miscPanel.add(miscText);
+		miscText.setForeground(Color.WHITE);
+		miscText.setFont(new Font("Arial", Font.BOLD, 13));
+		
+		miscOne = new JTextField();
+		miscOne.setPreferredSize(new Dimension(125, 50));
+		miscOne.addActionListener(actionHandler);
+		miscOne.addFocusListener(focusHandler);
+		
+		miscTwo = new JTextField();
+		miscTwo.setPreferredSize(new Dimension(125, 50));
+		miscTwo.addActionListener(actionHandler);
+		miscTwo.addFocusListener(focusHandler);
+		
+		miscThree = new JTextField();
+		miscThree.setPreferredSize(new Dimension(125, 50));
+		miscThree.addActionListener(actionHandler);
+		miscThree.addFocusListener(focusHandler);
+		
+		miscFour = new JTextField();
+		miscFour.setPreferredSize(new Dimension(125, 50));
+		miscFour.addActionListener(actionHandler);
+		miscFour.addFocusListener(focusHandler);
+		
+		miscPanel.add(miscOne);
+		miscPanel.add(miscTwo);
+		miscPanel.add(miscThree);
+		miscPanel.add(miscFour);
+		
+		incomePanel.add(miscPanel, BorderLayout.EAST);
+		
+		JPanel tipsPanel = new JPanel();
+		tipsPanel.setBackground(bgColor);
+		tipsPanel.setLayout(new BorderLayout());
 		
 		JLabel tipsText = new JLabel("TIPS");
 		tipsText.setForeground(Color.WHITE);
 		tipsText.setFont(new Font("Arial", Font.BOLD, 13));
-		incomePanel.add(tipsText);
+		tipsPanel.add(tipsText, BorderLayout.NORTH);
 		
 		tips = new JTextField();
+		tips.setPreferredSize(new Dimension(300, 40));
 		tips.addActionListener(actionHandler);
 		tips.addFocusListener(focusHandler);
+		tipsPanel.add(tips, BorderLayout.SOUTH);
 		
-		incomePanel.add(tips);
-		
+		incomePanel.add(tipsPanel, BorderLayout.SOUTH);
+				
 		// REVIEW PANEL
 		
 		JPanel reviewPanel = new JPanel();
@@ -307,6 +364,7 @@ public class BudgetPanel extends JPanel {
 	 */
 	public void loadUserData(int month, int year) throws ParseException {
 		clearData();
+		totalBudgeted.setText("$0.00");
 		
 		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		Date date = format.parse(Integer.toString(year) + "-" + Integer.toString(month) + "-01");
@@ -383,6 +441,18 @@ public class BudgetPanel extends JPanel {
 				data.add(newData);
 				model.addRow(newData);
 			}
+			
+			ActionHandler actionHandler = new ActionHandler();
+			
+			totalBudgeted.setText(us.format(actionHandler.currencyToDouble(totalBudgeted.getText()) + cost));
+			double left = sum - actionHandler.currencyToDouble(totalBudgeted.getText());
+			
+			if(left < 0) {
+				leftToBudget.setText("$0.00");
+			}
+			else {
+				leftToBudget.setText(us.format(sum - actionHandler.currencyToDouble(totalBudgeted.getText())));
+			}
 		}
 	}
 	
@@ -423,7 +493,6 @@ public class BudgetPanel extends JPanel {
 			event = new Event(info[0], actionHandler.currencyToDouble(info[1]), Integer.parseInt(info[2]), dateObject, 0, info[5]);
 		}
 		else {
-			System.out.println(info[4]);
 			// create repeating event
 			int recurPeriod = 0;
 			if(info[4].equals("Weekly")) {
@@ -443,13 +512,6 @@ public class BudgetPanel extends JPanel {
 				recurPeriod = 365;
 			}
 			
-			System.out.println("RECUR: " + recurPeriod);
-			System.out.println(info[0]);
-			System.out.println(actionHandler.currencyToDouble(info[1]));
-			System.out.println(Integer.parseInt(info[2]));
-			System.out.println(dateObject);
-			System.out.println(recurPeriod);
-			System.out.println(info[5]);
 			event = new Event(info[0], actionHandler.currencyToDouble(info[1]), Integer.parseInt(info[2]), dateObject, recurPeriod, info[5]);
 		}
 		
@@ -489,6 +551,18 @@ public class BudgetPanel extends JPanel {
 			}
 			else if(e.getSource() == tips) {
 				updateStats(tips, 5);
+			}
+			else if(e.getSource() == miscOne) {
+				updateStats(miscOne, 6);
+			}
+			else if(e.getSource() == miscTwo) {
+				updateStats(miscTwo, 7);
+			}
+			else if(e.getSource() == miscThree) {
+				updateStats(miscThree, 8);
+			}
+			else if(e.getSource() == miscFour) {
+				updateStats(miscFour, 9);
 			}
 		}
 		
@@ -544,6 +618,26 @@ public class BudgetPanel extends JPanel {
 					sum += temp;
 					oldTips = temp;
 				}
+				else if(num == 6) {
+					sum -= oldMiscOne;
+					sum += temp;
+					oldMiscOne = temp;
+				}
+				else if(num == 7) {
+					sum -= oldMiscTwo;
+					sum += temp;
+					oldMiscTwo = temp;
+				}
+				else if(num == 8) {
+					sum -= oldMiscThree;
+					sum += temp;
+					oldMiscThree = temp;
+				}
+				else if(num == 9) {
+					sum -= oldMiscFour;
+					sum += temp;
+					oldMiscFour = temp;
+				}
 				
 				totalIncome.setText(us.format(sum));
 
@@ -586,6 +680,26 @@ public class BudgetPanel extends JPanel {
 					sum -= oldTips;
 					sum += temp;
 					oldTips = temp;
+				}
+				else if(num == 6) {
+					sum -= oldMiscOne;
+					sum += temp;
+					oldMiscOne = temp;
+				}
+				else if(num == 7) {
+					sum -= oldMiscTwo;
+					sum += temp;
+					oldMiscTwo = temp;
+				}
+				else if(num == 8) {
+					sum -= oldMiscThree;
+					sum += temp;
+					oldMiscThree = temp;
+				}
+				else if(num == 9) {
+					sum -= oldMiscFour;
+					sum += temp;
+					oldMiscFour = temp;
 				}
 			}
 		}
@@ -700,7 +814,14 @@ public class BudgetPanel extends JPanel {
 					
 					if(row != -1) {
 						totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) - currencyToDouble(data.get(row)[1])));
-						leftToBudget.setText(us.format(currencyToDouble(totalIncome.getText()) - currencyToDouble(totalBudgeted.getText())));
+						double left = currencyToDouble(totalIncome.getText()) - currencyToDouble(totalBudgeted.getText());
+						
+						if(left < 0) {
+							leftToBudget.setText("$0.00");
+						}
+						else {
+							leftToBudget.setText(us.format(left));
+						}
 						
 						data.remove(row);
 						model.removeRow(row);
@@ -740,6 +861,18 @@ public class BudgetPanel extends JPanel {
 			}
 			else if(e.getSource() == tips) {
 				focusHandler.updateStats(tips, 5);
+			}
+			else if(e.getSource() == miscOne) {				
+				focusHandler.updateStats(miscOne, 6);
+			}
+			else if(e.getSource() == miscTwo) {
+				focusHandler.updateStats(miscTwo, 7);
+			}
+			else if(e.getSource() == miscThree) {
+				focusHandler.updateStats(miscThree, 8);
+			}
+			else if(e.getSource() == miscFour) {
+				focusHandler.updateStats(miscFour, 9);
 			}
 		}
 		
