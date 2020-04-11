@@ -18,14 +18,16 @@ public class UserProfile implements Serializable {
 	private double balance;
 	private ArrayList<Event> events = new ArrayList<Event>();
 	private ArrayList<Income> monthlyIncome = new ArrayList<Income>();
+	private Date creationDate;
 	
 	public UserProfile() {}
 	
-	public UserProfile(String name, String password, Double balance) {
+	public UserProfile(String name, String password, Double balance, Date date) {
 		this.name = name;
 		this.balance = balance;
 		this.password = password;
 		events = new ArrayList<Event>();
+		this.creationDate = date;
 	}
 	
 	
@@ -48,6 +50,9 @@ public class UserProfile implements Serializable {
 		return events.get(i);
 	}
 	
+	public void removeEvent(int i) {
+		events.remove(i);
+	}
 	
 	public String getName() {
 		return name;
