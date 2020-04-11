@@ -699,31 +699,31 @@ public class BudgetPanel extends JPanel {
 					sum -= oldPayOne;
 					sum += temp;
 					oldPayOne = temp;
-					income.setWeek(temp, num - 1);
+					user.getIncome(tableYear, tableMonth).setWeek(temp, 0);
 				}
 				else if(num == 2) {
 					sum -= oldPayTwo;
 					sum += temp;
 					oldPayTwo = temp;
-					income.setWeek(temp, num - 1);
+					user.getIncome(tableYear, tableMonth).setWeek(temp, 1);
 				}
 				else if(num == 3) {
 					sum -= oldPayThree;
 					sum += temp;
 					oldPayThree = temp;
-					income.setWeek(temp, num - 1);
+					user.getIncome(tableYear, tableMonth).setWeek(temp, 2);
 				}
 				else if(num == 4) {
 					sum -= oldPayFour;
 					sum += temp;
 					oldPayFour = temp;
-					income.setWeek(temp, num - 1);
+					user.getIncome(tableYear, tableMonth).setWeek(temp, 3);
 				}
 				else if(num == 5) {
 					sum -= oldTips;
 					sum += temp;
 					oldTips = temp;
-					income.setTips(temp);
+					user.getIncome(tableYear, tableMonth).setTips(temp);
 				}
 				else if(num == 6) {
 					sum -= oldMiscOne;
