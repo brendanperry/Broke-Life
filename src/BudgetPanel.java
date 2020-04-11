@@ -962,9 +962,34 @@ public class BudgetPanel extends JPanel {
 			
 			try {
 				day = Integer.parseInt(data[3]);
-				if(day < 0 || day > 31) {
+				
+				if(day < 1) {
 					JOptionPane.showMessageDialog(null, "Invalid Day");
 					return null;
+				}
+					else {
+					
+					if(tableMonth == 1 || tableMonth == 3 || tableMonth == 5 || tableMonth == 7 || tableMonth == 8 || tableMonth == 10 || tableMonth == 12) {
+						// last day is 31st
+						if(day > 31) {
+							JOptionPane.showMessageDialog(null, "Invalid Day");
+							return null;
+						}
+					}
+					else if(tableMonth == 2) {
+						// last day is 28th
+						if(day > 28) {
+							JOptionPane.showMessageDialog(null, "Invalid Day");
+							return null;
+						}
+					}
+					else {
+						// last day is 30th
+						if(day > 30) {
+							JOptionPane.showMessageDialog(null, "Invalid Day");
+							return null;
+						}
+					}
 				}
 			}
 			catch (Exception exc) {
