@@ -509,7 +509,6 @@ public class BudgetPanel extends JPanel {
 	private void saveUserData(String[] info) throws ParseException {
 		ActionHandler actionHandler = new ActionHandler();
 		
-		// need to get month and year from header
 		DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		String dateString = info[3] + "/" + tableMonth + "/" + tableYear;
 		
@@ -527,6 +526,7 @@ public class BudgetPanel extends JPanel {
 		else {
 			// create repeating event
 			int recurPeriod = 0;
+			
 			if(info[4].equals("Weekly")) {
 				recurPeriod = 7;
 			}
@@ -812,7 +812,7 @@ public class BudgetPanel extends JPanel {
 						percentage.setText("0");
 						day.setText("1");
 						repeating.setSelectedIndex(0);
-						category.setText("default");
+						category.setText("Misc");
 					}
 				}
 				else if(eventComboBox.getSelectedIndex() == 1) {
@@ -821,13 +821,86 @@ public class BudgetPanel extends JPanel {
 						return;
 					}
 					
-					String[] dataToRemove = {name.getText(), cost.getText(), percentage.getText(), day.getText(), repeating.getSelectedItem().toString(), category.getText()};
-					String[] checkedData = checkDataValidity(dataToRemove);
+					String[] dataToModify = {name.getText(), cost.getText(), percentage.getText(), day.getText(), repeating.getSelectedItem().toString(), category.getText()};
+					String[] checkedData = checkDataValidity(dataToModify);
 					
 					if(checkedData != null) {
 						int row = table.getSelectedRow();
 						
-						if(row != -1) {
+						if(row != -1) {						
+							String title = data.get(row)[0];
+							double costCurrent = currencyToDouble(data.get(row)[1]);
+							int percent = Integer.parseInt(data.get(row)[2]);
+							int dayCurrent = Integer.parseInt(data.get(row)[3]);
+							String repeat = data.get(row)[4];
+							int repeatInt = 0;
+							String tag = data.get(row)[5];
+							
+							if(repeat.equals("Weekly")) {
+								repeatInt = 7;
+							}
+							else if(repeat.equals("Biweekly")) {
+								repeatInt = 14;
+							}
+							else if(repeat.equals("Monthly")) {
+								repeatInt = 30;
+							}
+							else if(repeat.equals("Daily")) {
+								repeatInt = 1;
+							}
+							else if(repeat.equals("Yearly")){
+								repeatInt = 365;
+							}
+							else {
+								repeatInt = 0;
+							}
+							
+							DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+							String dateString = dayCurrent + "/" + tableMonth + "/" + tableYear;
+							String newDateString = checkedData[3] + "/" + tableMonth + "/" + tableYear;
+							
+							Date dateObject = new Date();
+							Date newDateObject = new Date();
+							try {
+								dateObject = sdf.parse(dateString);
+								newDateObject = sdf.parse(newDateString);
+							} catch (ParseException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							
+							int recur = 0;
+							
+							if(checkedData[4].equals("Daily")) {
+								recur = 1;
+							}
+							else if(checkedData[4].equals("Weekly")) {
+								recur = 7;
+							}
+							else if(checkedData[4].equals("Biweekly")) {
+								recur = 14;
+							}
+							else if(checkedData[4].equals("Monthly")) {
+								recur = 30;
+							}
+							else if(checkedData[4].equals("Yearly")) {
+								recur = 365;
+							}
+							
+							int indexToModify = findEventInDataClass(title, costCurrent, percent, dateObject, repeatInt, tag);
+							
+							if(indexToModify != -1) {
+								user.getEvent(indexToModify).setTitle(checkedData[0]);
+								user.getEvent(indexToModify).setAmount(currencyToDouble(checkedData[1]));
+								user.getEvent(indexToModify).setPercentage(Integer.parseInt(checkedData[2]));
+								user.getEvent(indexToModify).setDate(newDateObject);
+								user.getEvent(indexToModify).setRecurPeriod(recur);
+								user.getEvent(indexToModify).setTag(checkedData[5]);
+							}
+							else {
+								System.out.println("not found");
+							}
+							
 							double oldCost = currencyToDouble(data.get(row)[1]);
 							
 							for(int i = 0; i < 6; i++) {
@@ -852,7 +925,7 @@ public class BudgetPanel extends JPanel {
 							percentage.setText("0");
 							day.setText("1");
 							repeating.setSelectedIndex(0);
-							category.setText("default");
+							category.setText("Misc");
 						}
 					}
 				}
@@ -869,6 +942,50 @@ public class BudgetPanel extends JPanel {
 						}
 						else {
 							leftToBudget.setText(us.format(left));
+						}
+											
+						String title = data.get(row)[0];
+						double cost = currencyToDouble(data.get(row)[1]);
+						int percent = Integer.parseInt(data.get(row)[2]);
+						int day = Integer.parseInt(data.get(row)[3]);
+						String repeat = data.get(row)[4];
+						int repeatInt = 0;
+						String tag = data.get(row)[5];
+						
+						if(repeat.equals("Weekly")) {
+							repeatInt = 7;
+						}
+						else if(repeat.equals("Biweekly")) {
+							repeatInt = 14;
+						}
+						else if(repeat.equals("Monthly")) {
+							repeatInt = 30;
+						}
+						else if(repeat.equals("Daily")) {
+							repeatInt = 1;
+						}
+						else if(repeat.equals("Yearly")){
+							repeatInt = 365;
+						}
+						else {
+							repeatInt = 0;
+						}
+						
+						DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+						String dateString = day + "/" + tableMonth + "/" + tableYear;
+						
+						Date dateObject = new Date();
+						try {
+							dateObject = sdf.parse(dateString);
+						} catch (ParseException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+												
+						int indexToRemove = findEventInDataClass(title, cost, percent, dateObject, repeatInt, tag);
+						
+						if(indexToRemove != -1) {
+							user.removeEvent(indexToRemove);
 						}
 						
 						data.remove(row);
@@ -922,6 +1039,53 @@ public class BudgetPanel extends JPanel {
 			else if(e.getSource() == miscFour) {
 				focusHandler.updateStats(miscFour, 9);
 			}
+		}
+		
+		/*
+		 * This function will find an event from the UserProfile that matches the information given
+		 * @params all information for a given event
+		 * @return returns the index of the event in the data class
+		 * @author brendanperry
+		 */
+		private int findEventInDataClass(String title, double cost, int percent, Date day, int recurPeriod, String tag) {
+			int index = -1;
+			int length = user.getNumberOfEvents();
+			
+			for(int i = 0; i < length; i++) {
+				Event event = user.getEvent(i);		
+				
+				System.out.println(title);
+				System.out.println(event.getTitle());
+				
+				if(event.getTitle().equals(title)) {
+					// title matches 				
+					System.out.println("A");
+					if(event.getAmount() == cost) {
+						// cost matches			
+						System.out.println("A");
+						if(event.getPercentage() == percent) {
+							// percent matches		
+							System.out.println("A");
+							if(event.getDate().equals(day)) {
+								// date matches			
+								System.out.println("A");
+								if(event.getRecurPeriod() == recurPeriod) {
+									// repeat matches		
+									System.out.println("A");
+									if(event.getTag().equals(tag)) {
+										// tag matches	
+										System.out.println("A");
+										index = i;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			return index;
 		}
 		
 		/*
