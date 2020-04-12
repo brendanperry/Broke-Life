@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.text.ParseException;
-
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JLabel;
@@ -220,7 +219,7 @@ public class MainFrame extends JFrame {
             calendarPanel.refreshCalendar(calendarPanel.getCurrentMonth(), calendarPanel.getCurrentYear());
             
             try {
-				budgetPanel.loadUserData(calendarPanel.getCurrentMonth() + 1, calendarPanel.getCurrentYear());
+				budgetPanel.loadFromHeader(calendarPanel.getCurrentMonth() + 1, calendarPanel.getCurrentYear());
 			} catch (ParseException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -244,7 +243,7 @@ public class MainFrame extends JFrame {
             calendarPanel.refreshCalendar(calendarPanel.getCurrentMonth(), calendarPanel.getCurrentYear());
             
             try {
-				budgetPanel.loadUserData(calendarPanel.getCurrentMonth() + 1, calendarPanel.getCurrentYear());
+				budgetPanel.loadFromHeader(calendarPanel.getCurrentMonth() + 1, calendarPanel.getCurrentYear());
 			} catch (ParseException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
