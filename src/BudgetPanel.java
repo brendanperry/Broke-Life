@@ -61,15 +61,6 @@ public class BudgetPanel extends JPanel {
 	JTextField miscFour;
 	JTextField tips;
 	
-	double oldPayOne = 0.0;
-	double oldPayTwo = 0.0;
-	double oldPayThree = 0.0;
-	double oldPayFour = 0.0;
-	double oldTips = 0.0;
-	double oldMiscOne = 0.0;
-	double oldMiscTwo = 0.0;
-	double oldMiscThree = 0.0;
-	double oldMiscFour = 0.0;
 	double sum = 0.0;
 	
 	JTextField name;
@@ -350,7 +341,8 @@ public class BudgetPanel extends JPanel {
 		
 		try {
 			LocalDate date = LocalDate.now();
-			loadUserData(date.getMonthValue(), date.getYear());
+			Helper helper = new Helper();
+			helper.loadUserData(date.getMonthValue(), date.getYear());
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -358,196 +350,15 @@ public class BudgetPanel extends JPanel {
 	}
 	
 	/*
-	 * This function loads data about from the user profile and inserts it into the table
-	 * @params userProfile is the profile of the current user
+	 * This function grabs data from the month header
+	 * @params month is the selected month and year is the selected year
 	 * @author brendanperry
 	 */
-	public void loadUserData(int month, int year) throws ParseException {
-		clearData();
-		totalBudgeted.setText("$0.00");
-		leftToBudget.setText("$0.00");
-		sum = 0;
-		
-		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-		Date date = format.parse(Integer.toString(year) + "-" + Integer.toString(month) + "-01");
-		
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(date);		
-		String m = Integer.toString(month);
-		String y = Integer.toString(calendar.get(Calendar.YEAR));
-		
-		tableMonth = month;
-		tableYear = calendar.get(Calendar.YEAR);
-		
-		String startDay = y + "-" + m + "-" + "1";
-		String endDay = y + "-" + m + "-";
-		
-		if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
-			// last day is 31st
-			endDay += "31";
-		}
-		else if(month == 2) {
-			// last day is 28th
-			endDay += "28";
-		}
-		else {
-			// last day is 30th
-			endDay += "30";
-		}
-		
-		Date start = format.parse(startDay);
-		Date end = format.parse(endDay);
-
-		Event[] events = user.getEvents(start, end);
-		
-		// load income
-		
-		try {
-			double pay1 = user.getIncome(tableYear, tableMonth).getWeek(0);
-			double pay2 = user.getIncome(tableYear, tableMonth).getWeek(1);
-			double pay3 = user.getIncome(tableYear, tableMonth).getWeek(2);
-			double pay4 = user.getIncome(tableYear, tableMonth).getWeek(3);
-			double tempTips = user.getIncome(tableYear, tableMonth).getTips();
-			double tempMisc1 = user.getIncome(tableYear, tableMonth).getMisc(0);
-			double tempMisc2 = user.getIncome(tableYear, tableMonth).getMisc(1);
-			double tempMisc3 = user.getIncome(tableYear, tableMonth).getMisc(2);
-			double tempMisc4 = user.getIncome(tableYear, tableMonth).getMisc(3);
-			 
-			payOne.setText(us.format(pay1));
-			payTwo.setText(us.format(pay2));
-			payThree.setText(us.format(pay3));
-			payFour.setText(us.format(pay4));
-			tips.setText(us.format(tempTips));
-			miscOne.setText(us.format(tempMisc1));
-			miscTwo.setText(us.format(tempMisc2));
-			miscThree.setText(us.format(tempMisc3));
-			miscFour.setText(us.format(tempMisc4));
-			
-			sum = pay1 + pay2 + pay3 + pay4 + tempTips + tempMisc1 + tempMisc2 + tempMisc3 + tempMisc4;
-			totalIncome.setText(us.format(sum));
-		}
-		catch(Exception e) {
-			System.out.println(e);
-		}
-
-		for(int i = 0; i < events.length; i++) {
-			String title = events[i].getTitle();
-			Double cost = events[i].getAmount();
-			
-			int repeating = events[i].getRecurPeriod();
-
-			String percent = Integer.toString(events[i].getPercentage());
-			String category = events[i].getTag();	
-			
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(events[i].getDate());			
-			String day = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
-			
-			// name, cost, percent, day, repeating, category
-			if(repeating == 0) {
-				String[] newData = {title, us.format(cost), percent, day, "None", category};
-				data.add(newData);
-				model.addRow(newData);
-			}
-			else {
-				String recurring = "None";
-				
-				if(repeating == 1) {
-					recurring = "Daily";
-				}
-				else if(repeating == 7) {
-					recurring = "Weekly";
-				}
-				else if(repeating == 14) {
-					recurring = "Biweekly";
-				}
-				else if(repeating == 30) {
-					recurring = "Monthly";
-				}
-				else if(repeating == 365) {
-					recurring = "Yearly";
-				}
-				
-				String[] newData = {title, us.format(cost), percent, day, recurring, category};
-				
-				data.add(newData);
-				model.addRow(newData);
-			}
-			
-			ActionHandler actionHandler = new ActionHandler();
-			
-			totalBudgeted.setText(us.format(actionHandler.currencyToDouble(totalBudgeted.getText()) + cost));
-			double left = sum - actionHandler.currencyToDouble(totalBudgeted.getText());
-			
-			if(left < 0) {
-				leftToBudget.setText("$0.00");
-			}
-			else {
-				leftToBudget.setText(us.format(sum - actionHandler.currencyToDouble(totalBudgeted.getText())));
-			}
-		}
+	public void loadFromHeader(int month, int year) throws ParseException {
+		Helper helper = new Helper();
+		helper.loadUserData(month, year);
 	}
 	
-	/*
-	 * This functions removes all data that is stored and shown in the table.
-	 * @author brendanperry
-	 */
-	private void clearData() {
-		int size = data.size();
-		
-		for(int i = 0; i < size; i++) {
-			data.remove(0);
-			model.removeRow(0);
-		}
-	}
-	
-	/*
-	 * This function saves user data that has been added to the table.
-	 * @params it takes info which is the list of all event information
-	 * @author brendanperry
-	 */
-	private void saveUserData(String[] info) throws ParseException {
-		ActionHandler actionHandler = new ActionHandler();
-		
-		DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-		String dateString = info[3] + "/" + tableMonth + "/" + tableYear;
-		
-		Date dateObject = sdf.parse(dateString);
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(dateObject);
-		
-		Event event;
-		
-		//String title, double amount, Date date, String tag
-		if(info[4].equals("None")) {
-			// create non repeating event
-			event = new Event(info[0], actionHandler.currencyToDouble(info[1]), Integer.parseInt(info[2]), dateObject, 0, info[5]);
-		}
-		else {
-			// create repeating event
-			int recurPeriod = 0;
-			
-			if(info[4].equals("Weekly")) {
-				recurPeriod = 7;
-			}
-			else if(info[4].equals("Biweekly")) {
-				recurPeriod = 14;
-			}
-			else if(info[4].equals("Monthly")) {
-				recurPeriod = 30;
-			}
-			else if(info[4].equals("Daily")) {
-				recurPeriod = 1;
-			}
-			else {
-				recurPeriod = 365;
-			}
-			
-			event = new Event(info[0], actionHandler.currencyToDouble(info[1]), Integer.parseInt(info[2]), dateObject, recurPeriod, info[5]);
-		}
-		
-		user.addEvent(event);
-	}
 	
 	/*
 	 * The FocusHandler is used to see when the user has entered in text into the
@@ -556,6 +367,8 @@ public class BudgetPanel extends JPanel {
 	 * @author brendanperry
 	 */
 	public class FocusHandler implements FocusListener {
+		
+		Helper helper = new Helper();
 		
 		/*
 		 * focusLost fires when the user clicks out of one of the text boxes on the 
@@ -569,186 +382,31 @@ public class BudgetPanel extends JPanel {
 			// TODO Auto-generated method stub
 			
 			if(e.getSource() == payOne) {				
-				updateStats(payOne, 1);
+				helper.updateStats(payOne, 0, 0);
 			}
 			else if(e.getSource() == payTwo) {
-				updateStats(payTwo, 2);
+				helper.updateStats(payTwo, 0, 1);
 			}
 			else if(e.getSource() == payThree) {
-				updateStats(payThree, 3);
+				helper.updateStats(payThree, 0, 2);
 			}
 			else if(e.getSource() == payFour) {
-				updateStats(payFour, 4);
+				helper.updateStats(payFour, 0, 3);
 			}
 			else if(e.getSource() == tips) {
-				updateStats(tips, 5);
+				helper.updateStats(tips, 2, 0);
 			}
 			else if(e.getSource() == miscOne) {
-				updateStats(miscOne, 6);
+				helper.updateStats(miscOne, 1, 0);
 			}
 			else if(e.getSource() == miscTwo) {
-				updateStats(miscTwo, 7);
+				helper.updateStats(miscTwo, 1, 1);
 			}
 			else if(e.getSource() == miscThree) {
-				updateStats(miscThree, 8);
+				helper.updateStats(miscThree, 1, 2);
 			}
 			else if(e.getSource() == miscFour) {
-				updateStats(miscFour, 9);
-			}
-		}
-		
-		/*
-		 * updateStats is used to update the the total income and left to budget text fields.
-		 * It is called when the user adds new pay information.
-		 * @params textField is the text field that the data should be updated from, num is the 
-		 * paycheck number (1 - 5) with 5 being tips.
-		 * @author brendanperry
-		 */
-		public void updateStats(JTextField textField, int num) {
-			String text = textField.getText();
-			Double temp = 0.00;
-			
-			Income income = new Income(tableMonth, tableYear);
-					
-			try {
-				if(!text.isEmpty()) {
-					if(text.toCharArray()[0] == '$') {
-						temp = Double.parseDouble(text.substring(1, text.length()));
-					}
-					else {
-						temp = Double.parseDouble(text);
-					}
-					
-					if(temp < 0) {
-						temp = 0.0;
-					}
-					
-					textField.setText(us.format(temp));
-				}
-			
-				if(num == 1) {
-					sum -= oldPayOne;
-					sum += temp;
-					oldPayOne = temp;
-					user.getIncome(tableYear, tableMonth).setWeek(temp, num - 1);
-				}
-				else if(num == 2) {
-					sum -= oldPayTwo;
-					sum += temp;
-					oldPayTwo = temp;
-					user.getIncome(tableYear, tableMonth).setWeek(temp, num - 1);
-				}
-				else if(num == 3) {
-					sum -= oldPayThree;
-					sum += temp;
-					oldPayThree = temp;
-					user.getIncome(tableYear, tableMonth).setWeek(temp, num - 1);
-				}
-				else if(num == 4) {
-					sum -= oldPayFour;
-					sum += temp;
-					oldPayFour = temp;
-					user.getIncome(tableYear, tableMonth).setWeek(temp, num - 1);
-				}
-				else if(num == 5) {
-					sum -= oldTips;
-					sum += temp;
-					oldTips = temp;
-					user.getIncome(tableYear, tableMonth).setTips(temp);
-				}
-				else if(num == 6) {
-					sum -= oldMiscOne;
-					sum += temp;
-					oldMiscOne = temp;
-					user.getIncome(tableYear, tableMonth).setMisc(temp, 0);
-				}
-				else if(num == 7) {
-					sum -= oldMiscTwo;
-					sum += temp;
-					user.getIncome(tableYear, tableMonth).setMisc(temp, 1);
-				}
-				else if(num == 8) {
-					sum -= oldMiscThree;
-					sum += temp;
-					user.getIncome(tableYear, tableMonth).setMisc(temp, 2);
-				}
-				else if(num == 9) {
-					sum -= oldMiscFour;
-					sum += temp;
-					user.getIncome(tableYear, tableMonth).setMisc(temp, 3);
-				}
-				
-				totalIncome.setText(us.format(sum));
-
-				ActionHandler actionHandler = new ActionHandler();
-				actionHandler.updatePercentages();
-				
-				double left = sum - actionHandler.currencyToDouble(totalBudgeted.getText());
-				if(left < 0) {
-					leftToBudget.setText("$0.00");
-				}
-				else {
-					leftToBudget.setText(us.format(sum - actionHandler.currencyToDouble(totalBudgeted.getText())));
-				}			
-			}
-			catch (Exception e) {
-				totalIncome.setText("NaN");
-				leftToBudget.setText("NaN");
-				
-				if(num == 1) {
-					sum -= oldPayOne;
-					sum += temp;
-					oldPayOne = temp;
-					user.getIncome(tableYear, tableMonth).setWeek(temp, 0);
-				}
-				else if(num == 2) {
-					sum -= oldPayTwo;
-					sum += temp;
-					oldPayTwo = temp;
-					user.getIncome(tableYear, tableMonth).setWeek(temp, 1);
-				}
-				else if(num == 3) {
-					sum -= oldPayThree;
-					sum += temp;
-					oldPayThree = temp;
-					user.getIncome(tableYear, tableMonth).setWeek(temp, 2);
-				}
-				else if(num == 4) {
-					sum -= oldPayFour;
-					sum += temp;
-					oldPayFour = temp;
-					user.getIncome(tableYear, tableMonth).setWeek(temp, 3);
-				}
-				else if(num == 5) {
-					sum -= oldTips;
-					sum += temp;
-					oldTips = temp;
-					user.getIncome(tableYear, tableMonth).setTips(temp);
-				}
-				else if(num == 6) {
-					sum -= oldMiscOne;
-					sum += temp;
-					oldMiscOne = temp;
-					user.getIncome(tableYear, tableMonth).setMisc(temp, 0);
-				}
-				else if(num == 7) {
-					sum -= oldMiscTwo;
-					sum += temp;
-					oldMiscTwo = temp;
-					user.getIncome(tableYear, tableMonth).setMisc(temp, 1);
-				}
-				else if(num == 8) {
-					sum -= oldMiscThree;
-					sum += temp;
-					oldMiscThree = temp;
-					user.getIncome(tableYear, tableMonth).setMisc(temp, 2);
-				}
-				else if(num == 9) {
-					sum -= oldMiscFour;
-					sum += temp;
-					oldMiscFour = temp;
-					user.getIncome(tableYear, tableMonth).setMisc(temp, 3);
-				}
+				helper.updateStats(miscFour, 1, 3);
 			}
 		}
 		
@@ -771,6 +429,8 @@ public class BudgetPanel extends JPanel {
 	 */
 	public class ActionHandler implements ActionListener {
 		
+		Helper helper = new Helper();
+		
 		/*
 		 * actionPerformed is called when the button or a combo box is clicked.
 		 * @params e provides action event data that can be used to see what called the function.
@@ -782,26 +442,25 @@ public class BudgetPanel extends JPanel {
 				if(eventComboBox.getSelectedIndex() == 0) {
 					// add event
 					String[] newData = {name.getText(), cost.getText(), percentage.getText(), day.getText(), repeating.getSelectedItem().toString(), category.getText()};
-					String[] checkedData = checkDataValidity(newData);
+					String[] checkedData = helper.checkDataValidity(newData);
 					
 					if(checkedData != null) {						
-						double num = currencyToDouble(checkedData[1]);
-						totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + num));
-						double left = sum - currencyToDouble(totalBudgeted.getText());
+						double num = helper.currencyToDouble(checkedData[1]);
+						totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) + num));
+						double left = sum - helper.currencyToDouble(totalBudgeted.getText());
 						
 						if(left < 0) {
 							leftToBudget.setText("$0.00");
 						}
 						else {
-							leftToBudget.setText(us.format(sum - currencyToDouble(totalBudgeted.getText())));
+							leftToBudget.setText(us.format(sum - helper.currencyToDouble(totalBudgeted.getText())));
 						}
 						
 						data.add(checkedData);
 						model.addRow(checkedData);
 						
 						try {
-							saveUserData(checkedData);
-							System.out.println("Data save initiated");
+							helper.saveUserData(checkedData);
 						} catch (ParseException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
@@ -822,38 +481,18 @@ public class BudgetPanel extends JPanel {
 					}
 					
 					String[] dataToModify = {name.getText(), cost.getText(), percentage.getText(), day.getText(), repeating.getSelectedItem().toString(), category.getText()};
-					String[] checkedData = checkDataValidity(dataToModify);
+					String[] checkedData = helper.checkDataValidity(dataToModify);
 					
 					if(checkedData != null) {
 						int row = table.getSelectedRow();
 						
 						if(row != -1) {						
 							String title = data.get(row)[0];
-							double costCurrent = currencyToDouble(data.get(row)[1]);
+							double costCurrent = helper.currencyToDouble(data.get(row)[1]);
 							int percent = Integer.parseInt(data.get(row)[2]);
 							int dayCurrent = Integer.parseInt(data.get(row)[3]);
-							String repeat = data.get(row)[4];
-							int repeatInt = 0;
+							int repeat = helper.recurStringToInt(data.get(row)[4]);
 							String tag = data.get(row)[5];
-							
-							if(repeat.equals("Weekly")) {
-								repeatInt = 7;
-							}
-							else if(repeat.equals("Biweekly")) {
-								repeatInt = 14;
-							}
-							else if(repeat.equals("Monthly")) {
-								repeatInt = 30;
-							}
-							else if(repeat.equals("Daily")) {
-								repeatInt = 1;
-							}
-							else if(repeat.equals("Yearly")){
-								repeatInt = 365;
-							}
-							else {
-								repeatInt = 0;
-							}
 							
 							DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 							String dateString = dayCurrent + "/" + tableMonth + "/" + tableYear;
@@ -861,6 +500,7 @@ public class BudgetPanel extends JPanel {
 							
 							Date dateObject = new Date();
 							Date newDateObject = new Date();
+							
 							try {
 								dateObject = sdf.parse(dateString);
 								newDateObject = sdf.parse(newDateString);
@@ -869,29 +509,13 @@ public class BudgetPanel extends JPanel {
 								e1.printStackTrace();
 							}
 							
-							int recur = 0;
+							int indexToModify = helper.findEventInDataClass(title, costCurrent, percent, dateObject, repeat, tag);
 							
-							if(checkedData[4].equals("Daily")) {
-								recur = 1;
-							}
-							else if(checkedData[4].equals("Weekly")) {
-								recur = 7;
-							}
-							else if(checkedData[4].equals("Biweekly")) {
-								recur = 14;
-							}
-							else if(checkedData[4].equals("Monthly")) {
-								recur = 30;
-							}
-							else if(checkedData[4].equals("Yearly")) {
-								recur = 365;
-							}
-							
-							int indexToModify = findEventInDataClass(title, costCurrent, percent, dateObject, repeatInt, tag);
+							int recur = helper.recurStringToInt(checkedData[4]);
 							
 							if(indexToModify != -1) {
 								user.getEvent(indexToModify).setTitle(checkedData[0]);
-								user.getEvent(indexToModify).setAmount(currencyToDouble(checkedData[1]));
+								user.getEvent(indexToModify).setAmount(helper.currencyToDouble(checkedData[1]));
 								user.getEvent(indexToModify).setPercentage(Integer.parseInt(checkedData[2]));
 								user.getEvent(indexToModify).setDate(newDateObject);
 								user.getEvent(indexToModify).setRecurPeriod(recur);
@@ -901,23 +525,23 @@ public class BudgetPanel extends JPanel {
 								System.out.println("not found");
 							}
 							
-							double oldCost = currencyToDouble(data.get(row)[1]);
+							double oldCost = helper.currencyToDouble(data.get(row)[1]);
 							
 							for(int i = 0; i < 6; i++) {
 								data.get(row)[i] = checkedData[i];
 								model.setValueAt(checkedData[i], row, i);
 							}
 							
-							totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) - oldCost));
-							double numToAdd = currencyToDouble(checkedData[1]);
-							totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + numToAdd));
-							double left = sum - currencyToDouble(totalBudgeted.getText());
+							totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) - oldCost));
+							double numToAdd = helper.currencyToDouble(checkedData[1]);
+							totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) + numToAdd));
+							double left = sum - helper.currencyToDouble(totalBudgeted.getText());
 							
 							if(left < 0) {
 								leftToBudget.setText("$0.00");
 							}
 							else {
-								leftToBudget.setText(us.format(sum - currencyToDouble(totalBudgeted.getText())));
+								leftToBudget.setText(us.format(sum - helper.currencyToDouble(totalBudgeted.getText())));
 							}
 							
 							name.setText("");
@@ -934,8 +558,8 @@ public class BudgetPanel extends JPanel {
 					int row = table.getSelectedRow();
 					
 					if(row != -1) {
-						totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) - currencyToDouble(data.get(row)[1])));
-						double left = currencyToDouble(totalIncome.getText()) - currencyToDouble(totalBudgeted.getText());
+						totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) - helper.currencyToDouble(data.get(row)[1])));
+						double left = helper.currencyToDouble(totalIncome.getText()) - helper.currencyToDouble(totalBudgeted.getText());
 						
 						if(left < 0) {
 							leftToBudget.setText("$0.00");
@@ -945,31 +569,11 @@ public class BudgetPanel extends JPanel {
 						}
 											
 						String title = data.get(row)[0];
-						double cost = currencyToDouble(data.get(row)[1]);
+						double cost = helper.currencyToDouble(data.get(row)[1]);
 						int percent = Integer.parseInt(data.get(row)[2]);
 						int day = Integer.parseInt(data.get(row)[3]);
-						String repeat = data.get(row)[4];
-						int repeatInt = 0;
+						int repeat = helper.recurStringToInt(data.get(row)[4]);
 						String tag = data.get(row)[5];
-						
-						if(repeat.equals("Weekly")) {
-							repeatInt = 7;
-						}
-						else if(repeat.equals("Biweekly")) {
-							repeatInt = 14;
-						}
-						else if(repeat.equals("Monthly")) {
-							repeatInt = 30;
-						}
-						else if(repeat.equals("Daily")) {
-							repeatInt = 1;
-						}
-						else if(repeat.equals("Yearly")){
-							repeatInt = 365;
-						}
-						else {
-							repeatInt = 0;
-						}
 						
 						DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 						String dateString = day + "/" + tableMonth + "/" + tableYear;
@@ -982,7 +586,7 @@ public class BudgetPanel extends JPanel {
 							e1.printStackTrace();
 						}
 												
-						int indexToRemove = findEventInDataClass(title, cost, percent, dateObject, repeatInt, tag);
+						int indexToRemove = helper.findEventInDataClass(title, cost, percent, dateObject, repeat, tag);
 						
 						if(indexToRemove != -1) {
 							user.removeEvent(indexToRemove);
@@ -1009,36 +613,311 @@ public class BudgetPanel extends JPanel {
 					submitChanges.setText("Delete Selected Row");
 				}
 			}
-			
-			FocusHandler focusHandler = new FocusHandler();
-			
+						
 			if(e.getSource() == payOne) {				
-				focusHandler.updateStats(payOne, 1);
+				helper.updateStats(payOne, 0, 0);
 			}
 			else if(e.getSource() == payTwo) {
-				focusHandler.updateStats(payTwo, 2);
+				helper.updateStats(payTwo, 0, 1);
 			}
 			else if(e.getSource() == payThree) {
-				focusHandler.updateStats(payThree, 3);
+				helper.updateStats(payThree, 0, 2);
 			}
 			else if(e.getSource() == payFour) {
-				focusHandler.updateStats(payFour, 4);
+				helper.updateStats(payFour, 0, 3);
 			}
 			else if(e.getSource() == tips) {
-				focusHandler.updateStats(tips, 5);
+				helper.updateStats(tips, 2, 0);
 			}
 			else if(e.getSource() == miscOne) {				
-				focusHandler.updateStats(miscOne, 6);
+				helper.updateStats(miscOne, 1, 0);
 			}
 			else if(e.getSource() == miscTwo) {
-				focusHandler.updateStats(miscTwo, 7);
+				helper.updateStats(miscTwo, 1, 1);
 			}
 			else if(e.getSource() == miscThree) {
-				focusHandler.updateStats(miscThree, 8);
+				helper.updateStats(miscThree, 1, 2);
 			}
 			else if(e.getSource() == miscFour) {
-				focusHandler.updateStats(miscFour, 9);
+				helper.updateStats(miscFour, 1, 3);
 			}
+		}
+	}
+	
+	public class Helper {
+		
+		/*
+		 * This function takes the word form of a recurrence period and returns the number form
+		 * @params recurPeriod this is the word form
+		 * @return int is the number form
+		 * @author brendanperry
+		 */
+		public int recurStringToInt(String recurPeriod) {
+			if(recurPeriod.equals("Daily")) {
+				return 1;
+			}
+			else if(recurPeriod.equals("Weekly")) {
+				return 7;
+			}
+			else if(recurPeriod.equals("Biweekly")) {
+				return 14;
+			}
+			else if(recurPeriod.equals("Monthly")) {
+				return 30;
+			}
+			else if(recurPeriod.equals("Yearly")){
+				return 365;
+			}
+			else {
+				return 0;
+			}
+		}
+		
+		public String recurIntToString(int recurPeriod) {
+			if(recurPeriod == 1) {
+				return "Daily";
+			}
+			else if(recurPeriod == 7) {
+				return "Weekly";
+			}
+			else if(recurPeriod == 14) {
+				return "Biweekly";
+			}
+			else if(recurPeriod == 30) {
+				return "Monthly";
+			}
+			else if(recurPeriod == 365) {
+				return "Yearly";
+			}
+			else {
+				return "None";
+			}
+		}
+		
+		/*
+		 * This function loads data about from the user profile and inserts it into the table
+		 * @params userProfile is the profile of the current user
+		 * @author brendanperry
+		 */
+		public void loadUserData(int month, int year) throws ParseException {
+			clearData();
+			totalBudgeted.setText("$0.00");
+			leftToBudget.setText("$0.00");
+			sum = 0;
+			
+			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+			Date date = format.parse(Integer.toString(year) + "-" + Integer.toString(month) + "-01");
+			
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(date);		
+			String m = Integer.toString(month);
+			String y = Integer.toString(calendar.get(Calendar.YEAR));
+			
+			tableMonth = month;
+			tableYear = calendar.get(Calendar.YEAR);
+			
+			String startDay = y + "-" + m + "-" + "1";
+			String endDay = y + "-" + m + "-";
+			
+			if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
+				// last day is 31st
+				endDay += "31";
+			}
+			else if(month == 2) {
+				// last day is 28th
+				endDay += "28";
+			}
+			else {
+				// last day is 30th
+				endDay += "30";
+			}
+			
+			Date start = format.parse(startDay);
+			Date end = format.parse(endDay);
+
+			Event[] events = user.getEvents(start, end);
+			
+			// load income
+			
+			try {
+				double pay1 = user.getIncome(tableYear, tableMonth).getWeek(0);
+				double pay2 = user.getIncome(tableYear, tableMonth).getWeek(1);
+				double pay3 = user.getIncome(tableYear, tableMonth).getWeek(2);
+				double pay4 = user.getIncome(tableYear, tableMonth).getWeek(3);
+				double tempTips = user.getIncome(tableYear, tableMonth).getTips();
+				double tempMisc1 = user.getIncome(tableYear, tableMonth).getMisc(0);
+				double tempMisc2 = user.getIncome(tableYear, tableMonth).getMisc(1);
+				double tempMisc3 = user.getIncome(tableYear, tableMonth).getMisc(2);
+				double tempMisc4 = user.getIncome(tableYear, tableMonth).getMisc(3);
+				 
+				payOne.setText(us.format(pay1));
+				payTwo.setText(us.format(pay2));
+				payThree.setText(us.format(pay3));
+				payFour.setText(us.format(pay4));
+				tips.setText(us.format(tempTips));
+				miscOne.setText(us.format(tempMisc1));
+				miscTwo.setText(us.format(tempMisc2));
+				miscThree.setText(us.format(tempMisc3));
+				miscFour.setText(us.format(tempMisc4));
+				
+				sum = pay1 + pay2 + pay3 + pay4 + tempTips + tempMisc1 + tempMisc2 + tempMisc3 + tempMisc4;
+				totalIncome.setText(us.format(sum));
+			}
+			catch(Exception e) {
+				System.out.println(e);
+			}
+
+			for(int i = 0; i < events.length; i++) {
+				String title = events[i].getTitle();
+				Double cost = events[i].getAmount();
+				
+				int repeating = events[i].getRecurPeriod();
+
+				String percent = Integer.toString(events[i].getPercentage());
+				String category = events[i].getTag();	
+				
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(events[i].getDate());			
+				String day = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
+				
+				if(repeating == 0) {
+					String[] newData = {title, us.format(cost), percent, day, "None", category};
+					data.add(newData);
+					model.addRow(newData);
+				}
+				else {
+					String[] newData = {title, us.format(cost), percent, day, recurIntToString(repeating), category};
+					
+					data.add(newData);
+					model.addRow(newData);
+				}
+								
+				totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + cost));
+				double left = sum - currencyToDouble(totalBudgeted.getText());
+				
+				if(left < 0) {
+					leftToBudget.setText("$0.00");
+				}
+				else {
+					leftToBudget.setText(us.format(sum - currencyToDouble(totalBudgeted.getText())));
+				}
+			}
+		}
+		
+		/*
+		 * This functions removes all data that is stored and shown in the table.
+		 * @author brendanperry
+		 */
+		private void clearData() {
+			int size = data.size();
+			
+			for(int i = 0; i < size; i++) {
+				data.remove(0);
+				model.removeRow(0);
+			}
+		}
+		
+		/*
+		 * This function saves user data that has been added to the table.
+		 * @params it takes info which is the list of all event information
+		 * @author brendanperry
+		 */
+		private void saveUserData(String[] info) throws ParseException {			
+			DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			String dateString = info[3] + "/" + tableMonth + "/" + tableYear;
+			
+			Date dateObject = sdf.parse(dateString);
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dateObject);
+			
+			Event event;
+			
+			if(info[4].equals("None")) {
+				// create non repeating event
+				event = new Event(info[0], currencyToDouble(info[1]), Integer.parseInt(info[2]), dateObject, 0, info[5]);
+			}
+			else {
+				// create repeating event
+				int recurPeriod = 0;
+				
+				if(info[4].equals("Weekly")) {
+					recurPeriod = 7;
+				}
+				else if(info[4].equals("Biweekly")) {
+					recurPeriod = 14;
+				}
+				else if(info[4].equals("Monthly")) {
+					recurPeriod = 30;
+				}
+				else if(info[4].equals("Daily")) {
+					recurPeriod = 1;
+				}
+				else {
+					recurPeriod = 365;
+				}
+				
+				event = new Event(info[0], currencyToDouble(info[1]), Integer.parseInt(info[2]), dateObject, recurPeriod, info[5]);
+			}
+			
+			user.addEvent(event);
+		}
+
+		/*
+		 * updateStats is used to update the the total income and left to budget text fields.
+		 * It is called when the user adds new pay information.
+		 * @params textField is the text field that the data should be updated from, num is the 
+		 * paycheck number (1 - 5) with 5 being tips. 6 and up is misc pay
+		 * @author brendanperry
+		 */
+		public void updateStats(JTextField textField, int type, int week) {
+			String text = textField.getText();
+			Double temp = 0.00;
+								
+			try {
+				if(!text.isEmpty()) {
+					if(text.toCharArray()[0] == '$') {
+						temp = Double.parseDouble(text.substring(1, text.length()));
+					}
+					else {
+						temp = Double.parseDouble(text);
+					}
+					
+					if(temp < 0) {
+						temp = 0.0;
+					}
+					
+					textField.setText(us.format(temp));
+				}
+
+				double left = sum - currencyToDouble(totalBudgeted.getText());
+				if(left < 0) {
+					leftToBudget.setText("$0.00");
+				}
+				else {
+					leftToBudget.setText(us.format(sum - currencyToDouble(totalBudgeted.getText())));
+				}			
+			}
+			catch (Exception e) {
+				totalIncome.setText("NaN");
+				leftToBudget.setText("NaN");
+			}
+			
+			if(type == 0) {
+				user.getIncome(tableYear, tableMonth).setWeek(temp, week);
+			}
+			else if(type == 1) {
+				user.getIncome(tableYear, tableMonth).setMisc(temp, week);
+			}
+			else {
+				user.getIncome(tableYear, tableMonth).setTips(temp);
+			}
+			
+			sum = currencyToDouble(payOne.getText()) + currencyToDouble(payTwo.getText()) + currencyToDouble(payThree.getText()) + currencyToDouble(payFour.getText())
+			+ currencyToDouble(tips.getText()) + currencyToDouble(miscOne.getText()) + currencyToDouble(miscTwo.getText()) + currencyToDouble(miscThree.getText()) + 
+			currencyToDouble(miscFour.getText());
+			
+			totalIncome.setText(us.format(sum));
+			updatePercentages();
 		}
 		
 		/*
@@ -1054,27 +933,18 @@ public class BudgetPanel extends JPanel {
 			for(int i = 0; i < length; i++) {
 				Event event = user.getEvent(i);		
 				
-				System.out.println(title);
-				System.out.println(event.getTitle());
-				
 				if(event.getTitle().equals(title)) {
 					// title matches 				
-					System.out.println("A");
 					if(event.getAmount() == cost) {
 						// cost matches			
-						System.out.println("A");
 						if(event.getPercentage() == percent) {
 							// percent matches		
-							System.out.println("A");
 							if(event.getDate().equals(day)) {
 								// date matches			
-								System.out.println("A");
 								if(event.getRecurPeriod() == recurPeriod) {
 									// repeat matches		
-									System.out.println("A");
 									if(event.getTag().equals(tag)) {
 										// tag matches	
-										System.out.println("A");
 										index = i;
 										break;
 									}
