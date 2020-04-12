@@ -30,6 +30,9 @@ public class UserProfile implements Serializable {
 		this.creationDate = date;
 	}
 	
+	public int getNumberOfEvents() {
+		return events.size();
+	}
 	
 	public String listEvents() {
 		String output = "";
