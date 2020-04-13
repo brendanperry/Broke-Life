@@ -95,10 +95,10 @@ public class CalendarPanel extends JPanel {
         	public void mouseClicked(MouseEvent e) {
         		int row = tblCalendar.rowAtPoint(e.getPoint());
         		int column = tblCalendar.columnAtPoint(e.getPoint());
-        		int selectedDay = Integer.parseInt(tblCalendar.getValueAt(row, column).toString());
+        		
         	try {
-        		lblSelectedDay.setText(months[currentMonth] + " " + selectedDay + ", " + currentYear);
-        		for(Event event : user.getEvents(new Date(selectedDay, currentMonth, currentYear), new Date(selectedDay, currentMonth, currentYear))) {
+        		lblSelectedDay.setText(months[currentMonth] + " " + tblCalendar.getValueAt(row, column).toString() + ", " + currentYear);
+        		for(Event event : user.getEvents(new Date(Integer.parseInt(tblCalendar.getValueAt(row, column).toString()), currentMonth, currentYear), new Date(Integer.parseInt(tblCalendar.getValueAt(row, column).toString()), currentMonth, currentYear))) {
         			listSelected.addElement(event.toString());
         		}
         	} catch(NullPointerException n) {
@@ -200,7 +200,7 @@ public class CalendarPanel extends JPanel {
         		}
             }
             
-            monthEvents = userProfile.getEvents(new Date(currentYear, currentMonth, 1), new Date(currentYear, currentMonth, daysInCurrentMonth));
+            monthEvents = userProfile.getEvents(new Date(120, currentMonth, 1), new Date(120, currentMonth, daysInCurrentMonth));
             int eventDay = 0;
             for (int i = 0; i <monthEvents.length; i++) {
             	eventDay = monthEvents[i].getDate().getDay();

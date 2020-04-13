@@ -829,11 +829,12 @@ public class BudgetPanel extends JPanel {
 			Date dateObject = sdf.parse(dateString);
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(dateObject);
-			Date testDate = new Date(2020, 3, Integer.parseInt(info[3]));
+			Date testDate = new Date(120, 3, 13);
 			Event event;
 			
 			if(info[4].equals("None")) {
 				// create non repeating event
+				//event = new Event(info[0], currencyToDouble(info[1]), Integer.parseInt(info[2]), dateObject, 0, info[5]);
 				event = new Event(info[0], currencyToDouble(info[1]), Integer.parseInt(info[2]), testDate, 0, info[5]);
 			}
 			else {

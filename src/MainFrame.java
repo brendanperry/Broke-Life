@@ -117,6 +117,7 @@ public class MainFrame extends JFrame {
 		
 		budgetPanel = new BudgetPanel(user);		
 		calendarPanel = new CalendarPanel(user);
+		
 		overviewPanel = new OverviewPanel(user);
 		
 		centerPanel.addTab("Budget", budgetPanel);
