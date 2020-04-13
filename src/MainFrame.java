@@ -78,8 +78,11 @@ public class MainFrame extends JFrame {
 						JOptionPane.showMessageDialog(null, "Save failed!");
 					}
 				}
-				else {
+				else if(input == 1){
 					System.exit(0);
+				}
+				else {
+					// do nothing
 				}
 			}
 		});
