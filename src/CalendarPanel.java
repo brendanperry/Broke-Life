@@ -7,6 +7,7 @@
  */
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.GridLayout;
@@ -14,32 +15,38 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 
 @SuppressWarnings("serial")
 public class CalendarPanel extends JPanel {
-	static JLabel lblCurrentMonth;
-	static JButton btnNextMonth;
-	static JButton btnPreviousMonth;
-	static JLabel lblSelectedDay;
-	static JList listUpcomingEvents;
-	static JList listSelectedDayEvents;
-	static DefaultTableModel monthTable;
-	static JTable tblCalendar;
-	static JScrollPane scrlCalendar;
-	static GregorianCalendar gc;
-	static int realDay;
-	static int realMonth;
-	static int realYear;
-	static int currentMonth;
-	static int currentYear = 2020;
-	static String[] months =  {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-	static String[] days = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-
+	private JLabel lblCurrentMonth;
+	private JButton btnNextMonth;
+	private JButton btnPreviousMonth;
+	private JLabel lblSelectedDay;
+	private DefaultListModel<String> listUpcoming = new DefaultListModel<String>();
+	private DefaultListModel<String> listSelected = new DefaultListModel<String>();
+	private JList<String> listUpcomingEvents;
+	private JList<String> listSelectedDayEvents;
+	private DefaultTableModel monthTable;
+	private JTable tblCalendar;
+	private JScrollPane scrlCalendar;
+	private GregorianCalendar gc;
+	private int daysInCurrentMonth;
+	private int realDay;
+	private int realMonth;
+	private int realYear;
+	private int currentMonth;
+	private int currentYear = 2020;
+	private String[] months =  {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+	private String[] days = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+	private UserProfile userProfile;
+	private Event monthEvents[];
 	
 	public CalendarPanel(UserProfile user) {
+		this.userProfile = user;
 		setLayout(null);
 		setSize(1250,650);
 		setLayout(null);
@@ -88,10 +95,18 @@ public class CalendarPanel extends JPanel {
         	public void mouseClicked(MouseEvent e) {
         		int row = tblCalendar.rowAtPoint(e.getPoint());
         		int column = tblCalendar.columnAtPoint(e.getPoint());
+        		int selectedDay = Integer.parseInt(tblCalendar.getValueAt(row, column).toString());
         	try {
-        		lblSelectedDay.setText(months[currentMonth] + " " + tblCalendar.getValueAt(row, column).toString() + ", " + currentYear);
+        		lblSelectedDay.setText(months[currentMonth] + " " + selectedDay + ", " + currentYear);
+        		for(Event event : user.getEvents(new Date(selectedDay, currentMonth, currentYear), new Date(selectedDay, currentMonth, currentYear))) {
+        			listSelected.addElement(event.toString());
+        		}
         	} catch(NullPointerException n) {
         		lblSelectedDay.setText("Today: " + months[realMonth] + " " + realDay + ", " + realYear);
+        		for(Event event : user.getEvents(new Date(realDay, realMonth, realYear), new Date(realDay+3, realMonth, realYear))) {
+        			listUpcoming.addElement(event.toString());
+        		}
+        		
         	}
     	}
         });
@@ -120,7 +135,7 @@ public class CalendarPanel extends JPanel {
 		selectedDayPanel.add(lblSelectedDay, BorderLayout.NORTH);
 		
 		//List that will eventually hold String values of Events concerned with selected day
-		listSelectedDayEvents = new JList();
+		listSelectedDayEvents = new JList<String>(listSelected);
 		listSelectedDayEvents.setBorder(new LineBorder(new Color(0, 0, 0)));
 		selectedDayPanel.add(listSelectedDayEvents);
 		
@@ -131,7 +146,7 @@ public class CalendarPanel extends JPanel {
 		upcomingEventsPanel.setLayout(new BorderLayout(0, 0));
 		upcomingEventsPanel.setBackground(Color.decode("#3e92cc"));
 		//List that will eventually hold String values of upcoming Events
-		listUpcomingEvents = new JList();
+		listUpcomingEvents = new JList<String>(listUpcoming);
 		listUpcomingEvents.setBorder(new LineBorder(new Color(0, 0, 0)));
 		upcomingEventsPanel.add(listUpcomingEvents);
 		
@@ -158,24 +173,56 @@ public class CalendarPanel extends JPanel {
         
         //Determine month length and weekday of first of the month
         gc = new GregorianCalendar(year, month, 1);
-        int daysInCurrentMonth = gc.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
+        daysInCurrentMonth = gc.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
         int weekdayOfMonthBeginning = gc.get(GregorianCalendar.DAY_OF_WEEK);
         
         //Fill table with days
+        
         for (int i=1; i <= daysInCurrentMonth; i++){
             int row = new Integer((i + weekdayOfMonthBeginning-2)/7);
             int column  =  (i + weekdayOfMonthBeginning-2)%7;
             tblCalendar.setValueAt(i, row, column);
+            
+            
+            
         }
+        tblCalendar.setDefaultRenderer(tblCalendar.getColumnClass(0), new tblCalendarRenderer());
 
 	}
+	
+	private class tblCalendarRenderer extends DefaultTableCellRenderer{
+        public Component getTableCellRendererComponent (JTable table, Object value, boolean selected, boolean focused, int row, int column){
+            super.getTableCellRendererComponent(table, value, selected, focused, row, column);
+            setBackground(new Color(255, 255, 255));
+            if(value != null) {
+            	if((Integer.parseInt(value.toString()) == realDay && currentMonth == realMonth && currentYear == realYear)) {
+        			setBackground(new Color(120, 220, 255));
+        		}
+            }
+            
+            monthEvents = userProfile.getEvents(new Date(currentYear, currentMonth, 1), new Date(currentYear, currentMonth, daysInCurrentMonth));
+            int eventDay = 0;
+            for (int i = 0; i <monthEvents.length; i++) {
+            	eventDay = monthEvents[i].getDate().getDay();
+            	
+            if (value != null){
+            	
+            		if (Integer.parseInt(value.toString()) == eventDay && currentMonth == realMonth && currentYear == realYear){ //Event Days
+            			setBackground(new Color(220, 120, 255));
+            		} 		
+            	}
+        	}
+            setForeground(Color.BLACK);
+            return this;
+        }
+    }
 
 	public int getCurrentMonth() {
 		return currentMonth;
 	}
 
 	public void setCurrentMonth(int currentMonth) {
-		CalendarPanel.currentMonth = currentMonth;
+		this.currentMonth = currentMonth;
 	}
 
 	public int getCurrentYear() {
@@ -183,7 +230,7 @@ public class CalendarPanel extends JPanel {
 	}
 
 	public void setCurrentYear(int currentYear) {
-		CalendarPanel.currentYear = currentYear;
+		this.currentYear = currentYear;
 	}
 	
 
