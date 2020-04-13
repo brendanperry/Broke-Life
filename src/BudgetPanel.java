@@ -707,39 +707,119 @@ public class BudgetPanel extends JPanel {
 			
 			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 			Date date = format.parse(Integer.toString(year) + "-" + Integer.toString(month) + "-01");
+			Date prevDate;
+			Date lastYearDate = format.parse(Integer.toString(year - 1) + "-" + Integer.toString(month) + "-01");
 			
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(date);		
 			String m = Integer.toString(month);
 			String y = Integer.toString(calendar.get(Calendar.YEAR));
+			String prevM;
+			String prevMYear;
+			String lastYearM = m;
+			String lastYearY = Integer.toString(calendar.get(Calendar.YEAR) - 1);
 			
+			if(month == 1) {
+				prevDate = format.parse(Integer.toString(year) + "-" + Integer.toString(12) + "-01");
+				prevM = Integer.toString(12);
+				prevMYear = Integer.toString(calendar.get(Calendar.YEAR) - 1);
+			}
+			else {
+				prevDate = format.parse(Integer.toString(year) + "-" + Integer.toString(month - 1) + "-01");
+				prevM = Integer.toString(month - 1);
+				prevMYear = Integer.toString(calendar.get(Calendar.YEAR));
+			}
+						
 			tableMonth = month;
 			tableYear = calendar.get(Calendar.YEAR);
 			
 			String startDay = y + "-" + m + "-" + "1";
 			String endDay = y + "-" + m + "-";
+			String prevMStartDay = prevMYear + "-" + prevM + "-" + "1";
+			String prevMEndDay = prevMYear + "-" + prevM + "-";
+			String lastYearStartDay = lastYearY + "-" + lastYearM + "-" + "1";
+			String lastYearEndDay = lastYearY + "-" + lastYearM + "-";
 			
 			if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
 				// last day is 31st
 				endDay += "31";
+				prevMEndDay += "31";
+				lastYearEndDay += "31";
 			}
 			else if(month == 2) {
 				// last day is 28th
 				endDay += "28";
+				prevMEndDay += "28";
+				lastYearEndDay += "28";
 			}
 			else {
 				// last day is 30th
 				endDay += "30";
+				prevMEndDay += "30";
+				lastYearEndDay += "30";
 			}
 			
 			Date start = format.parse(startDay);
 			Date end = format.parse(endDay);
 
 			Event[] events = user.getEvents(start, end);
+			Event[] lastMonthEvents;
+			Event[] lastYearEvents = user.getEvents(format.parse(lastYearStartDay), format.parse(lastYearEndDay));
+			
+			if(user.isNewMonth(tableYear, tableMonth)) {
+				lastMonthEvents = user.getEvents(format.parse(prevMStartDay), format.parse(prevMEndDay));
+				
+				// load recurring events from last month
+				for(int i = 0; i < lastMonthEvents.length; i++) {
+					if(lastMonthEvents[i].getRecurPeriod() != 0 && lastMonthEvents[i].getRecurPeriod() != 365) {
+						String title = lastMonthEvents[i].getTitle();
+						Double cost = lastMonthEvents[i].getAmount();
+						
+						String percent = Integer.toString(lastMonthEvents[i].getPercentage());
+						String category = lastMonthEvents[i].getTag();	
+						
+						Calendar cal = Calendar.getInstance();
+						cal.setTime(lastMonthEvents[i].getDate());			
+						int dayInt = cal.get(Calendar.DAY_OF_MONTH);
+						String day = Integer.toString(dayInt);
+						
+						int repeating = lastMonthEvents[i].getRecurPeriod();
+						
+						// find last day of the selected month
+						int finalDay = 0;
+						if(tableMonth == 1 || tableMonth == 3 || tableMonth == 5 || tableMonth == 7 || tableMonth == 8 || tableMonth == 10 || tableMonth == 12) {
+							// last day is 31st
+							finalDay = 31;
+						}
+						else if(tableMonth == 2) {
+							// last day is 28th
+							finalDay = 28;
+						}
+						else {
+							// last day is 30th
+							finalDay = 30;
+						}
+						
+						// calculate the cost of recurring events over the whole month
+						double recurTotalCost = 0;
+						for(int j = dayInt; j <= finalDay; j+= repeating) {
+							recurTotalCost += cost;
+						}
+					
+						String[] newData = {title, us.format(cost), percent, day, recurIntToString(repeating), category};
+						
+						totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
+						
+						data.add(newData);
+						model.addRow(newData);
+						saveUserData(newData);
+					}
+				}
+			}
 			
 			// load income
 			
-			try {
+			try {						
 				double pay1 = user.getIncome(tableYear, tableMonth).getWeek(0);
 				double pay2 = user.getIncome(tableYear, tableMonth).getWeek(1);
 				double pay3 = user.getIncome(tableYear, tableMonth).getWeek(2);
@@ -766,41 +846,91 @@ public class BudgetPanel extends JPanel {
 			catch(Exception e) {
 				System.out.println(e);
 			}
+			
+			// load yearly events from a year ago
+			for(int i = 0; i < lastYearEvents.length; i++) {
+				if(lastYearEvents[i].getRecurPeriod() == 365) {
+					String title = lastYearEvents[i].getTitle();
+					Double cost = lastYearEvents[i].getAmount();
+					
+					String percent = Integer.toString(lastYearEvents[i].getPercentage());
+					String category = lastYearEvents[i].getTag();	
+					
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(lastYearEvents[i].getDate());			
+					int dayInt = cal.get(Calendar.DAY_OF_MONTH);
+					String day = Integer.toString(dayInt);
+										
+					String[] newData = {title, us.format(cost), percent, day, "Yearly", category};
+					
+					totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + cost));
+					
+					data.add(newData);
+					model.addRow(newData);
+					saveUserData(newData);
+				}
+			}
 
 			for(int i = 0; i < events.length; i++) {
 				String title = events[i].getTitle();
 				Double cost = events[i].getAmount();
 				
-				int repeating = events[i].getRecurPeriod();
-
 				String percent = Integer.toString(events[i].getPercentage());
 				String category = events[i].getTag();	
 				
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(events[i].getDate());			
-				String day = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
+				int dayInt = cal.get(Calendar.DAY_OF_MONTH);
+				String day = Integer.toString(dayInt);
+				
+				int repeating = events[i].getRecurPeriod();
 				
 				if(repeating == 0) {
 					String[] newData = {title, us.format(cost), percent, day, "None", category};
-					data.add(newData);
-					model.addRow(newData);
-				}
-				else {
-					String[] newData = {title, us.format(cost), percent, day, recurIntToString(repeating), category};
+					
+					totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + cost));
 					
 					data.add(newData);
 					model.addRow(newData);
 				}
-								
-				totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + cost));
-				double left = sum - currencyToDouble(totalBudgeted.getText());
-				
-				if(left < 0) {
-					leftToBudget.setText("$0.00");
-				}
 				else {
-					leftToBudget.setText(us.format(sum - currencyToDouble(totalBudgeted.getText())));
+					// find last day of the selected month
+					int finalDay = 0;
+					if(tableMonth == 1 || tableMonth == 3 || tableMonth == 5 || tableMonth == 7 || tableMonth == 8 || tableMonth == 10 || tableMonth == 12) {
+						// last day is 31st
+						finalDay = 31;
+					}
+					else if(tableMonth == 2) {
+						// last day is 28th
+						finalDay = 28;
+					}
+					else {
+						// last day is 30th
+						finalDay = 30;
+					}
+					
+					// calculate the cost of recurring events over the whole month
+					double recurTotalCost = 0;
+					for(int j = dayInt; j <= finalDay; j+= repeating) {
+						recurTotalCost += cost;
+					}
+				
+					String[] newData = {title, us.format(cost), percent, day, recurIntToString(repeating), category};
+					
+					totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
+					
+					data.add(newData);
+					model.addRow(newData);
 				}
+			}
+			
+			double left = sum - currencyToDouble(totalBudgeted.getText());
+			
+			if(left < 0) {
+				leftToBudget.setText("$0.00");
+			}
+			else {
+				leftToBudget.setText(us.format(sum - currencyToDouble(totalBudgeted.getText())));
 			}
 		}
 		
@@ -825,11 +955,11 @@ public class BudgetPanel extends JPanel {
 		private void saveUserData(String[] info) throws ParseException {			
 			DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 			String dateString = info[3] + "/" + tableMonth + "/" + tableYear;
-			
+						
 			Date dateObject = sdf.parse(dateString);
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(dateObject);
-			
+						
 			Event event;
 			
 			if(info[4].equals("None")) {
@@ -1044,7 +1174,23 @@ public class BudgetPanel extends JPanel {
 			
 			try {
 				day = Integer.parseInt(data[3]);
-				if(day < 0 || day > 31) {
+				
+				int endDay = 0;
+				
+				if(tableMonth == 1 || tableMonth == 3 || tableMonth == 5 || tableMonth == 7 || tableMonth == 8 || tableMonth == 10 || tableMonth == 12) {
+					// last day is 31st
+					endDay = 31;
+				}
+				else if(tableMonth == 2) {
+					// last day is 28th
+					endDay = 28;
+				}
+				else {
+					// last day is 30th
+					endDay = 30;
+				}
+				
+				if(day < 0 || day > endDay) {
 					JOptionPane.showMessageDialog(null, "Invalid Day");
 					return null;
 				}
