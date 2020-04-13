@@ -444,9 +444,36 @@ public class BudgetPanel extends JPanel {
 					String[] newData = {name.getText(), cost.getText(), percentage.getText(), day.getText(), repeating.getSelectedItem().toString(), category.getText()};
 					String[] checkedData = helper.checkDataValidity(newData);
 					
-					if(checkedData != null) {						
-						double num = helper.currencyToDouble(checkedData[1]);
-						totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) + num));
+					if(checkedData != null) {				
+						String date = day.getText();
+						
+						int repeat = helper.recurStringToInt(repeating.getSelectedItem().toString());
+						double recurTotalCost = helper.currencyToDouble(cost.getText());
+						
+						if(repeat != 0 && repeat != 365) {
+							// find last day of the selected month
+							int finalDay = 0;
+							if(tableMonth == 1 || tableMonth == 3 || tableMonth == 5 || tableMonth == 7 || tableMonth == 8 || tableMonth == 10 || tableMonth == 12) {
+								// last day is 31st
+								finalDay = 31;
+							}
+							else if(tableMonth == 2) {
+								// last day is 28th
+								finalDay = 28;
+							}
+							else {
+								// last day is 30th
+								finalDay = 30;
+							}
+							
+							// calculate the cost of recurring events over the whole month
+							recurTotalCost = 0;
+							for(int j = Integer.parseInt(date); j <= finalDay; j+= repeat) {
+								recurTotalCost += helper.currencyToDouble(cost.getText());
+							}
+						}
+						
+						totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
 						double left = sum - helper.currencyToDouble(totalBudgeted.getText());
 						
 						if(left < 0) {
@@ -525,16 +552,67 @@ public class BudgetPanel extends JPanel {
 								System.out.println("not found");
 							}
 							
-							double oldCost = helper.currencyToDouble(data.get(row)[1]);
+							// if old cost is recurring calculate the total amount to take away
+							if(repeat != 0 && repeat != 365) {
+								double recurTotalCost = costCurrent;
+								// find last day of the selected month
+									int finalDay = 0;
+									if(tableMonth == 1 || tableMonth == 3 || tableMonth == 5 || tableMonth == 7 || tableMonth == 8 || tableMonth == 10 || tableMonth == 12) {
+										// last day is 31st
+										finalDay = 31;
+									}
+									else if(tableMonth == 2) {
+										// last day is 28th
+										finalDay = 28;
+									}
+									else {
+										// last day is 30th
+										finalDay = 30;
+									}
+									
+									// calculate the cost of recurring events over the whole month
+									recurTotalCost = 0;
+									for(int j = dayCurrent; j <= finalDay; j+= repeat) {
+										recurTotalCost += costCurrent;
+									}
+								
+								System.out.println(recurTotalCost);
+								totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) - recurTotalCost));
+							}
 							
+							// if new cost is recurring calculate the total amount to take away
+							int newRepeat = helper.recurStringToInt(checkedData[4]);
+							if(newRepeat != 0 && newRepeat != 365) {
+								double recurTotalCost = helper.currencyToDouble(checkedData[1]);
+								// find last day of the selected month
+									int finalDay = 0;
+									if(tableMonth == 1 || tableMonth == 3 || tableMonth == 5 || tableMonth == 7 || tableMonth == 8 || tableMonth == 10 || tableMonth == 12) {
+										// last day is 31st
+										finalDay = 31;
+									}
+									else if(tableMonth == 2) {
+										// last day is 28th
+										finalDay = 28;
+									}
+									else {
+										// last day is 30th
+										finalDay = 30;
+									}
+									
+									// calculate the cost of recurring events over the whole month
+									recurTotalCost = 0;
+									for(int j = dayCurrent; j <= finalDay; j+= newRepeat) {
+										recurTotalCost += helper.currencyToDouble(checkedData[1]);
+									}
+								
+								totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
+							}
+														
 							for(int i = 0; i < 6; i++) {
 								data.get(row)[i] = checkedData[i];
 								model.setValueAt(checkedData[i], row, i);
 							}
 							
-							totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) - oldCost));
-							double numToAdd = helper.currencyToDouble(checkedData[1]);
-							totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) + numToAdd));
 							double left = sum - helper.currencyToDouble(totalBudgeted.getText());
 							
 							if(left < 0) {
@@ -556,9 +634,41 @@ public class BudgetPanel extends JPanel {
 				else {
 					// delete event
 					int row = table.getSelectedRow();
+					double costCurrent = helper.currencyToDouble(data.get(row)[1]);
+					int repeat = helper.recurStringToInt(data.get(row)[4]);
+					int dayCurrent = Integer.parseInt(data.get(row)[3]);
 					
 					if(row != -1) {
-						totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) - helper.currencyToDouble(data.get(row)[1])));
+						// if old cost is recurring calculate the total amount to take away
+						if(repeat != 0 && repeat != 365) {
+							double recurTotalCost = costCurrent;
+							// find last day of the selected month
+								int finalDay = 0;
+								if(tableMonth == 1 || tableMonth == 3 || tableMonth == 5 || tableMonth == 7 || tableMonth == 8 || tableMonth == 10 || tableMonth == 12) {
+									// last day is 31st
+									finalDay = 31;
+								}
+								else if(tableMonth == 2) {
+									// last day is 28th
+									finalDay = 28;
+								}
+								else {
+									// last day is 30th
+									finalDay = 30;
+								}
+								
+								// calculate the cost of recurring events over the whole month
+								recurTotalCost = 0;
+								for(int j = dayCurrent; j <= finalDay; j+= repeat) {
+									recurTotalCost += costCurrent;
+								}
+							
+							totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) - recurTotalCost));
+						}
+						else {
+							totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) - costCurrent));
+						}
+						
 						double left = helper.currencyToDouble(totalIncome.getText()) - helper.currencyToDouble(totalBudgeted.getText());
 						
 						if(left < 0) {
@@ -569,14 +679,11 @@ public class BudgetPanel extends JPanel {
 						}
 											
 						String title = data.get(row)[0];
-						double cost = helper.currencyToDouble(data.get(row)[1]);
 						int percent = Integer.parseInt(data.get(row)[2]);
-						int day = Integer.parseInt(data.get(row)[3]);
-						int repeat = helper.recurStringToInt(data.get(row)[4]);
 						String tag = data.get(row)[5];
 						
 						DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-						String dateString = day + "/" + tableMonth + "/" + tableYear;
+						String dateString = dayCurrent + "/" + tableMonth + "/" + tableYear;
 						
 						Date dateObject = new Date();
 						try {
@@ -586,7 +693,7 @@ public class BudgetPanel extends JPanel {
 							e1.printStackTrace();
 						}
 												
-						int indexToRemove = helper.findEventInDataClass(title, cost, percent, dateObject, repeat, tag);
+						int indexToRemove = helper.findEventInDataClass(title, costCurrent, percent, dateObject, repeat, tag);
 						
 						if(indexToRemove != -1) {
 							user.removeEvent(indexToRemove);
@@ -766,7 +873,9 @@ public class BudgetPanel extends JPanel {
 			Event[] lastMonthEvents;
 			Event[] lastYearEvents = user.getEvents(format.parse(lastYearStartDay), format.parse(lastYearEndDay));
 			
-			if(user.isNewMonth(tableYear, tableMonth)) {
+			boolean isNew = user.isNewMonth(tableYear, tableMonth);
+			
+			if(isNew) {
 				lastMonthEvents = user.getEvents(format.parse(prevMStartDay), format.parse(prevMEndDay));
 				
 				// load recurring events from last month
@@ -848,26 +957,28 @@ public class BudgetPanel extends JPanel {
 			}
 			
 			// load yearly events from a year ago
-			for(int i = 0; i < lastYearEvents.length; i++) {
-				if(lastYearEvents[i].getRecurPeriod() == 365) {
-					String title = lastYearEvents[i].getTitle();
-					Double cost = lastYearEvents[i].getAmount();
-					
-					String percent = Integer.toString(lastYearEvents[i].getPercentage());
-					String category = lastYearEvents[i].getTag();	
-					
-					Calendar cal = Calendar.getInstance();
-					cal.setTime(lastYearEvents[i].getDate());			
-					int dayInt = cal.get(Calendar.DAY_OF_MONTH);
-					String day = Integer.toString(dayInt);
-										
-					String[] newData = {title, us.format(cost), percent, day, "Yearly", category};
-					
-					totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + cost));
-					
-					data.add(newData);
-					model.addRow(newData);
-					saveUserData(newData);
+			if(isNew) {
+				for(int i = 0; i < lastYearEvents.length; i++) {
+					if(lastYearEvents[i].getRecurPeriod() == 365) {
+						String title = lastYearEvents[i].getTitle();
+						Double cost = lastYearEvents[i].getAmount();
+						
+						String percent = Integer.toString(lastYearEvents[i].getPercentage());
+						String category = lastYearEvents[i].getTag();	
+						
+						Calendar cal = Calendar.getInstance();
+						cal.setTime(lastYearEvents[i].getDate());			
+						int dayInt = cal.get(Calendar.DAY_OF_MONTH);
+						String day = Integer.toString(dayInt);
+											
+						String[] newData = {title, us.format(cost), percent, day, "Yearly", category};
+						
+						totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + cost));
+						
+						data.add(newData);
+						model.addRow(newData);
+						saveUserData(newData);
+					}
 				}
 			}
 
