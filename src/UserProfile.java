@@ -194,6 +194,17 @@ public class UserProfile implements Serializable {
 		monthlyIncome.add(income);
 	}
 	
+	public boolean isNewMonth(int year, int month) {
+		Income income = new Income(year, month);
+
+		for(int i = 0; i < monthlyIncome.size(); i++) {
+			if(monthlyIncome.get(i).equals(income))
+				return false;
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * Retrieve the user's income from a given month
 	 * @param year - The specified year
