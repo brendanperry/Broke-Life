@@ -15,6 +15,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import javax.swing.border.LineBorder;
@@ -200,16 +204,51 @@ public class CalendarPanel extends JPanel {
         		}
             }
             
-            monthEvents = userProfile.getEvents(new Date(currentYear, currentMonth, 1), new Date(currentYear, currentMonth, daysInCurrentMonth));
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+			
+            int month = currentMonth + 1;
+			String m = Integer.toString(month);
+			String y = Integer.toString(currentYear);
+			
+			String startDay = y + "-" + m + "-" + "1";
+			String endDay = y + "-" + m + "-";
+			
+			if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
+				// last day is 31st
+				endDay += "31";
+			}
+			else if(month == 2) {
+				// last day is 28th
+				endDay += "28";
+			}
+			else {
+				// last day is 30th
+				endDay += "30";
+			}
+			
+			Date start = null;
+			Date end = null;
+			try {
+				start = format.parse(startDay);
+				end = format.parse(endDay);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+            monthEvents = userProfile.getEvents(start, end);
+            
             int eventDay = 0;
             for (int i = 0; i <monthEvents.length; i++) {
-            	eventDay = monthEvents[i].getDate().getDay();
-            	
+            	Calendar cal = Calendar.getInstance();
+				cal.setTime(monthEvents[i].getDate());			
+				eventDay = cal.get(Calendar.DAY_OF_MONTH);
+				
             if (value != null){
             	
             		if (Integer.parseInt(value.toString()) == eventDay && currentMonth == realMonth && currentYear == realYear){ //Event Days
             			setBackground(new Color(220, 120, 255));
-            		} 		
+            		} 	
             	}
         	}
             setForeground(Color.BLACK);

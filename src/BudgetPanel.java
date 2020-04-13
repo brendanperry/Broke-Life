@@ -779,6 +779,7 @@ public class BudgetPanel extends JPanel {
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(events[i].getDate());			
 				String day = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
+				System.out.println(day);
 				
 				if(repeating == 0) {
 					String[] newData = {title, us.format(cost), percent, day, "None", category};
@@ -829,12 +830,11 @@ public class BudgetPanel extends JPanel {
 			Date dateObject = sdf.parse(dateString);
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(dateObject);
-			Date testDate = new Date(2020, 3, Integer.parseInt(info[3]));
 			Event event;
 			
 			if(info[4].equals("None")) {
 				// create non repeating event
-				event = new Event(info[0], currencyToDouble(info[1]), Integer.parseInt(info[2]), testDate, 0, info[5]);
+				event = new Event(info[0], currencyToDouble(info[1]), Integer.parseInt(info[2]), dateObject, 0, info[5]);
 			}
 			else {
 				// create repeating event
