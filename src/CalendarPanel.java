@@ -15,6 +15,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import javax.swing.border.LineBorder;
@@ -89,24 +94,29 @@ public class CalendarPanel extends JPanel {
         tblCalendar.setColumnSelectionAllowed(true);
         tblCalendar.setRowSelectionAllowed(true);
         tblCalendar.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+   
+		updateLists();
         
         //Used to select a certain day in order to display the Events scheduled
         tblCalendar.addMouseListener(new MouseAdapter() {
         	public void mouseClicked(MouseEvent e) {
         		int row = tblCalendar.rowAtPoint(e.getPoint());
         		int column = tblCalendar.columnAtPoint(e.getPoint());
+        		String listEvent = "";
+        		listSelected.removeAllElements();
+        		
+        		Calendar cal = Calendar.getInstance();
         		
         	try {
-        		lblSelectedDay.setText(months[currentMonth] + " " + tblCalendar.getValueAt(row, column).toString() + ", " + currentYear);
-        		for(Event event : user.getEvents(new Date(Integer.parseInt(tblCalendar.getValueAt(row, column).toString()), currentMonth, currentYear), new Date(Integer.parseInt(tblCalendar.getValueAt(row, column).toString()), currentMonth, currentYear))) {
-        			listSelected.addElement(event.toString());
+        		String selectedDate = tblCalendar.getValueAt(row, column).toString();
+        		lblSelectedDay.setText(months[currentMonth] + " " + selectedDate + ", " + currentYear);
+        		for(Event event : user.getEvents(new Date(currentYear-1900, currentMonth, Integer.parseInt(selectedDate)), new Date(currentYear-1900, currentMonth, Integer.parseInt(selectedDate)))) {
+        			listEvent = event.getTitle() + ": " + NumberFormat.getCurrencyInstance().format(event.getAmount());
+        			listSelected.addElement(listEvent);	
         		}
         	} catch(NullPointerException n) {
         		lblSelectedDay.setText("Today: " + months[realMonth] + " " + realDay + ", " + realYear);
-        		for(Event event : user.getEvents(new Date(realDay, realMonth, realYear), new Date(realDay+3, realMonth, realYear))) {
-        			listUpcoming.addElement(event.toString());
-        		}
-        		
+        		updateLists();
         	}
     	}
         });
@@ -182,9 +192,6 @@ public class CalendarPanel extends JPanel {
             int row = new Integer((i + weekdayOfMonthBeginning-2)/7);
             int column  =  (i + weekdayOfMonthBeginning-2)%7;
             tblCalendar.setValueAt(i, row, column);
-            
-            
-            
         }
         tblCalendar.setDefaultRenderer(tblCalendar.getColumnClass(0), new tblCalendarRenderer());
 
@@ -200,16 +207,57 @@ public class CalendarPanel extends JPanel {
         		}
             }
             
-            monthEvents = userProfile.getEvents(new Date(120, currentMonth, 1), new Date(120, currentMonth, daysInCurrentMonth));
+            monthEvents = userProfile.getEvents(new Date(currentYear-1900, currentMonth, 1), new Date(currentYear-1900, currentMonth, daysInCurrentMonth));
+
+//            DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+//			
+//            int month = currentMonth + 1;
+//			String m = Integer.toString(month);
+//			String y = Integer.toString(currentYear);
+//			
+//			String startDay = y + "-" + m + "-" + "1";
+//			String endDay = y + "-" + m + "-";
+//			
+//			if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
+//				// last day is 31st
+//				endDay += "31";
+//			}
+//			else if(month == 2) {
+//				// last day is 28th
+//				endDay += "28";
+//			}
+//			else {
+//				// last day is 30th
+//				endDay += "30";
+//			}
+//			
+//			Date start = null;
+//			Date end = null;
+//			try {
+//				start = format.parse(startDay);
+//				end = format.parse(endDay);
+//			} catch (ParseException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			
+//         monthEvents = userProfile.getEvents(start, end);
+            
+
             int eventDay = 0;
             for (int i = 0; i <monthEvents.length; i++) {
-            	eventDay = monthEvents[i].getDate().getDay();
-            	
+            	Calendar cal = Calendar.getInstance();
+				cal.setTime(monthEvents[i].getDate());			
+				eventDay = cal.get(Calendar.DAY_OF_MONTH);
+				
             if (value != null){
-            	
-            		if (Integer.parseInt(value.toString()) == eventDay && currentMonth == realMonth && currentYear == realYear){ //Event Days
-            			setBackground(new Color(220, 120, 255));
-            		} 		
+            		if (Integer.parseInt(value.toString()) == eventDay){ //Event Days
+            			if(Integer.parseInt(value.toString()) == realDay) {
+            				setBorder(BorderFactory.createLineBorder(new Color(170, 120, 255), 2));
+            			} else {
+            				setBackground(new Color(220, 120, 255));
+            			}
+            		} 	
             	}
         	}
             setForeground(Color.BLACK);
@@ -236,5 +284,22 @@ public class CalendarPanel extends JPanel {
 
 	public String getCurrentMonthString() {
 		return lblCurrentMonth.getText()  + " " + currentYear;
+	}
+	
+	public void updateLists() {
+		listSelected.removeAllElements();
+    	listUpcoming.removeAllElements();
+		String listEvent;
+        Calendar cal = Calendar.getInstance();
+        
+        for(Event event : userProfile.getEvents(new Date(realYear-1900, realMonth, realDay), new Date(realYear-1900, realMonth, realDay))) {
+			listEvent = event.getTitle() + ": " + NumberFormat.getCurrencyInstance().format(event.getAmount());
+			listSelected.addElement(listEvent);
+		}
+		for(Event event : userProfile.getEvents(new Date(realYear-1900, realMonth, realDay), new Date(realYear-1900, realMonth, realDay+3))) {
+			cal.setTime(event.getDate());
+			listEvent = event.getTitle() + ": " + NumberFormat.getCurrencyInstance().format(event.getAmount()) + " -  Due: " + months[currentMonth] + " " + cal.get(Calendar.DAY_OF_MONTH);
+			listUpcoming.addElement(listEvent);
+		}
 	}
 }
