@@ -15,6 +15,8 @@ import java.io.ObjectOutputStream;
 import java.text.ParseException;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -120,6 +122,7 @@ public class MainFrame extends JFrame {
 		
 		budgetPanel = new BudgetPanel(user);		
 		calendarPanel = new CalendarPanel(user);
+		
 		overviewPanel = new OverviewPanel(user);
 		
 		centerPanel.addTab("Budget", budgetPanel);
@@ -127,6 +130,16 @@ public class MainFrame extends JFrame {
 		centerPanel.addTab("Overview", overviewPanel);
 		
 		monthHeading.setText(calendarPanel.getCurrentMonthString());
+		
+		ChangeListener changeListener = new ChangeListener() {
+		      public void stateChanged(ChangeEvent changeEvent) {
+		        JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
+		        if(sourceTabbedPane.getSelectedIndex() == 1) {
+		        	calendarPanel.updateLists();
+		        }
+		      }
+		    };
+		    centerPanel.addChangeListener(changeListener);
 		
 		// MENU BAR
 		
@@ -240,6 +253,7 @@ public class MainFrame extends JFrame {
             if (calendarPanel.getCurrentMonth() == 11){
         		calendarPanel.setCurrentMonth(0);
         		calendarPanel.setCurrentYear(calendarPanel.getCurrentYear()+1);
+        		
             } else{
                 calendarPanel.setCurrentMonth(calendarPanel.getCurrentMonth()+1);
             }
