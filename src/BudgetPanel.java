@@ -1128,14 +1128,6 @@ public class BudgetPanel extends JPanel {
 					}
 					
 					textField.setText(us.format(temp));
-				}
-
-				double left = sum - currencyToDouble(totalBudgeted.getText());
-				if(left < 0) {
-					leftToBudget.setText("$0.00");
-				}
-				else {
-					leftToBudget.setText(us.format(sum - currencyToDouble(totalBudgeted.getText())));
 				}			
 			}
 			catch (Exception e) {
@@ -1159,6 +1151,14 @@ public class BudgetPanel extends JPanel {
 			
 			totalIncome.setText(us.format(sum));
 			updatePercentages();
+			
+			double left = sum - currencyToDouble(totalBudgeted.getText());
+			if(left < 0) {
+				leftToBudget.setText("$0.00");
+			}
+			else {
+				leftToBudget.setText(us.format(sum - currencyToDouble(totalBudgeted.getText())));
+			}
 		}
 		
 		/*
