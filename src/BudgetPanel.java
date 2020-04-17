@@ -39,18 +39,22 @@ import javax.swing.table.DefaultTableModel;
 
 @SuppressWarnings("serial")
 public class BudgetPanel extends JPanel {
-		
+	
+	// these public fields must be accessed by action handlers
+	
 	UserProfile user;
 	
+	// table fields
 	DefaultTableModel model;
 	JTable table;
 	ArrayList<String[]> data;
-	NumberFormat us;
 	
+	// review panel fields
 	JTextField totalIncome;
 	JTextField totalBudgeted;
 	JTextField leftToBudget;
 	
+	// income panel fields
 	JTextField payOne;
 	JTextField payTwo;
 	JTextField payThree;
@@ -61,8 +65,7 @@ public class BudgetPanel extends JPanel {
 	JTextField miscFour;
 	JTextField tips;
 	
-	double sum = 0.0;
-	
+	// event panel fields
 	JTextField name;
 	JTextField cost;
 	JTextField day;
@@ -70,21 +73,27 @@ public class BudgetPanel extends JPanel {
 	@SuppressWarnings("rawtypes")
 	JComboBox repeating;
 	JTextField category;
-	
 	JButton submitChanges;
-	
 	JComboBox<String> eventComboBox;
 	
+	// current selected month and year
 	int tableYear = 2020;
 	int tableMonth = 4;
 	
+	// the sum of all user income for the month
+	double sum = 0.0;
+	
+	/*
+	 * This is the constructor and is in control of all the user interface.
+	 * @params userProfile - this lets the budget panel get data about the user and save new data
+	 * @author brendanperry
+	 */
 	public BudgetPanel(UserProfile userProfile) {
 		setLayout(new BorderLayout(0, 0));
 		
 		user = userProfile;
 		
 		data = new ArrayList<String[]>();
-		us = NumberFormat.getCurrencyInstance(Locale.US);
 		
 		Color bgColor = Color.decode("#3e92cc");
 		Color foregroundColor = Color.decode("#25ced1");
@@ -359,7 +368,6 @@ public class BudgetPanel extends JPanel {
 		helper.loadUserData(month, year);
 	}
 	
-	
 	/*
 	 * The FocusHandler is used to see when the user has entered in text into the
 	 * income section of the GUI. This is used to format the text when they are done
@@ -473,14 +481,14 @@ public class BudgetPanel extends JPanel {
 							}
 						}
 						
-						totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
+						totalBudgeted.setText(helper.formatCurrency(helper.currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
 						double left = sum - helper.currencyToDouble(totalBudgeted.getText());
 						
 						if(left < 0) {
 							leftToBudget.setText("$0.00");
 						}
 						else {
-							leftToBudget.setText(us.format(sum - helper.currencyToDouble(totalBudgeted.getText())));
+							leftToBudget.setText(helper.formatCurrency(sum - helper.currencyToDouble(totalBudgeted.getText())));
 						}
 						
 						data.add(checkedData);
@@ -577,7 +585,7 @@ public class BudgetPanel extends JPanel {
 									}
 								
 								System.out.println(recurTotalCost);
-								totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) - recurTotalCost));
+								totalBudgeted.setText(helper.formatCurrency(helper.currencyToDouble(totalBudgeted.getText()) - recurTotalCost));
 							}
 							
 							// if new cost is recurring calculate the total amount to take away
@@ -605,7 +613,7 @@ public class BudgetPanel extends JPanel {
 										recurTotalCost += helper.currencyToDouble(checkedData[1]);
 									}
 								
-								totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
+								totalBudgeted.setText(helper.formatCurrency(helper.currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
 							}
 														
 							for(int i = 0; i < 6; i++) {
@@ -619,7 +627,7 @@ public class BudgetPanel extends JPanel {
 								leftToBudget.setText("$0.00");
 							}
 							else {
-								leftToBudget.setText(us.format(sum - helper.currencyToDouble(totalBudgeted.getText())));
+								leftToBudget.setText(helper.formatCurrency(sum - helper.currencyToDouble(totalBudgeted.getText())));
 							}
 							
 							name.setText("");
@@ -663,10 +671,10 @@ public class BudgetPanel extends JPanel {
 									recurTotalCost += costCurrent;
 								}
 							
-							totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) - recurTotalCost));
+							totalBudgeted.setText(helper.formatCurrency(helper.currencyToDouble(totalBudgeted.getText()) - recurTotalCost));
 						}
 						else {
-							totalBudgeted.setText(us.format(helper.currencyToDouble(totalBudgeted.getText()) - costCurrent));
+							totalBudgeted.setText(helper.formatCurrency(helper.currencyToDouble(totalBudgeted.getText()) - costCurrent));
 						}
 						
 						double left = helper.currencyToDouble(totalIncome.getText()) - helper.currencyToDouble(totalBudgeted.getText());
@@ -675,7 +683,7 @@ public class BudgetPanel extends JPanel {
 							leftToBudget.setText("$0.00");
 						}
 						else {
-							leftToBudget.setText(us.format(left));
+							leftToBudget.setText(helper.formatCurrency(left));
 						}
 											
 						String title = data.get(row)[0];
@@ -751,6 +759,10 @@ public class BudgetPanel extends JPanel {
 		}
 	}
 	
+	/*
+	 * The helper class provides supporting functions for the main classes in this file. 
+	 * @author brendanperry
+	 */
 	public class Helper {
 		
 		/*
@@ -780,6 +792,22 @@ public class BudgetPanel extends JPanel {
 			}
 		}
 		
+		/*
+		 * This function returns the currency formatted for the United States
+		 * @params amount - the double amount to be formatted
+		 * @return the formatted currency
+		 */
+		public String formatCurrency(double amount) {
+			NumberFormat us = NumberFormat.getCurrencyInstance(Locale.US);
+			return us.format(amount);
+		}
+		
+		/*
+		 * This function takes the integer value of a recurrence period and returns the word form
+		 * @params number form of recurrence
+		 * @return word form of recurrence
+		 * @author brendanperry
+		 */
 		public String recurIntToString(int recurPeriod) {
 			if(recurPeriod == 1) {
 				return "Daily";
@@ -802,10 +830,11 @@ public class BudgetPanel extends JPanel {
 		}
 		
 		/*
-		 * This function loads data about from the user profile and inserts it into the table
+		 * This function loads data about from the user profile and inserts it into the table. This includes expenses and income.
 		 * @params userProfile is the profile of the current user
 		 * @author brendanperry
 		 */
+		@SuppressWarnings("unused")
 		public void loadUserData(int month, int year) throws ParseException {
 			clearData();
 			totalBudgeted.setText("$0.00");
@@ -915,9 +944,9 @@ public class BudgetPanel extends JPanel {
 							recurTotalCost += cost;
 						}
 					
-						String[] newData = {title, us.format(cost), percent, day, recurIntToString(repeating), category};
+						String[] newData = {title, formatCurrency(cost), percent, day, recurIntToString(repeating), category};
 						
-						totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
+						totalBudgeted.setText(formatCurrency(currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
 						
 						data.add(newData);
 						model.addRow(newData);
@@ -939,18 +968,18 @@ public class BudgetPanel extends JPanel {
 				double tempMisc3 = user.getIncome(tableYear, tableMonth).getMisc(2);
 				double tempMisc4 = user.getIncome(tableYear, tableMonth).getMisc(3);
 				 
-				payOne.setText(us.format(pay1));
-				payTwo.setText(us.format(pay2));
-				payThree.setText(us.format(pay3));
-				payFour.setText(us.format(pay4));
-				tips.setText(us.format(tempTips));
-				miscOne.setText(us.format(tempMisc1));
-				miscTwo.setText(us.format(tempMisc2));
-				miscThree.setText(us.format(tempMisc3));
-				miscFour.setText(us.format(tempMisc4));
+				payOne.setText(formatCurrency(pay1));
+				payTwo.setText(formatCurrency(pay2));
+				payThree.setText(formatCurrency(pay3));
+				payFour.setText(formatCurrency(pay4));
+				tips.setText(formatCurrency(tempTips));
+				miscOne.setText(formatCurrency(tempMisc1));
+				miscTwo.setText(formatCurrency(tempMisc2));
+				miscThree.setText(formatCurrency(tempMisc3));
+				miscFour.setText(formatCurrency(tempMisc4));
 				
 				sum = pay1 + pay2 + pay3 + pay4 + tempTips + tempMisc1 + tempMisc2 + tempMisc3 + tempMisc4;
-				totalIncome.setText(us.format(sum));
+				totalIncome.setText(formatCurrency(sum));
 			}
 			catch(Exception e) {
 				System.out.println(e);
@@ -971,9 +1000,9 @@ public class BudgetPanel extends JPanel {
 						int dayInt = cal.get(Calendar.DAY_OF_MONTH);
 						String day = Integer.toString(dayInt);
 											
-						String[] newData = {title, us.format(cost), percent, day, "Yearly", category};
+						String[] newData = {title, formatCurrency(cost), percent, day, "Yearly", category};
 						
-						totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + cost));
+						totalBudgeted.setText(formatCurrency(currencyToDouble(totalBudgeted.getText()) + cost));
 						
 						data.add(newData);
 						model.addRow(newData);
@@ -997,9 +1026,9 @@ public class BudgetPanel extends JPanel {
 				int repeating = events[i].getRecurPeriod();
 				
 				if(repeating == 0) {
-					String[] newData = {title, us.format(cost), percent, day, "None", category};
+					String[] newData = {title, formatCurrency(cost), percent, day, "None", category};
 					
-					totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + cost));
+					totalBudgeted.setText(formatCurrency(currencyToDouble(totalBudgeted.getText()) + cost));
 					
 					data.add(newData);
 					model.addRow(newData);
@@ -1026,9 +1055,9 @@ public class BudgetPanel extends JPanel {
 						recurTotalCost += cost;
 					}
 				
-					String[] newData = {title, us.format(cost), percent, day, recurIntToString(repeating), category};
+					String[] newData = {title, formatCurrency(cost), percent, day, recurIntToString(repeating), category};
 					
-					totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
+					totalBudgeted.setText(formatCurrency(currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
 					
 					data.add(newData);
 					model.addRow(newData);
@@ -1041,7 +1070,7 @@ public class BudgetPanel extends JPanel {
 				leftToBudget.setText("$0.00");
 			}
 			else {
-				leftToBudget.setText(us.format(sum - currencyToDouble(totalBudgeted.getText())));
+				leftToBudget.setText(formatCurrency(sum - currencyToDouble(totalBudgeted.getText())));
 			}
 		}
 		
@@ -1127,7 +1156,7 @@ public class BudgetPanel extends JPanel {
 						temp = 0.0;
 					}
 					
-					textField.setText(us.format(temp));
+					textField.setText(formatCurrency(temp));
 				}			
 			}
 			catch (Exception e) {
@@ -1149,7 +1178,7 @@ public class BudgetPanel extends JPanel {
 			+ currencyToDouble(tips.getText()) + currencyToDouble(miscOne.getText()) + currencyToDouble(miscTwo.getText()) + currencyToDouble(miscThree.getText()) + 
 			currencyToDouble(miscFour.getText());
 			
-			totalIncome.setText(us.format(sum));
+			totalIncome.setText(formatCurrency(sum));
 			updatePercentages();
 			
 			double left = sum - currencyToDouble(totalBudgeted.getText());
@@ -1157,7 +1186,7 @@ public class BudgetPanel extends JPanel {
 				leftToBudget.setText("$0.00");
 			}
 			else {
-				leftToBudget.setText(us.format(sum - currencyToDouble(totalBudgeted.getText())));
+				leftToBudget.setText(formatCurrency(sum - currencyToDouble(totalBudgeted.getText())));
 			}
 		}
 		
@@ -1210,9 +1239,9 @@ public class BudgetPanel extends JPanel {
 					double oldValue = currencyToDouble(data.get(i)[1]);
 					double newValue = currencyToDouble(data.get(i)[2]) / 100.0 * currencyToDouble(totalIncome.getText());
 					
-					totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) - oldValue));
-					totalBudgeted.setText(us.format(currencyToDouble(totalBudgeted.getText()) + newValue));
-					data.get(i)[1] = us.format(newValue);
+					totalBudgeted.setText(formatCurrency(currencyToDouble(totalBudgeted.getText()) - oldValue));
+					totalBudgeted.setText(formatCurrency(currencyToDouble(totalBudgeted.getText()) + newValue));
+					data.get(i)[1] = formatCurrency(newValue);
 					model.setValueAt(data.get(i)[1], i, 1);
 				}
 			}
@@ -1256,7 +1285,7 @@ public class BudgetPanel extends JPanel {
 					
 					if(percent > 0) {
 						cost = (percent / 100.0) * currencyToDouble(totalIncome.getText());
-						returnData[1] = us.format(cost);
+						returnData[1] = formatCurrency(cost);
 					}
 					else {
 						try {
@@ -1267,7 +1296,7 @@ public class BudgetPanel extends JPanel {
 								return null;
 							}
 							
-							returnData[1] = us.format(cost);
+							returnData[1] = formatCurrency(cost);
 						}
 						catch (Exception ex) {
 							JOptionPane.showMessageDialog(null, "Invalid Cost");
