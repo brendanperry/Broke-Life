@@ -19,6 +19,7 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -49,6 +50,7 @@ public class CalendarPanel extends JPanel {
 	private String[] days = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 	private UserProfile userProfile;
 	private Event monthEvents[];
+	private ArrayList<Event> recurring = new ArrayList<Event>();
 	
 	public CalendarPanel(UserProfile user) {
 		this.userProfile = user;
@@ -114,9 +116,27 @@ public class CalendarPanel extends JPanel {
         			listEvent = event.getTitle() + ": " + NumberFormat.getCurrencyInstance().format(event.getAmount());
         			listSelected.addElement(listEvent);	
         		}
+        		for(Event r : recurring) {
+        			cal.setTime(r.getDate());
+        			if(cal.get(Calendar.DAY_OF_MONTH) == Integer.parseInt(selectedDate)) {
+        				listEvent = r.getTitle() + ": " + NumberFormat.getCurrencyInstance().format(r.getAmount());
+        				if(!listSelected.contains(listEvent)) {
+        					listSelected.addElement(listEvent);	
+        				}
+        			}
+        		}
         	} catch(NullPointerException n) {
         		lblSelectedDay.setText("Today: " + months[realMonth] + " " + realDay + ", " + realYear);
         		updateLists();
+        		for(Event r : recurring) {
+        			cal.setTime(r.getDate());
+        			if(cal.get(Calendar.DAY_OF_MONTH) == realDay) {
+        				listEvent = r.getTitle() + ": " + NumberFormat.getCurrencyInstance().format(r.getAmount());
+        				if(!listSelected.contains(listEvent)) {
+        					listSelected.addElement(listEvent);	
+        				}
+        			}
+        		}
         	}
     	}
         });
@@ -166,6 +186,7 @@ public class CalendarPanel extends JPanel {
 		
 		upcomingEventsPanel.add(lblUpcomingEvents, BorderLayout.NORTH);
 		lblUpcomingEvents.setHorizontalAlignment(SwingConstants.CENTER);
+		
 		show();
 	}
 	
@@ -243,23 +264,67 @@ public class CalendarPanel extends JPanel {
 //			
 //         monthEvents = userProfile.getEvents(start, end);
             
-
             int eventDay = 0;
             for (int i = 0; i <monthEvents.length; i++) {
+            	
             	Calendar cal = Calendar.getInstance();
 				cal.setTime(monthEvents[i].getDate());			
 				eventDay = cal.get(Calendar.DAY_OF_MONTH);
 				
-            if (value != null){
-            		if (Integer.parseInt(value.toString()) == eventDay){ //Event Days
-            			if(Integer.parseInt(value.toString()) == realDay) {
-            				setBorder(BorderFactory.createLineBorder(new Color(170, 120, 255), 2));
-            			} else {
-            				setBackground(new Color(220, 120, 255));
-            			}
-            		} 	
+				if(value != null) {
+					if (monthEvents[i].getRecurPeriod() == 0){
+						if (Integer.parseInt(value.toString()) == eventDay){ //Single occurrence event Days
+							if(Integer.parseInt(value.toString()) == realDay) {
+								setBorder(BorderFactory.createLineBorder(new Color(170, 120, 255), 2));
+							} else {
+								setBackground(new Color(220, 120, 255));
+							}
+						} 	
+					} else if(monthEvents[i].getRecurPeriod() == 1) {
+						if (Integer.parseInt(value.toString()) == eventDay || Integer.parseInt(value.toString()) > eventDay){
+							if(Integer.parseInt(value.toString()) == realDay) {
+								setBorder(BorderFactory.createLineBorder(new Color(170, 120, 255), 2));
+							} else {
+								setBackground(new Color(200, 150, 200));
+							}
+							
+						}
+					} else if(monthEvents[i].getRecurPeriod() == 7) {
+						if (Integer.parseInt(value.toString()) == eventDay || Integer.parseInt(value.toString()) == eventDay +7 || Integer.parseInt(value.toString()) == eventDay + 14 || Integer.parseInt(value.toString()) == eventDay + 21 || Integer.parseInt(value.toString()) == eventDay + 28) {
+							if(Integer.parseInt(value.toString()) == realDay) {
+								setBorder(BorderFactory.createLineBorder(new Color(170, 120, 255), 2));
+							} else {
+								setBackground(new Color(150, 180, 255));
+							}
+						}
+					} else if(monthEvents[i].getRecurPeriod() == 14) {
+						if (Integer.parseInt(value.toString()) == eventDay  || Integer.parseInt(value.toString()) == eventDay + 14 || Integer.parseInt(value.toString()) == eventDay + 28){
+							if(Integer.parseInt(value.toString()) == realDay) {
+								setBorder(BorderFactory.createLineBorder(new Color(170, 120, 255), 2));
+							} else {
+								setBackground(new Color(250, 180, 255));
+							}
+						}
+					} else if(monthEvents[i].getRecurPeriod() == 30) {
+						if (Integer.parseInt(value.toString()) == eventDay){
+							if(Integer.parseInt(value.toString()) == realDay) {
+								setBorder(BorderFactory.createLineBorder(new Color(170, 120, 255), 2));
+							} else {
+								setBackground(new Color(250, 150, 150));
+							}
+						}
+					} else if(monthEvents[i].getRecurPeriod() == 365) {
+						if (Integer.parseInt(value.toString()) == eventDay){
+							if(Integer.parseInt(value.toString()) == realDay) {
+								setBorder(BorderFactory.createLineBorder(new Color(170, 120, 255), 2));
+							} else {
+								setBackground(new Color(250, 250, 120));
+							}
+						}
+					}
             	}
         	}
+            
             setForeground(Color.BLACK);
             return this;
         }
@@ -287,7 +352,6 @@ public class CalendarPanel extends JPanel {
 	}
 	
 	public void updateLists() {
-		listSelected.removeAllElements();
     	listUpcoming.removeAllElements();
 		String listEvent;
         Calendar cal = Calendar.getInstance();
@@ -300,6 +364,51 @@ public class CalendarPanel extends JPanel {
 			cal.setTime(event.getDate());
 			listEvent = event.getTitle() + ": " + NumberFormat.getCurrencyInstance().format(event.getAmount()) + " -  Due: " + months[currentMonth] + " " + cal.get(Calendar.DAY_OF_MONTH);
 			listUpcoming.addElement(listEvent);
+		}
+	
+		int eventDay = 0;
+        monthEvents = userProfile.getEvents(new Date(currentYear-1900, currentMonth, 1), new Date(currentYear-1900, currentMonth, daysInCurrentMonth));
+		recurring.clear();
+        for (int i = 0; i <monthEvents.length; i++) {
+			cal.setTime(monthEvents[i].getDate());			
+			eventDay = cal.get(Calendar.DAY_OF_MONTH);
+				if(monthEvents[i].getRecurPeriod() == 1) {
+					Event e = monthEvents[i];
+					for(int d = eventDay; d <= daysInCurrentMonth; d++) {
+						recurring.add(new Event(e.getTitle(), e.getAmount(), e.getPercentage(), new Date(currentYear-1900, currentMonth, d), e.getRecurPeriod(), e.getTag()));
+					}
+				} else if(monthEvents[i].getRecurPeriod() == 7) {
+					Event e = monthEvents[i];
+					for(int d = eventDay; d <= daysInCurrentMonth; d+=e.getRecurPeriod()) {
+						recurring.add(new Event(e.getTitle(), e.getAmount(), e.getPercentage(), new Date(currentYear-1900, currentMonth, d), e.getRecurPeriod(), e.getTag()));
+					}
+				} else if(monthEvents[i].getRecurPeriod() == 14) {
+					Event e = monthEvents[i];
+					for(int d = eventDay; d <= daysInCurrentMonth; d+=e.getRecurPeriod()) {
+						recurring.add(new Event(e.getTitle(), e.getAmount(), e.getPercentage(), new Date(currentYear-1900, currentMonth, d), e.getRecurPeriod(), e.getTag()));
+					}
+				} else if(monthEvents[i].getRecurPeriod() == 30) {
+					Event e = monthEvents[i];
+					recurring.add(new Event(e.getTitle(), e.getAmount(), e.getPercentage(), new Date(currentYear-1900, currentMonth+1, eventDay), e.getRecurPeriod(), e.getTag()));
+				} else if(monthEvents[i].getRecurPeriod() == 365) {
+					Event e = monthEvents[i];
+					recurring.add(new Event(e.getTitle(), e.getAmount(), e.getPercentage(), new Date((currentYear+1)-1900, currentMonth, eventDay), e.getRecurPeriod(), e.getTag()));
+				}
+        	}
+    	
+		for(Event r : recurring) {
+			cal.setTime(r.getDate());
+			if(cal.get(Calendar.DAY_OF_MONTH) >= realDay && cal.get(Calendar.DAY_OF_MONTH) <= realDay+3) {
+				listEvent = r.getTitle() + ": " + NumberFormat.getCurrencyInstance().format(r.getAmount()) + " -  Due: " + months[currentMonth] + " " + cal.get(Calendar.DAY_OF_MONTH);
+				if(!listUpcoming.contains(listEvent)) {
+					listUpcoming.addElement(listEvent);	
+				}
+			} else if(cal.get(Calendar.DAY_OF_MONTH) == realDay) {
+				listEvent = r.getTitle() + ": " + NumberFormat.getCurrencyInstance().format(r.getAmount());
+				if(!listSelected.contains(listEvent)) {
+					listSelected.addElement(listEvent);	
+				}
+			}
 		}
 	}
 }
