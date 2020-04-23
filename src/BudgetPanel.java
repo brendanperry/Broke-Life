@@ -798,8 +798,7 @@ public class BudgetPanel extends JPanel {
 		 * @return the formatted currency
 		 */
 		public String formatCurrency(double amount) {
-			NumberFormat us = NumberFormat.getCurrencyInstance(Locale.US);
-			return us.format(amount);
+			return NumberFormat.getCurrencyInstance(Locale.US).format(amount);
 		}
 		
 		/*
