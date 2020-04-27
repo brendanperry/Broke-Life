@@ -21,6 +21,8 @@ public class OverviewPanel extends JPanel implements KeyListener{
 	private JTextField asset, debt, netWorth, netGoal, need, ratio;
 	private JLabel assetL, debtL, netWorthL, netGoalL, needL, ratioL, yourMoney, graphL;
 	private JPanel innerMoney, innerWorth, outerMoney, outerWorth;
+	private Color bgColor = Color.decode("#3e92cc");
+	private Color fgColor = Color.decode("#25ced1");
 
 	private boolean isFilled;
 
@@ -37,19 +39,21 @@ public class OverviewPanel extends JPanel implements KeyListener{
 	 * the buildPanel method and making sure you can see all the cool bits.
 	 */
 	public OverviewPanel(UserProfile userProfile) {
-		JLabel overviewText = new JLabel("Overview");
-		add(overviewText);
+		//JLabel overviewText = new JLabel("Overview");
+		//add(overviewText);
 
 		profile = userProfile;
 
-		pane = new Container();
-		setSize(470,375);
-		pane.setBackground(Color.GREEN);
-		pane.setLayout(new BorderLayout(10,10));
+//		pane = new Container();
+//		setSize(470,375);
+//		pane.setBackground(bgColor);
+//		pane.setForeground(fgColor);
+//		pane.setLayout(new BorderLayout(10,10));
+//		pane.setPreferredSize(new Dimension(300,300));
 
 		buildPanel();
 
-		add(pane);
+//		add(pane, BorderLayout.CENTER);
 
 		setVisible(true);
 
@@ -74,19 +78,22 @@ public class OverviewPanel extends JPanel implements KeyListener{
 		innerMoney = new JPanel();
 		innerMoney.setLayout(new GridLayout(3,4,5,5));
 		innerMoney.setBorder(BorderFactory.createEmptyBorder(50,50,50,50));
-		innerMoney.setBackground(Color.white);
+		innerMoney.setBackground(bgColor);
 
 		outerMoney = new JPanel();
 		outerMoney.setLayout(new BorderLayout(10,10));
-		outerMoney.setBackground(Color.MAGENTA);
+		outerMoney.setBackground(bgColor);
 
 		innerWorth = new JPanel();
-		innerWorth.setLayout(null);
-		innerWorth.setBackground(Color.white);
+		innerWorth.setLayout(new BorderLayout(10,10));
+		innerWorth.setBackground(bgColor);
 
+		JLabel test = new JLabel("Just to add something");
+		innerWorth.add(test, BorderLayout.CENTER);
+		
 		outerWorth = new JPanel();
 		outerWorth.setLayout(new BorderLayout(10,10));
-		outerWorth.setBackground(Color.MAGENTA);
+		outerWorth.setBackground(bgColor);
 
 		asset = new JTextField(10);
 		asset.addKeyListener(this);
@@ -134,10 +141,13 @@ public class OverviewPanel extends JPanel implements KeyListener{
 		innerMoney.add(needL);
 		innerMoney.add(need);
 		innerMoney.add(netWorthL);
-		innerMoney.add(netWorthL);
+		innerMoney.add(netWorth);
 		innerMoney.add(ratioL);
 		innerMoney.add(ratio);
 
+		
+		outerMoney.setPreferredSize(new Dimension(450, 500));
+		outerWorth.setSize(450,500);
 		yourMoney = new JLabel("Your Money");
 		outerMoney.add(yourMoney,BorderLayout.NORTH);
 		outerMoney.add(innerMoney, BorderLayout.CENTER);
@@ -145,7 +155,10 @@ public class OverviewPanel extends JPanel implements KeyListener{
 		graphL = new JLabel("Net Worth");
 		outerWorth.add(graphL, BorderLayout.NORTH);
 		outerWorth.add(innerWorth, BorderLayout.CENTER);
-
+		
+		add(outerMoney, BorderLayout.EAST);
+		add(outerWorth, BorderLayout.CENTER);
+		setVisible(true);
 
 
 	}//End of buildPanel
