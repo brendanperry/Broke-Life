@@ -124,6 +124,7 @@ public class MainFrame extends JFrame {
 		calendarPanel = new CalendarPanel(user);
 		
 		overviewPanel = new OverviewPanel(user);
+		overviewPanel.setBackground(Color.decode("#3e92cc"));
 		
 		centerPanel.addTab("Budget", budgetPanel);
 		centerPanel.addTab("Calendar", calendarPanel);
