@@ -32,8 +32,14 @@ public class Main {
 		}
 		
 		ArrayList<String> profiles = new ArrayList<String>();
-		File profileDir = new File(new File(".").getCanonicalPath() + "/Profiles/");
-		listFilesForFolder(profileDir, profiles);
+		File currentDir = new File(new File(".").getCanonicalPath());
+		File profileDir = new File(currentDir.getCanonicalPath() + "/Profiles/");
+		
+		if(!profileDir.isDirectory()) {
+			profileDir.mkdirs();
+		} else {
+			listFilesForFolder(profileDir, profiles);
+		}
 		new InitialWindow(profiles);  
     }
     
