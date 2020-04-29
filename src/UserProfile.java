@@ -20,17 +20,15 @@ import java.util.Date;
 public class UserProfile implements Serializable {
 	private static final long serialVersionUID = 14L;
 	private String name, password;
-	private ArrayList<Balance> balance = new ArrayList<Balance>();
+	private double balance;
 	private ArrayList<Event> events = new ArrayList<Event>();
 	private ArrayList<Income> monthlyIncome = new ArrayList<Income>();
 	private Date creationDate;
-	
 	public UserProfile() {}
 	
 	public UserProfile(String name, String password, Double balance, Date date) {
 		this.name = name;
-		Balance initialBalance = new Balance(balance, date);
-		this.balance.add(initialBalance);
+		this.balance = balance;
 		this.password = password;
 		events = new ArrayList<Event>();
 		this.creationDate = date;
@@ -79,13 +77,13 @@ public class UserProfile implements Serializable {
 		this.password = password;
 	}
 	
-	public Balance getBalance(int i) {
-		return balance.get(i);
+	public double getBalance() {
+		return balance;
 	}
 	
-//	public void setBalance(double amount) {
-//		this.balance = amount;
-//	}
+	public void setBalance(double amount) {
+		this.balance = amount;
+	}
 	
 	public String toString() {
 		String output = "User: " + name
