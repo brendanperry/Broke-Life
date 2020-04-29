@@ -11,8 +11,11 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.text.ParseException;
+import java.util.ArrayList;
+
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
@@ -67,14 +70,7 @@ public class MainFrame extends JFrame {
 		                 null);	
 				if(input == JOptionPane.OK_OPTION) {
 					try {
-						String filename =  user.getName() + ".bl";
-						FileOutputStream file = new FileOutputStream(new File(".").getCanonicalPath() + "/Profiles/" + filename);
-						ObjectOutputStream out = new ObjectOutputStream(file);
-						
-						out.writeObject(user);
-						file.close();
-						out.close();
-						
+						user.saveProfile();
 						System.exit(0);
 					} catch (Exception ex) {
 						JOptionPane.showMessageDialog(null, "Save failed!");
@@ -156,15 +152,8 @@ public class MainFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					String filename =  user.getName() + ".bl";
-					FileOutputStream file = new FileOutputStream(new File(".").getCanonicalPath() + "/Profiles/" + filename);
-					ObjectOutputStream out = new ObjectOutputStream(file);
-					
-					out.writeObject(user);
-					file.close();
-					out.close();
-
-					JOptionPane.showMessageDialog(null, "Profile has been saved!" );
+					user.saveProfile();
+					JOptionPane.showConfirmDialog(null, "Profile has been saved!" );
 			} catch (Exception ex) {
 				JOptionPane.showMessageDialog(null, "Save failed!");
 			}
@@ -173,10 +162,26 @@ public class MainFrame extends JFrame {
 		});
 		
 		load.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				int choice = JOptionPane.showConfirmDialog(null, "Save changes to current profile before "
+						+ "loading a new one?", "Save changes?", JOptionPane.YES_NO_OPTION);
+				
+				if (choice == JOptionPane.YES_OPTION) {
+				    try {
+						user.saveProfile();
+					} catch (IOException e1) {}
+				}
+				
+				try {
+					ArrayList<String> profiles = new ArrayList<String>();
+					File folder = new File(new File(".").getCanonicalPath() + "/Profiles/");
+					Main.listFilesForFolder(folder, profiles);
+					new InitialWindow(profiles);
+					dispose();
+				} catch (IOException e1) {
+					JOptionPane.showMessageDialog(null, "Failed to load files");
+				}
 			}
 		});
 		

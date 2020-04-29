@@ -35,6 +35,7 @@ public class Main {
 		File currentDir = new File(new File(".").getCanonicalPath());
 		File profileDir = new File(currentDir.getCanonicalPath() + "/Profiles/");
 		
+		//If Profiles directory is not present, it will be created
 		if(!profileDir.isDirectory()) {
 			profileDir.mkdirs();
 		} else {
@@ -44,7 +45,7 @@ public class Main {
     }
     
 	/**
-     * Helper method utilized within InitialWindow. Lists all user profiles saved within a given directory
+     * Helper method which lists all user profiles saved within a given directory
      * @param folder - A directory containing ".bl" files, the file extension given to serialized UserProfiles
      * 		  profiles - A list of the names of valid files
      * @author Drew Albert

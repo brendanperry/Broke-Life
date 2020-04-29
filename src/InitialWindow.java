@@ -115,7 +115,7 @@ public class InitialWindow extends JFrame{
 			            decode.close(); 
 			            fileInput.close();
 			            
-			            //Password entry required before accessing MainFrame
+			            //Password entry required before accessing profile
 			            while(true) {
 			            	 String input = JOptionPane.showInputDialog("Enter Password for Profile: " + profile.getName(), "");
 			            	 if(input != null) {

@@ -117,24 +117,19 @@ public class ProfileCreation extends JFrame implements ActionListener, KeyListen
 
 	}//End of buildWindow
 
-	//ActionListener for buttons
+	//ActionListeners for buttons
 	public void actionPerformed(ActionEvent e) {
 
 			if(e.getSource().equals(create)) {
 
 				try {
 					String filename = name.getText() + ".bl";
-					System.out.println(new File(".").getCanonicalPath() + "/Profiles/" + filename);
 					FileOutputStream file = new FileOutputStream(new File(".").getCanonicalPath() + "/Profiles/" + filename);
 					ObjectOutputStream out = new ObjectOutputStream(file);
 
 					UserProfile profile = new UserProfile(name.getText(), password.getText(), Double.parseDouble(balance.getText()), new Date());
-
-					out.writeObject(profile);
-					file.close();
-					out.close();
-
-					JOptionPane.showMessageDialog(null, "Profile " + name.getText() + " has been created!" );
+					profile.saveProfile();
+					
 					pList.add(name.getText() + ".bl");
 					new InitialWindow(pList);
 					dispose();
@@ -144,12 +139,8 @@ public class ProfileCreation extends JFrame implements ActionListener, KeyListen
 
 			}//End of if statement for create
 
-
-
 		if(e.getSource().equals(cancel))
 			dispose();
-
-
 
 	}//End of actionPerformed method
 

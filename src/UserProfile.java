@@ -1,7 +1,11 @@
 import java.io.Externalizable;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -250,6 +254,22 @@ public class UserProfile implements Serializable {
 		
 		return events;
 	}
+	
+	/**
+	 * Saves all current UserProfile information to a ".bl" file
+	 * @throws FileNotFoundException - Issue that occurs while choosing the path of ".bl" file
+	 * @throws IOException - Issue that occur while saving to the file
+	 */
+	public void saveProfile() throws FileNotFoundException, IOException {
+		String filename =  this.name + ".bl";
+		FileOutputStream file = new FileOutputStream(new File(".").getCanonicalPath() + "/Profiles/" + filename);
+		ObjectOutputStream out = new ObjectOutputStream(file);
+		
+		out.writeObject(this);
+		file.close();
+		out.close();
+	}
+	
 	
 	
 }
