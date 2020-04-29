@@ -342,7 +342,7 @@ public class MainFrame extends JFrame {
            com.itextpdf.text.Font f = new com.itextpdf.text.Font(bfBold, 16);
            ct.addElement(new Paragraph("BrokeLife Activity for " + user.getName() + " in the month of " + month + "/" + year, f));
            ct.go();
-           Image logo = Image.getInstance("src/logo-full.png");
+           Image logo = Image.getInstance("logo-full.png");
            logo.scaleAbsolute(150, 75);
            logo.setAbsolutePosition(20f, 750f);
            document.add(logo);
@@ -358,7 +358,7 @@ public class MainFrame extends JFrame {
            ct.addElement(new Paragraph("Expenses from the month of " + month + "/" + year, f));
            ct.go();
         
-           PdfPTable expenses = new PdfPTable(5);
+           PdfPTable expenses = new PdfPTable(6);
            expenses.setTotalWidth(540);
            //expenses.setWidthPercentage(100);
            
@@ -367,6 +367,7 @@ public class MainFrame extends JFrame {
            expenses.addCell(new PdfPCell(new Paragraph("Percentage", f)));
            expenses.addCell(new PdfPCell(new Paragraph("Tag", f)));
            expenses.addCell(new PdfPCell(new Paragraph("Date", f)));
+           expenses.addCell(new PdfPCell(new Paragraph("Recur Period", f)));
            
            int row;
            
@@ -389,13 +390,16 @@ public class MainFrame extends JFrame {
         	   PdfPCell c5 = new PdfPCell(new Paragraph(events[row].dateString(),f));
         	   expenses.addCell(c5);
         	   
+        	   PdfPCell c6 = new PdfPCell(new Paragraph(""+ events[row].getRecurPeriod(),f));
+        	   expenses.addCell(c6);
+        	   
            }
   
            float nextPos = expenses.writeSelectedRows(0, -1, 20, 730, canvas);
            
            f = new com.itextpdf.text.Font(bfBold, 10);
            ct.setSimpleColumn(700f, 50f, 20f, (nextPos));
-           ct.addElement(new Paragraph("Total Spent: $" + user.sumEvents(events), f));
+           ct.addElement(new Paragraph("Total Spent: $" + user.sumEvents(events, month), f));
            ct.go();
            PdfPTable income = new PdfPTable(3);
            income.setTotalWidth(300);
@@ -432,6 +436,23 @@ public class MainFrame extends JFrame {
            income.addCell(tips);
            
            nextPos = income.writeSelectedRows(0, -1, 140, nextPos - 32, canvas);
+           
+           f = new com.itextpdf.text.Font(bfBold, 10);
+           ct.setSimpleColumn(700f, 50f, 140f, (nextPos));
+           ct.addElement(new Paragraph("Total Income: $" + monthIncome.sumIncome(), f));
+           ct.go();
+           
+           f = new com.itextpdf.text.Font(bfBold, 10);
+           nextPos = nextPos - 12;
+           ct.setSimpleColumn(700f, 50f, 20f, (nextPos));
+           ct.addElement(new Paragraph("Overview", f));
+           ct.go();
+           
+           nextPos = nextPos - 12;
+           f= new com.itextpdf.text.Font(bf, 10);
+           ct.setSimpleColumn(700f, 50f, 20f, (nextPos));
+           ct.addElement(new Paragraph("Money Left to Budget: $" + BudgetPanel.left + "\nNet Gain/Loss: $" + (monthIncome.sumIncome() - user.sumEvents(events, month)), f));
+           ct.go();
            
            document.close();
            writer.close();

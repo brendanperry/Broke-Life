@@ -83,6 +83,9 @@ public class BudgetPanel extends JPanel {
 	// the sum of all user income for the month
 	double sum = 0.0;
 	
+	// money left to be budgeted
+	static double left = 0.0;
+	
 	/*
 	 * This is the constructor and is in control of all the user interface.
 	 * @params userProfile - this lets the budget panel get data about the user and save new data
@@ -480,7 +483,7 @@ public class BudgetPanel extends JPanel {
 						}
 						
 						totalBudgeted.setText(helper.formatCurrency(helper.currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
-						double left = sum - helper.currencyToDouble(totalBudgeted.getText());
+						left = sum - helper.currencyToDouble(totalBudgeted.getText());
 						
 						if(left < 0) {
 							leftToBudget.setText("$0.00");
@@ -619,7 +622,7 @@ public class BudgetPanel extends JPanel {
 								model.setValueAt(checkedData[i], row, i);
 							}
 							
-							double left = sum - helper.currencyToDouble(totalBudgeted.getText());
+							left = sum - helper.currencyToDouble(totalBudgeted.getText());
 							
 							if(left < 0) {
 								leftToBudget.setText("$0.00");
@@ -675,7 +678,7 @@ public class BudgetPanel extends JPanel {
 							totalBudgeted.setText(helper.formatCurrency(helper.currencyToDouble(totalBudgeted.getText()) - costCurrent));
 						}
 						
-						double left = helper.currencyToDouble(totalIncome.getText()) - helper.currencyToDouble(totalBudgeted.getText());
+						left = helper.currencyToDouble(totalIncome.getText()) - helper.currencyToDouble(totalBudgeted.getText());
 						
 						if(left < 0) {
 							leftToBudget.setText("$0.00");
@@ -1061,7 +1064,7 @@ public class BudgetPanel extends JPanel {
 				}
 			}
 			
-			double left = sum - currencyToDouble(totalBudgeted.getText());
+			left = sum - currencyToDouble(totalBudgeted.getText());
 			
 			if(left < 0) {
 				leftToBudget.setText("$0.00");
@@ -1178,7 +1181,7 @@ public class BudgetPanel extends JPanel {
 			totalIncome.setText(formatCurrency(sum));
 			updatePercentages();
 			
-			double left = sum - currencyToDouble(totalBudgeted.getText());
+			left = sum - currencyToDouble(totalBudgeted.getText());
 			if(left < 0) {
 				leftToBudget.setText("$0.00");
 			}

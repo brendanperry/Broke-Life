@@ -20,7 +20,7 @@ import java.util.Date;
 public class UserProfile implements Serializable {
 	private static final long serialVersionUID = 14L;
 	private String name, password;
-	private double balance;
+	private ArrayList<Balance> balance = new ArrayList<Balance>();
 	private ArrayList<Event> events = new ArrayList<Event>();
 	private ArrayList<Income> monthlyIncome = new ArrayList<Income>();
 	private Date creationDate;
@@ -29,7 +29,8 @@ public class UserProfile implements Serializable {
 	
 	public UserProfile(String name, String password, Double balance, Date date) {
 		this.name = name;
-		this.balance = balance;
+		Balance initialBalance = new Balance(balance, date);
+		this.balance.add(initialBalance);
 		this.password = password;
 		events = new ArrayList<Event>();
 		this.creationDate = date;
@@ -78,13 +79,13 @@ public class UserProfile implements Serializable {
 		this.password = password;
 	}
 	
-	public double getBalance() {
-		return balance;
+	public Balance getBalance(int i) {
+		return balance.get(i);
 	}
 	
-	public void setBalance(double amount) {
-		this.balance = amount;
-	}
+//	public void setBalance(double amount) {
+//		this.balance = amount;
+//	}
 	
 	public String toString() {
 		String output = "User: " + name
@@ -181,15 +182,35 @@ public class UserProfile implements Serializable {
 	}
 	
 	/**
-	 * Find the total amount of all events within a given period
+	 * Find the total amount of all events within a given period. Accounts for events which may reapeat during a month
 	 * @param events - The list of events being totaled
 	 * @return - The combined amount of all events listed
 	 */
-	public double sumEvents(Event[] events) {
+	public double sumEvents(Event[] events, int month) {
 		double total = 0.0;
+		int endDay = 0;
+		if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
+			// last day is 31st
+			endDay = 31;
+		}
+		else if(month == 2) {
+			// last day is 28th
+			endDay += 28;
+		}
+		else {
+			// last day is 30th
+			endDay += 30;
+		}
 		
 		for(int i=0; i < events.length; i++) {
-			total += events[i].getAmount();
+			if(events[i].getRecurPeriod() == 0)
+				total += events[i].getAmount();
+			else if(events[i].getRecurPeriod() == 1) //Daily
+				total += events[i].getAmount() * endDay;
+			else if(events[i].getRecurPeriod() == 7) //Weekly
+				total += (events[i].getAmount() * 4);
+			else if(events[i].getRecurPeriod() == 14) //Biweekly
+				total += (events[i].getAmount() * 2);
 		}
 		
 		return total;
