@@ -10,16 +10,35 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
+import java.sql.Date;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import com.itextpdf.awt.geom.Rectangle;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.List;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.ColumnText;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.parser.Line;
+
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -153,7 +172,7 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
 					user.saveProfile();
-					JOptionPane.showConfirmDialog(null, "Profile has been saved!" );
+					JOptionPane.showMessageDialog(null, "Profile has been saved!" );
 			} catch (Exception ex) {
 				JOptionPane.showMessageDialog(null, "Save failed!");
 			}
@@ -224,6 +243,25 @@ public class MainFrame extends JFrame {
 				}
 			}
 		});
+		
+		JMenu report = new JMenu("Report");
+		report.setMnemonic(KeyEvent.VK_R);
+		JMenuItem create = new JMenuItem("Create Report for Current Month");
+		report.add(create);
+		menuBar.add(report);
+		
+		
+		create.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					createReport(user);
+				} catch (IOException e) {
+				}
+			}
+			
+		});
+		
 	}
 
 	//If currentMonth is January, decrement current year and change current month to December
@@ -273,6 +311,139 @@ public class MainFrame extends JFrame {
             
     		monthHeading.setText(calendarPanel.getCurrentMonthString());
         }
+    }
+     
+    
+    public void createReport(UserProfile user) throws MalformedURLException, IOException {
+    	Document document = new Document();
+    	user.saveProfile();
+    	user.sortEvents();
+    	Event[] events = user.getEvents(new Date(BudgetPanel.tableYear - 1900, BudgetPanel.tableMonth - 1, 1), new Date(BudgetPanel.tableYear - 1900,BudgetPanel.tableMonth - 1, 31));
+    	
+    	int year = BudgetPanel.tableYear;
+    	int month = BudgetPanel.tableMonth;
+    	
+    	if(events.length == 0) {
+    		JOptionPane.showMessageDialog(null, "There are no events to list in report");
+    		return;
+    	}
+    	
+        try
+        {
+           PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(user.getName() + "_" +
+        		   		BudgetPanel.tableMonth + "-" + BudgetPanel.tableYear +".pdf"));
+        
+           document.open();
+           
+           PdfContentByte canvas = writer.getDirectContent();
+           ColumnText ct = new ColumnText(canvas);
+           ct.setSimpleColumn(700f,48f, 180f, 800f);
+           BaseFont bfBold = BaseFont.createFont(BaseFont.TIMES_BOLD, "" , BaseFont.EMBEDDED);
+           com.itextpdf.text.Font f = new com.itextpdf.text.Font(bfBold, 16);
+           ct.addElement(new Paragraph("BrokeLife Activity for " + user.getName() + " in the month of " + month + "/" + year, f));
+           ct.go();
+           Image logo = Image.getInstance("src/logo-full.png");
+           logo.scaleAbsolute(150, 75);
+           logo.setAbsolutePosition(20f, 750f);
+           document.add(logo);
+           
+           canvas.setRGBColorStroke(0, 0, 0);
+           canvas.moveTo(20, 750);
+           canvas.lineTo(570, 750);
+           
+           canvas.closePathStroke();
+           
+           f = new com.itextpdf.text.Font(bfBold, 10);
+           ct.setSimpleColumn(700f, 50f, 20f, 750f);
+           ct.addElement(new Paragraph("Expenses from the month of " + month + "/" + year, f));
+           ct.go();
+        
+           PdfPTable expenses = new PdfPTable(5);
+           expenses.setTotalWidth(540);
+           //expenses.setWidthPercentage(100);
+           
+           expenses.addCell(new PdfPCell(new Paragraph("Event", f)));
+           expenses.addCell(new PdfPCell(new Paragraph("Amount", f)));
+           expenses.addCell(new PdfPCell(new Paragraph("Percentage", f)));
+           expenses.addCell(new PdfPCell(new Paragraph("Tag", f)));
+           expenses.addCell(new PdfPCell(new Paragraph("Date", f)));
+           
+           int row;
+           
+           BaseFont bf = BaseFont.createFont(BaseFont.TIMES_ROMAN, "" , BaseFont.EMBEDDED);
+           f = new com.itextpdf.text.Font(bf, 10);
+           
+           for(row = 0; row < events.length; row ++) {
+        	   PdfPCell c1 = new PdfPCell(new Paragraph(events[row].getTitle(),f));
+        	   expenses.addCell(c1);
+        	   
+        	   PdfPCell c2 = new PdfPCell(new Paragraph("$" + events[row].getAmount(),f));
+        	   expenses.addCell(c2);
+        	   
+        	   PdfPCell c3 = new PdfPCell(new Paragraph(events[row].getPercentage() + "%",f));
+        	   expenses.addCell(c3);
+        	   
+        	   PdfPCell c4 = new PdfPCell(new Paragraph(events[row].getTag(),f));
+        	   expenses.addCell(c4);
+        	   
+        	   PdfPCell c5 = new PdfPCell(new Paragraph(events[row].dateString(),f));
+        	   expenses.addCell(c5);
+        	   
+           }
+  
+           float nextPos = expenses.writeSelectedRows(0, -1, 20, 730, canvas);
+           
+           f = new com.itextpdf.text.Font(bfBold, 10);
+           ct.setSimpleColumn(700f, 50f, 20f, (nextPos));
+           ct.addElement(new Paragraph("Total Spent: $" + user.sumEvents(events), f));
+           ct.go();
+           PdfPTable income = new PdfPTable(3);
+           income.setTotalWidth(300);
+           
+           income.addCell(new PdfPCell(new Paragraph("Week", f)));
+           income.addCell(new PdfPCell(new Paragraph("Pay", f)));
+           income.addCell(new PdfPCell(new Paragraph("Misc.", f)));
+           
+           Income monthIncome = user.getIncome(year, month);
+           
+           f = new com.itextpdf.text.Font(bfBold, 10);
+           
+           ct.setSimpleColumn(700f, 50f, 140f, (nextPos - 13));
+           ct.addElement(new Paragraph("Income for the month of " + month + "/" + year, f));
+           ct.go();
+           
+           f = new com.itextpdf.text.Font(bf, 10);
+           
+           for(row = 0; row < 4; row ++) {
+        	   PdfPCell c1 = new PdfPCell(new Paragraph("Week " + (row + 1), f));
+        	   income.addCell(c1);
+        	   
+        	   PdfPCell c2 = new PdfPCell(new Paragraph("$" + monthIncome.getWeek(row),f));
+        	   income.addCell(c2);
+        	   
+        	   PdfPCell c3 = new PdfPCell(new Paragraph("$" + monthIncome.getMisc(row),f));
+        	   income.addCell(c3);
+        	   
+        	   
+           }
+           
+           PdfPCell tips = new PdfPCell(new Paragraph("Tips for the Month: $" + monthIncome.getTips(), f));
+           tips.setColspan(3);
+           income.addCell(tips);
+           
+           nextPos = income.writeSelectedRows(0, -1, 140, nextPos - 32, canvas);
+           
+           document.close();
+           writer.close();
+        } catch (DocumentException e)
+        {
+           e.printStackTrace();
+        } catch (FileNotFoundException e)
+        {
+           e.printStackTrace();
+        }
+        
+        JOptionPane.showMessageDialog(null, "Report has been generated!");
     }
 }
 

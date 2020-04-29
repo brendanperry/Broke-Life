@@ -12,7 +12,7 @@ import java.util.Date;
  * Drew Albert
  * 02/29/2020
  */
-public class Event implements Serializable{
+public class Event implements Serializable, Comparable<Event>{
 	private static final long serialVersionUID = 1L;
 	public String title;
 	private Double amount;
@@ -102,15 +102,18 @@ public class Event implements Serializable{
 		this.percentage = percentage;
 	}
 	
-	public String dateString(Date day) {
-		return day.getMonth() + " " + day.getDay() + " " + day.getYear();
+	public String dateString() {
+		return (date.getMonth() + 1) + "/" + date.getDate() + "/" + (date.getYear() + 1900);
+	}
+
+	@Override
+	public int compareTo(Event e) {
+		if(date.getDate() < e.date.getDate())
+			return -1;
+		else if(date.getDate() > e.date.getDate())
+			return 1;
+		else return 0;
 	}
 	
-	public String toString() {
-		String output = "Event: " + title + 
-				"\nDate: " + dateString(date) +
-				"\nAmount: " + amount;
-		return output;
-	}
 
 }

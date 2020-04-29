@@ -8,6 +8,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 
 /**
@@ -92,9 +93,9 @@ public class UserProfile implements Serializable {
 		return output;
 	}
 	
-//	public void sortEvents() {
-//		
-//	}
+	public void sortEvents() {
+		Collections.sort(events);
+	}
 	
 	/**
 	 * Generates a list of events which occur during a specified time period

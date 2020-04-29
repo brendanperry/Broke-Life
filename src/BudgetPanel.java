@@ -77,8 +77,8 @@ public class BudgetPanel extends JPanel {
 	JComboBox<String> eventComboBox;
 	
 	// current selected month and year
-	int tableYear = 2020;
-	int tableMonth = 4;
+	static int tableYear = 2020;
+	static int tableMonth = 4;
 	
 	// the sum of all user income for the month
 	double sum = 0.0;
@@ -423,8 +423,6 @@ public class BudgetPanel extends JPanel {
 		 */
 		@Override
 		public void focusGained(FocusEvent e) {
-			// TODO Auto-generated method stub
-			
 		}
 	}
 	
