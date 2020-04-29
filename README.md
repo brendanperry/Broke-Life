@@ -2,37 +2,14 @@
 
 Broke Life is a budgeting application designed for students or part time workers. It focuses on simplicity and flexibility. 
 
-This project is being developed with an agile software development life cycle. 
+**Requirements**
+This application requires Windows 10.
+This application requires Java version 1.7.0 or newer.
+To download Java, please visit: https://java.com/en/download/
 
-The code is written in Java.
+Steps to run software: 
 
------
-
-Documentation Guide:
-
-```
-/*
-* This is a test class, and it is awesome.
-* Brendan Perry
-* 02/11/2020
-*/
-
-public class MainClass {
-  
-  /*
-  * It prints out a message.
-  * @params: messageToPrint - a string that will be printed
-  * @return: 1 - because this method does nothing interesting
-  * @author: Brendan Perry
-  */
-  public int printText(String messageToPrint) {
-    if(1 == 1) {
-      System.out.println(messageToPrint);
-    }
-    
-    return 1;
-  }
-}
-```
-
-The goal is simple documentation that does not waste too much time but also allows us to stay organized. Listing the author's name will allow us to communicate well when we may need to alter the behavior of a method we did not write. 
+1. Visit: https://github.com/brendanperry/broke-life/releases
+2. Find the most recent release.
+3. Under Assets, select and download the .exe file
+4. Once downloaded, run the .exe file
