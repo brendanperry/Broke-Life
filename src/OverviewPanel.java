@@ -174,7 +174,79 @@ public class OverviewPanel extends JPanel implements KeyListener{
 	//This method will update the different text fields based off of the data from 
 	//user profile
 	private void yourMoneyMethod() {
+<<<<<<< Updated upstream
 
+=======
+		GregorianCalendar calendar = new GregorianCalendar();
+		int month = calendar.MONTH;
+		int year = calendar.YEAR;
+		
+		BudgetPanel bp = new BudgetPanel(profile);
+		
+		double sumOfIncome;
+		String temp = bp.miscOne.getText().substring(1);
+		sumOfIncome = Double.parseDouble(temp);
+		temp = bp.miscTwo.getText().substring(1);
+		sumOfIncome += Double.parseDouble(temp);
+		temp = bp.miscThree.getText().substring(1);
+		sumOfIncome += Double.parseDouble(temp);
+		temp = bp.miscFour.getText().substring(1);
+		sumOfIncome += Double.parseDouble(temp);
+		
+		temp = bp.payOne.getText().substring(1);
+		sumOfIncome += Double.parseDouble(temp);
+		temp = bp.payTwo.getText().substring(1);
+		sumOfIncome += Double.parseDouble(temp);
+		temp = bp.payThree.getText().substring(1);
+		sumOfIncome += Double.parseDouble(temp);
+		temp = bp.payFour.getText().substring(1);
+		sumOfIncome += Double.parseDouble(temp);
+		
+		temp = bp.tips.getText().substring(1);
+		sumOfIncome += Double.parseDouble(temp);
+		
+		System.out.println(sumOfIncome);
+		
+		double tempBalance = profile.getBalance();
+		tempBalance += sumOfIncome;
+		profile.setBalance(tempBalance);
+		
+		//String temp;
+		//double balance = profile.getBalance();
+		//temp = dFormat.format(balance);
+		
+		Income income = profile.getIncome(year, month);
+		asset.setText(dFormat.format(sumOfIncome));
+		double sum = 0.00;
+		int i = 0;
+		
+		while(i < profile.getNumberOfEvents()) {
+			sum += profile.getEvent(i).getAmount();
+			i++;
+		}
+		
+		
+		double debtCalc = sumOfIncome - sum;
+		debt.setText(dFormat.format(sum));
+		netWorth.setText(dFormat.format(debtCalc));
+		double debtRatio = (sum/sumOfIncome);
+		dFormat.format(debtRatio);
+		System.out.println(debtRatio);
+		ratio.setText(ratioF.format(debtRatio));
+		need.setText(Double.toString(profile.getNeeded()));
+		
+		if(isFilled) {
+			if(Double.parseDouble(netGoal.getText()) != 0) {
+				double needed = Double.parseDouble(netGoal.getText()) - debtCalc;
+				profile.setNeeded(needed);
+				
+				dFormat.format(needed);
+				need.setText(dFormat.format(needed));
+				
+			}
+		}
+		
+>>>>>>> Stashed changes
 	}//End of yourMoneyMethod
 
 
