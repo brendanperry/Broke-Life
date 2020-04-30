@@ -26,12 +26,24 @@ public class UserProfile implements Serializable {
 	private Date creationDate;
 	public UserProfile() {}
 	
+	public double goal;
+	public double need;
+	
+	
 	public UserProfile(String name, String password, Double balance, Date date) {
 		this.name = name;
 		this.balance = balance;
 		this.password = password;
 		events = new ArrayList<Event>();
 		this.creationDate = date;
+	}
+	
+	public void setGoal(double goal) {
+		this.goal = goal;
+	}
+	
+	public double getGoal() {
+		return this.goal;
 	}
 	
 	public int getNumberOfEvents() {
@@ -288,6 +300,13 @@ public class UserProfile implements Serializable {
 		out.writeObject(this);
 		file.close();
 		out.close();
+	}
+
+	public void setNeeded(double need) {
+		this.need = need;
+	}
+	public double getNeeded() {
+		return this.need;
 	}
 	
 	

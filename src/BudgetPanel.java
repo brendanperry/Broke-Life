@@ -980,6 +980,9 @@ public class BudgetPanel extends JPanel {
 				
 				sum = pay1 + pay2 + pay3 + pay4 + tempTips + tempMisc1 + tempMisc2 + tempMisc3 + tempMisc4;
 				totalIncome.setText(formatCurrency(sum));
+				//TODO
+				//I changed this
+				user.setBalance(sum);
 			}
 			catch(Exception e) {
 				System.out.println(e);
