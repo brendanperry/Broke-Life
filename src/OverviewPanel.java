@@ -18,16 +18,15 @@ import java.text.*;
 
 
 @SuppressWarnings("serial")
-public class OverviewPanel extends JPanel implements KeyListener, ActionListener{
+public class OverviewPanel extends JPanel implements KeyListener {
 	private Container pane;
 	private JTextField asset, debt, netWorth, netGoal, need, ratio;
 	private JLabel assetL, debtL, netWorthL, netGoalL, needL, ratioL, yourMoney, graphL;
 	private JPanel innerMoney, innerWorth, outerMoney, outerWorth, buttonPanel;
+	private GraphPanel graph;
 	private Color bgColor = Color.decode("#3e92cc");
 	private Color fgColor = Color.decode("#25ced1");
-	
-	private JButton reset;
-	
+		
 	private DecimalFormat dFormat = new DecimalFormat("$###,##0.00");
 	private DecimalFormat needFormat = new DecimalFormat("#####0.00");
 	private DecimalFormat ratioF = new DecimalFormat("%#00.00");
@@ -35,8 +34,11 @@ public class OverviewPanel extends JPanel implements KeyListener, ActionListener
 	
 	private boolean isFilled;
 
-	private UserProfile profile;
+	UserProfile profile;
 	BudgetPanel bp;
+	
+	private int selectedMonth = 1;
+	private int selectedYear = 2020;
 
 	/*
 	 * The purpose of this class is to take information from the profile class and
@@ -54,6 +56,11 @@ public class OverviewPanel extends JPanel implements KeyListener, ActionListener
 		//add(overviewText);
 		
 		profile = userProfile;
+				
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Date());			
+		selectedMonth = cal.get(Calendar.MONTH);
+		selectedYear = cal.get(Calendar.YEAR);
 
 		bp = new BudgetPanel(userProfile);
 		pane = new Container();
@@ -88,7 +95,7 @@ public class OverviewPanel extends JPanel implements KeyListener, ActionListener
 	private void buildPanel() {
 
 		innerMoney = new JPanel();
-		innerMoney.setLayout(new GridLayout(3,4,5,5));
+		innerMoney.setLayout(new GridLayout(2,4,5,5));
 		innerMoney.setBorder(BorderFactory.createEmptyBorder(50,50,50,50));
 		innerMoney.setBackground(bgColor);
 
@@ -101,7 +108,7 @@ public class OverviewPanel extends JPanel implements KeyListener, ActionListener
 		asset.addKeyListener(this);
 		asset.setEditable(false);
 
-		assetL = new JLabel("ASSETS");
+		assetL = new JLabel("MONTHLY BALANCE");
 		assetL.setForeground(Color.WHITE);
 		assetL.setFont(new Font("Arial", Font.BOLD, 13));
 
@@ -151,27 +158,23 @@ public class OverviewPanel extends JPanel implements KeyListener, ActionListener
 		ratioL = new JLabel("DEBT RATIO");
 		ratioL.setForeground(Color.WHITE);
 		ratioL.setFont(new Font("Arial", Font.BOLD, 13));
-		yourMoneyMethod();
+		
+		yourMoneyMethod(selectedMonth, selectedYear);
+		
 		innerMoney.add(assetL);
 		innerMoney.add(asset);
 		innerMoney.add(netGoalL);
 		innerMoney.add(netGoal);
-		innerMoney.add(debtL);
-		innerMoney.add(debt);
-		innerMoney.add(needL);
-		innerMoney.add(need);
 		innerMoney.add(netWorthL);
 		innerMoney.add(netWorth);
-		innerMoney.add(ratioL);
-		innerMoney.add(ratio);
+		innerMoney.add(needL);
+		innerMoney.add(need);
+		//innerMoney.add(debtL);
+		//innerMoney.add(debt);
+		//innerMoney.add(ratioL);
+		//innerMoney.add(ratio);
 		
 		buttonPanel = new JPanel(new FlowLayout());
-		
-		reset = new JButton("Refresh");
-		reset.addActionListener(this);
-		reset.setSize(50, 70);
-		
-		buttonPanel.add(reset);
 		buttonPanel.setBackground(bgColor);
 		
 		yourMoney = new JLabel("Your Money", SwingConstants.CENTER);
@@ -199,10 +202,10 @@ public class OverviewPanel extends JPanel implements KeyListener, ActionListener
 		
 		//TODO
 		
-		GraphPanel graph = new GraphPanel(profile);
+		graph = new GraphPanel(profile);
 		outerWorth.add(graph, BorderLayout.CENTER);
 		
-		graphL = new JLabel("OVERVIEW", SwingConstants.CENTER);
+		graphL = new JLabel("Net Worth Over Time", SwingConstants.CENTER);
 		graphL.setForeground(Color.WHITE);
 		graphL.setFont(new Font("Arial", Font.BOLD, 20));
 		graph.setBackground(bgColor);
@@ -235,58 +238,71 @@ public class OverviewPanel extends JPanel implements KeyListener, ActionListener
 	public void keyTyped(KeyEvent e) {
 		netWorthGoalTest(e);
 	}
-
+	
+	/*
+	 * Updates the panel to reflect new data with the current month and year
+	 * @author brendanperry
+	 */
+	public void updateInfo() {
+		yourMoneyMethod(selectedMonth, selectedYear);
+		graph.repaint();
+	}
+	
+	/*
+	 * Updates the panel with a new month and year
+	 * @params month - the new month, year - the new year
+	 * @author brendanperry
+	 */
+	public void updateInfo(int month, int year) {
+		yourMoneyMethod(month, year);
+		graph.repaint();
+	}
 
 	//TODO
 	//For whenever we get the methods going for pulling info from save profiles
 	//This method will update the different text fields based off of the data from 
 	//user profile
 	@SuppressWarnings("static-access")
-	private void yourMoneyMethod() {
-		GregorianCalendar calendar = new GregorianCalendar();
-		int month = calendar.MONTH;
-		int year = calendar.YEAR;
-		bp = new BudgetPanel(profile);
+	private void yourMoneyMethod(int month, int year) {
+		selectedMonth = month;
+		selectedYear = year;
+		Date date = new GregorianCalendar(year, month, 1).getTime();
 		
-		System.out.println("Budget Panel Sum " + bp.sum);
-		System.out.println("Budget Panel pay field number one " + bp.payOne.getText());
-		double sumOfIncome;
-		String temp = bp.miscOne.getText().substring(1);
-		sumOfIncome = Double.parseDouble(temp);
-		temp = bp.miscTwo.getText().substring(1);
-		sumOfIncome += Double.parseDouble(temp);
-		temp = bp.miscThree.getText().substring(1);
-		sumOfIncome += Double.parseDouble(temp);
-		temp = bp.miscFour.getText().substring(1);
-		sumOfIncome += Double.parseDouble(temp);
+		Date creationDate = profile.getCreationDate();
+		System.out.println(creationDate);
 		
-		temp = bp.payOne.getText().substring(1);
-		sumOfIncome += Double.parseDouble(temp);
-		temp = bp.payTwo.getText().substring(1);
-		sumOfIncome += Double.parseDouble(temp);
-		temp = bp.payThree.getText().substring(1);
-		sumOfIncome += Double.parseDouble(temp);
-		temp = bp.payFour.getText().substring(1);
-		sumOfIncome += Double.parseDouble(temp);
+		double monthlyBalance = profile.getIncome(year, month + 1).getBalance();
+		//System.out.println("\n\nMonthly Balance: " + monthlyBalance);
+		double totalBalance = 0;
 		
-		temp = bp.tips.getText().substring(1);
-		sumOfIncome += Double.parseDouble(temp);
+		Date tempDate = date;
 		
-		System.out.println(sumOfIncome);
+		//System.out.println("Current Date: " + tempDate);
+
+		//System.out.println(creationDate);
 		
-		//This is the sum of all assets being saved to profile
-		double tempBalance = profile.getBalance();
-		tempBalance += sumOfIncome;
-		profile.setBalance(tempBalance);
-		
-		//String temp;
-		//double balance = profile.getBalance();
-		//temp = dFormat.format(balance);
-		
-		Income income = profile.getIncome(year, month);
-		Double test = income.sumIncome();
-		System.out.println("This is the test value: " + test);
-		asset.setText(dFormat.format(sumOfIncome));
+		// getting the balance from every month before the current date
+		while(creationDate.equals(tempDate) || creationDate.before(tempDate)) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(tempDate);			
+			int monthInt = cal.get(Calendar.MONTH);
+			int yearInt = cal.get(Calendar.YEAR);
+			
+			totalBalance += profile.getIncome(yearInt, monthInt + 1).getBalance();
+			//System.out.println("Total Balance: " + totalBalance);
+			
+			if(tempDate.getMonth() == 1) {
+				tempDate.setMonth(12);
+				tempDate.setYear(tempDate.getYear() - 1);
+			}
+			else {
+				tempDate.setMonth(tempDate.getMonth() - 1);
+			}
+			
+			//System.out.println("New Date: " + tempDate);
+		}
+
+		asset.setText(dFormat.format(monthlyBalance));
 		double sum = 0.00;
 		int i = 0;
 		
@@ -296,12 +312,12 @@ public class OverviewPanel extends JPanel implements KeyListener, ActionListener
 		}
 		
 		
-		double debtCalc = sumOfIncome - sum;
+		double debtCalc = monthlyBalance - sum;
 		debt.setText(dFormat.format(sum));
-		netWorth.setText(dFormat.format(debtCalc));
-		double debtRatio = (sum/sumOfIncome);
+		netWorth.setText(dFormat.format(totalBalance));
+		double debtRatio = (sum/monthlyBalance);
 		dFormat.format(debtRatio);
-		System.out.println(debtRatio);
+		//System.out.println(debtRatio);
 		ratio.setText(ratioF.format(debtRatio));
 		need.setText(Double.toString(profile.getNeeded()));
 		
@@ -318,12 +334,6 @@ public class OverviewPanel extends JPanel implements KeyListener, ActionListener
 		
 	}//End of yourMoneyMethod
 
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource().equals(reset)) {
-			yourMoneyMethod();
-		}
-	}
-
 	//This method is for the net worth goal text field.
 	//Checks to see if it is emtpy. If it is sets a boolean that will be used in
 	//the yourMoneyMethod for the needed text field.
@@ -335,13 +345,13 @@ public class OverviewPanel extends JPanel implements KeyListener, ActionListener
 					
 					if(Double.parseDouble(netGoal.getText()) > 1000000.00)
 						isFilled = false;
-					yourMoneyMethod();
+					yourMoneyMethod(selectedMonth, selectedYear);
 				}//End of try
 				catch(Exception i){
 					JOptionPane.showMessageDialog(null, "Invalid character only integers are accepted");
 					try {
 						netGoal.setText(netGoal.getText(0, netGoal.getText().length()-1));
-						yourMoneyMethod();
+						yourMoneyMethod(selectedMonth, selectedYear);
 					}//end of try
 					catch(Exception j) {
 						JOptionPane.showMessageDialog(null, "null");
@@ -359,157 +369,187 @@ public class OverviewPanel extends JPanel implements KeyListener, ActionListener
 		}
 	}//End of netWorthGoalTest
 
-}//End of OverviewPanel Class
 
-@SuppressWarnings("serial")
-class GraphPanel extends JPanel {
-
-    private int width = 800;
-    private int heigth = 400;
-    private int padding = 25;
-    private int labelPadding = 25;
-    private Color lineColor = new Color(44, 102, 230, 180);
-    private Color pointColor = new Color(100, 100, 100, 180);
-    private Color gridColor = new Color(200, 200, 200, 200);
-    private static final Stroke GRAPH_STROKE = new BasicStroke(2f);
-    private int pointWidth = 4;
-    private int numberYDivisions = 10;
-    
-    private GregorianCalendar calendar = new GregorianCalendar();
-    private int currentYear;
-    private Income currentMonthIncome;
-    
-    private ArrayList<Double> income = new ArrayList<Double>();
-    
-    //private List<Double> scores;
-
-    public GraphPanel(UserProfile user) { 
-    	
-        currentYear = calendar.get(GregorianCalendar.YEAR); 
-        
-        for(int i = 0; i > 12; i++) {
-        	currentMonthIncome = user.getIncome(currentYear, i);
-        	income.add(Double.parseDouble(currentMonthIncome.toString()));
-        }
-        
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        double xScale = ((double) getWidth() - (2 * padding) - labelPadding) / (income.size() - 1);
-        double yScale = ((double) getHeight() - 2 * padding - labelPadding) / (getMaxValue() - getMinValue());
-
-        ArrayList<Point> graphPoints = new ArrayList<>();
-        for (int i = 0; i < income.size(); i++) {
-            int x1 = (int) (i * xScale + padding + labelPadding);
-            int y1 = (int) ((getMaxValue() - income.get(i)) * yScale + padding);
-            graphPoints.add(new Point(x1, y1));
-        }
-
-        // draw white background
-        g2.setColor(Color.WHITE);
-        g2.fillRect(padding + labelPadding, padding, getWidth() - (2 * padding) - labelPadding, getHeight() - 2 * padding - labelPadding);
-        g2.setColor(Color.BLACK);
-
-        // create hatch marks and grid lines for y axis.
-        for (int i = 0; i < numberYDivisions + 1; i++) {
-            int x0 = padding + labelPadding;
-            int x1 = pointWidth + padding + labelPadding;
-            int y0 = getHeight() - ((i * (getHeight() - padding * 2 - labelPadding)) / numberYDivisions + padding + labelPadding);
-            int y1 = y0;
-            if (income.size() > 0) {
-                g2.setColor(gridColor);
-                g2.drawLine(padding + labelPadding + 1 + pointWidth, y0, getWidth() - padding, y1);
-                g2.setColor(Color.BLACK);
-                String yLabel = ((Double) ((getMinValue() + (getMaxValue() - getMinValue()) * ((i * 1.0) / numberYDivisions)) * 100)) / 100.0 + "";
-                FontMetrics metrics = g2.getFontMetrics();
-                int labelWidth = metrics.stringWidth(yLabel);
-                g2.drawString(yLabel, x0 - labelWidth - 5, y0 + (metrics.getHeight() / 2) - 3);
-            }
-            g2.drawLine(x0, y0, x1, y1);
-        }
-
-        // and for x axis
-        for (int i = 0; i < income.size(); i++) {
-            if (income.size() > 1) {
-                int x0 = i * (getWidth() - padding * 2 - labelPadding) / (income.size() - 1) + padding + labelPadding;
-                int x1 = x0;
-                int y0 = getHeight() - padding - labelPadding;
-                int y1 = y0 - pointWidth;
-                if ((i % ((int) ((income.size() / 20.0)) + 1)) == 0) {
-                    g2.setColor(gridColor);
-                    g2.drawLine(x0, getHeight() - padding - labelPadding - 1 - pointWidth, x1, padding);
-                    g2.setColor(Color.BLACK);
-                    String xLabel = i + "";
-                    FontMetrics metrics = g2.getFontMetrics();
-                    int labelWidth = metrics.stringWidth(xLabel);
-                    g2.drawString(xLabel, x0 - labelWidth / 2, y0 + metrics.getHeight() + 3);
-                }
-                g2.drawLine(x0, y0, x1, y1);
-            }
-        }
-
-        // create x and y axes 
-        g2.drawLine(padding + labelPadding, getHeight() - padding - labelPadding, padding + labelPadding, padding);
-        g2.drawLine(padding + labelPadding, getHeight() - padding - labelPadding, getWidth() - padding, getHeight() - padding - labelPadding);
-
-        Stroke oldStroke = g2.getStroke();
-        g2.setColor(lineColor);
-        g2.setStroke(GRAPH_STROKE);
-        for (int i = 0; i < graphPoints.size() - 1; i++) {
-            int x1 = graphPoints.get(i).x;
-            int y1 = graphPoints.get(i).y;
-            int x2 = graphPoints.get(i + 1).x;
-            int y2 = graphPoints.get(i + 1).y;
-            g2.drawLine(x1, y1, x2, y2);
-        }
-
-        g2.setStroke(oldStroke);
-        g2.setColor(pointColor);
-        for (int i = 0; i < graphPoints.size(); i++) {
-            int x = graphPoints.get(i).x - pointWidth / 2;
-            int y = graphPoints.get(i).y - pointWidth / 2;
-            int ovalW = pointWidth;
-            int ovalH = pointWidth;
-            g2.fillOval(x, y, ovalW, ovalH);
-        }
-        
-        setVisible(true);
-    }
-
-//    @Override
-//    public Dimension getPreferredSize() {
-//        return new Dimension(width, heigth);
-//    }
-    private double getMinValue() {
-        double minIncome = Double.MAX_VALUE;
-        for (Double value : income) {
-            minIncome = Math.min(minIncome, value);
-        }
-        return minIncome;
-    }
-
-    private double getMaxValue() {
-        double maxIncome = Double.MIN_VALUE;
-        for (Double value : income) {
-            maxIncome = Math.max(maxIncome, value);
-        }
-        return maxIncome;
-    }
-
-    public void setScores(ArrayList<Double> income) {
-        this.income = income;
-        invalidate();
-        this.repaint();
-    }
-
-    public ArrayList<Double> getIncome() {
-        return income;
-    }
-
-
+	@SuppressWarnings("serial")
+	class GraphPanel extends JPanel {
+	
+	    private int width = 800;
+	    private int heigth = 400;
+	    private int padding = 25;
+	    private int labelPadding = 25;
+	    private Color lineColor = new Color(44, 102, 230, 180);
+	    private Color pointColor = new Color(100, 100, 100, 180);
+	    private Color gridColor = new Color(200, 200, 200, 200);
+	    private final Stroke GRAPH_STROKE = new BasicStroke(2f);
+	    private int pointWidth = 4;
+	    private int numberYDivisions = 10;
+	    
+	    private GregorianCalendar calendar = new GregorianCalendar();
+	    private int currentYear;
+	    private Income currentMonthIncome;
+	    
+	    private ArrayList<Double> income = new ArrayList<Double>();
+	    
+	    //private List<Double> scores;
+	    
+	    UserProfile userProfile;
+	
+	    public GraphPanel(UserProfile user) { 
+	    	userProfile = user;
+	    }
+	    
+	    public void updateGraph() {
+	    	income.clear();
+	    	Date date = new GregorianCalendar(selectedYear, selectedMonth, 1).getTime();
+			Date creationDate = profile.getCreationDate();
+			
+			Date tempDate = date;
+			
+			System.out.println("Start Date: " + tempDate);
+			double totalBalance = 0;
+						
+			// getting the balance from every month before the current date
+			while(creationDate.equals(tempDate) || creationDate.before(tempDate)) {
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(tempDate);			
+				int monthInt = cal.get(Calendar.MONTH);
+				int yearInt = cal.get(Calendar.YEAR);
+				
+				System.out.println("Month: " + (monthInt + 1));
+				System.out.println("Balance: " + profile.getIncome(yearInt, monthInt + 1).getBalance());
+				totalBalance += profile.getIncome(yearInt, monthInt + 1).getBalance();
+				income.add(totalBalance);
+				
+				if(tempDate.getMonth() == 1) {
+					tempDate.setMonth(12);
+					tempDate.setYear(tempDate.getYear() - 1);
+				}
+				else {
+					tempDate.setMonth(tempDate.getMonth() - 1);
+				}
+			}
+			
+			while(income.size() < 12) {
+				income.add(0, 0.0);
+			}
+	    }
+	
+	    @Override
+	    protected void paintComponent(Graphics g) {
+	        super.paintComponent(g);
+	        Graphics2D g2 = (Graphics2D) g;
+	        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	        
+	        updateGraph();
+	        
+	        double xScale = ((double) getWidth() - (2 * padding) - labelPadding) / (income.size() - 1);
+	        double yScale = ((double) getHeight() - 2 * padding - labelPadding) / (getMaxValue() - getMinValue());
+	
+	        ArrayList<Point> graphPoints = new ArrayList<>();
+	        for (int i = 0; i < income.size(); i++) {
+	            int x1 = (int) (i * xScale + padding + labelPadding);
+	            int y1 = (int) ((getMaxValue() - income.get(i)) * yScale + padding);
+	            graphPoints.add(new Point(x1, y1));
+	        }
+	
+	        // draw white background
+	        g2.setColor(Color.WHITE);
+	        g2.fillRect(padding + labelPadding, padding, getWidth() - (2 * padding) - labelPadding, getHeight() - 2 * padding - labelPadding);
+	        g2.setColor(Color.BLACK);
+	
+	        // create hatch marks and grid lines for y axis.
+	        for (int i = 0; i < numberYDivisions + 1; i++) {
+	            int x0 = padding + labelPadding;
+	            int x1 = pointWidth + padding + labelPadding;
+	            int y0 = getHeight() - ((i * (getHeight() - padding * 2 - labelPadding)) / numberYDivisions + padding + labelPadding);
+	            int y1 = y0;
+	            if (income.size() > 0) {
+	                g2.setColor(gridColor);
+	                g2.drawLine(padding + labelPadding + 1 + pointWidth, y0, getWidth() - padding, y1);
+	                g2.setColor(Color.BLACK);
+	                String yLabel = "$" + ((Double) ((getMinValue() + (getMaxValue() - getMinValue()) * ((i * 1.0) / numberYDivisions)) * 100)) / 100.0 + "";
+	                FontMetrics metrics = g2.getFontMetrics();
+	                int labelWidth = metrics.stringWidth(yLabel);
+	                g2.drawString(yLabel, x0 - labelWidth - 5, y0 + (metrics.getHeight() / 2) - 3);
+	            }
+	            g2.drawLine(x0, y0, x1, y1);
+	        }
+	        // and for x axis
+	        for (int i = 0; i < income.size(); i++) {
+	            if (income.size() > 1) {
+	                int x0 = i * (getWidth() - padding * 2 - labelPadding) / (income.size() - 1) + padding + labelPadding;
+	                int x1 = x0;
+	                int y0 = getHeight() - padding - labelPadding;
+	                int y1 = y0 - pointWidth;
+	                if ((i % ((int) ((income.size() / 20.0)) + 1)) == 0) {
+	                    g2.setColor(gridColor);
+	                    g2.drawLine(x0, getHeight() - padding - labelPadding - 1 - pointWidth, x1, padding);
+	                    g2.setColor(Color.BLACK);
+	                    String xLabel = i + "";
+	                    FontMetrics metrics = g2.getFontMetrics();
+	                    int labelWidth = metrics.stringWidth(xLabel);
+	                    g2.drawString(xLabel, x0 - labelWidth / 2, y0 + metrics.getHeight() + 3);
+	                }
+	                g2.drawLine(x0, y0, x1, y1);
+	            }
+	        }
+	
+	        // create x and y axes 
+	        g2.drawLine(padding + labelPadding, getHeight() - padding - labelPadding, padding + labelPadding, padding);
+	        g2.drawLine(padding + labelPadding, getHeight() - padding - labelPadding, getWidth() - padding, getHeight() - padding - labelPadding);
+	
+	        Stroke oldStroke = g2.getStroke();
+	        g2.setColor(lineColor);
+	        g2.setStroke(GRAPH_STROKE);
+	        for (int i = 0; i < graphPoints.size() - 1; i++) {
+	            int x1 = graphPoints.get(i).x;
+	            int y1 = graphPoints.get(i).y;
+	            int x2 = graphPoints.get(i + 1).x;
+	            int y2 = graphPoints.get(i + 1).y;
+	            g2.drawLine(x1, y1, x2, y2);
+	        }
+	
+	        g2.setStroke(oldStroke);
+	        g2.setColor(pointColor);
+	        for (int i = 0; i < graphPoints.size(); i++) {
+	            int x = graphPoints.get(i).x - pointWidth / 2;
+	            int y = graphPoints.get(i).y - pointWidth / 2;
+	            int ovalW = pointWidth;
+	            int ovalH = pointWidth;
+	            g2.fillOval(x, y, ovalW, ovalH);
+	        }
+	        g2.drawLine(0, 0, 1, 1);
+	        setVisible(true);
+	    }
+	
+	//    @Override
+	//    public Dimension getPreferredSize() {
+	//        return new Dimension(width, heigth);
+	//    }
+	    private double getMinValue() {
+	        double minIncome = Double.MAX_VALUE;
+	        for (Double value : income) {
+	            minIncome = Math.min(minIncome, value);
+	        }
+	        return minIncome;
+	    }
+	
+	    private double getMaxValue() {
+	        double maxIncome = Double.MIN_VALUE;
+	        for (Double value : income) {
+	            maxIncome = Math.max(maxIncome, value);
+	        }
+	        return maxIncome;
+	    }
+	
+	    public void setScores(ArrayList<Double> income) {
+	        this.income = income;
+	        invalidate();
+	        this.repaint();
+	    }
+	
+	    public ArrayList<Double> getIncome() {
+	        return income;
+	    }
+	}
 }

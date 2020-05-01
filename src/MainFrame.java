@@ -152,6 +152,9 @@ public class MainFrame extends JFrame {
 		        if(sourceTabbedPane.getSelectedIndex() == 1) {
 		        	calendarPanel.updateLists();
 		        }
+		        if(sourceTabbedPane.getSelectedIndex() == 2) {
+		        	overviewPanel.updateInfo();
+		        }
 		      }
 		    };
 		    centerPanel.addChangeListener(changeListener);
@@ -276,6 +279,7 @@ public class MainFrame extends JFrame {
                 calendarPanel.setCurrentMonth(calendarPanel.getCurrentMonth()-1);
             }
             calendarPanel.refreshCalendar(calendarPanel.getCurrentMonth(), calendarPanel.getCurrentYear());
+            overviewPanel.updateInfo(calendarPanel.getCurrentMonth(), calendarPanel.getCurrentYear());
             
             try {
 				budgetPanel.loadFromHeader(calendarPanel.getCurrentMonth() + 1, calendarPanel.getCurrentYear());
@@ -301,6 +305,7 @@ public class MainFrame extends JFrame {
                 calendarPanel.setCurrentMonth(calendarPanel.getCurrentMonth()+1);
             }
             calendarPanel.refreshCalendar(calendarPanel.getCurrentMonth(), calendarPanel.getCurrentYear());
+            overviewPanel.updateInfo(calendarPanel.getCurrentMonth(), calendarPanel.getCurrentYear());
             
             try {
 				budgetPanel.loadFromHeader(calendarPanel.getCurrentMonth() + 1, calendarPanel.getCurrentYear());

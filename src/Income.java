@@ -12,6 +12,7 @@ public class Income implements Serializable {
 	private double[] weeks = new double[4];
 	private double tips = 0;
 	private double[] misc = new double[4];
+	private double balance;
 
 	/**
 	 * Constructor method which initializes an Income object that represents a certain month
@@ -73,6 +74,14 @@ public class Income implements Serializable {
 	
 	public void setMonth(int month) {
 		this.month = month;
+	}
+	
+	public double getBalance() {
+		return balance;
+	}
+	
+	public void setBalance(double balance) {
+		this.balance = balance;
 	}
 	
 	public double sumIncome() {

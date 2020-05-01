@@ -271,7 +271,7 @@ public class BudgetPanel extends JPanel {
 		totalBudgeted.setEditable(false);
 		totalBudgeted.setBackground(Color.WHITE);
 		
-		JLabel leftToBudgetText = new JLabel("LEFT TO BUDGET");
+		JLabel leftToBudgetText = new JLabel("MONEY LEFT");
 		leftToBudgetText.setFont(new Font("Arial", Font.BOLD, 13));
 		leftToBudgetText.setForeground(Color.WHITE);
 		leftToBudget = new JTextField("$0.00");
@@ -982,7 +982,8 @@ public class BudgetPanel extends JPanel {
 				totalIncome.setText(formatCurrency(sum));
 				//TODO
 				//I changed this
-				user.setBalance(sum);
+				//user.setBalance(sum);
+				//System.out.println("BUDGET PANEL: " + user.getIncome(tableYear, tableMonth).getBalance());
 			}
 			catch(Exception e) {
 				System.out.println(e);
@@ -1068,6 +1069,7 @@ public class BudgetPanel extends JPanel {
 			}
 			
 			left = sum - currencyToDouble(totalBudgeted.getText());
+			user.getIncome(tableYear, tableMonth).setBalance(left);
 			
 			if(left < 0) {
 				leftToBudget.setText("$0.00");
@@ -1185,6 +1187,7 @@ public class BudgetPanel extends JPanel {
 			updatePercentages();
 			
 			left = sum - currencyToDouble(totalBudgeted.getText());
+			user.getIncome(tableYear, tableMonth).setBalance(left);
 			if(left < 0) {
 				leftToBudget.setText("$0.00");
 			}
