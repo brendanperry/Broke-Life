@@ -4,6 +4,8 @@
 
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -204,6 +206,7 @@ public class OverviewPanel extends JPanel implements KeyListener {
 		
 		graph = new GraphPanel(profile);
 		outerWorth.add(graph, BorderLayout.CENTER);
+		outerWorth.setBorder(new EmptyBorder(20, 20, 20, 20));
 		
 		graphL = new JLabel("Net Worth Over Time", SwingConstants.CENTER);
 		graphL.setForeground(Color.WHITE);
@@ -291,8 +294,8 @@ public class OverviewPanel extends JPanel implements KeyListener {
 			totalBalance += profile.getIncome(yearInt, monthInt + 1).getBalance();
 			//System.out.println("Total Balance: " + totalBalance);
 			
-			if(tempDate.getMonth() == 1) {
-				tempDate.setMonth(12);
+			if(tempDate.getMonth() == 0) {
+				tempDate.setMonth(11);
 				tempDate.setYear(tempDate.getYear() - 1);
 			}
 			else {
@@ -303,27 +306,28 @@ public class OverviewPanel extends JPanel implements KeyListener {
 		}
 
 		asset.setText(dFormat.format(monthlyBalance));
-		double sum = 0.00;
+		//double sum = 0.00;
 		int i = 0;
 		
+		/*
 		while(i < profile.getNumberOfEvents()) {
 			sum += profile.getEvent(i).getAmount();
 			i++;
-		}
+		}*/
 		
 		
-		double debtCalc = monthlyBalance - sum;
-		debt.setText(dFormat.format(sum));
+		//double debtCalc = monthlyBalance - sum;
+		//debt.setText(dFormat.format(sum));
 		netWorth.setText(dFormat.format(totalBalance));
-		double debtRatio = (sum/monthlyBalance);
-		dFormat.format(debtRatio);
+		//double debtRatio = (sum/monthlyBalance);
+		//dFormat.format(debtRatio);
 		//System.out.println(debtRatio);
-		ratio.setText(ratioF.format(debtRatio));
+		//ratio.setText(ratioF.format(debtRatio));
 		need.setText(Double.toString(profile.getNeeded()));
 		
 		if(isFilled) {
 			if(Double.parseDouble(netGoal.getText()) != 0) {
-				double needed = Double.parseDouble(netGoal.getText()) - debtCalc;
+				double needed = Double.parseDouble(netGoal.getText()) - Double.parseDouble(netWorth.getText().replaceAll("[$,]", ""));
 				profile.setNeeded(needed);
 				
 				dFormat.format(needed);
@@ -373,8 +377,8 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	@SuppressWarnings("serial")
 	class GraphPanel extends JPanel {
 	
-	    private int width = 800;
-	    private int heigth = 400;
+	    private int width = 500;
+	    private int height = 400;
 	    private int padding = 25;
 	    private int labelPadding = 25;
 	    private Color lineColor = new Color(44, 102, 230, 180);
@@ -384,9 +388,9 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	    private int pointWidth = 4;
 	    private int numberYDivisions = 10;
 	    
-	    private GregorianCalendar calendar = new GregorianCalendar();
-	    private int currentYear;
-	    private Income currentMonthIncome;
+	    //private GregorianCalendar calendar = new GregorianCalendar();
+	    //private int currentYear;
+	    //private Income currentMonthIncome;
 	    
 	    private ArrayList<Double> income = new ArrayList<Double>();
 	    
@@ -398,38 +402,76 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	    	userProfile = user;
 	    }
 	    
+	    /*
+	     * This function updates the information that is to be put into the graph. This includes the monthly balances.
+	     * @author brendanperry
+	     */
 	    public void updateGraph() {
 	    	income.clear();
 	    	Date date = new GregorianCalendar(selectedYear, selectedMonth, 1).getTime();
 			Date creationDate = profile.getCreationDate();
 			
 			Date tempDate = date;
-			
-			System.out.println("Start Date: " + tempDate);
-			double totalBalance = 0;
 						
-			// getting the balance from every month before the current date
-			while(creationDate.equals(tempDate) || creationDate.before(tempDate)) {
+			int count = 0;
+									
+			// find how many months to go back up to one year
+			while(creationDate.equals(tempDate) || creationDate.before(tempDate) && count <= 12) {
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(tempDate);			
 				int monthInt = cal.get(Calendar.MONTH);
 				int yearInt = cal.get(Calendar.YEAR);
-				
-				System.out.println("Month: " + (monthInt + 1));
-				System.out.println("Balance: " + profile.getIncome(yearInt, monthInt + 1).getBalance());
-				totalBalance += profile.getIncome(yearInt, monthInt + 1).getBalance();
-				income.add(totalBalance);
-				
-				if(tempDate.getMonth() == 1) {
-					tempDate.setMonth(12);
+
+				if(tempDate.getMonth() == 0) {
+					tempDate.setMonth(11);
 					tempDate.setYear(tempDate.getYear() - 1);
 				}
 				else {
 					tempDate.setMonth(tempDate.getMonth() - 1);
 				}
+				
+				count++;
 			}
+	        
 			
-			while(income.size() < 12) {
+			// roll back temp date to the furthers date with data
+	        tempDate = new GregorianCalendar(selectedYear, selectedMonth, 1).getTime();
+	        
+	        for(int i = 1; i < count; i++) {
+	        	if(tempDate.getMonth() == 0) {
+					tempDate.setMonth(11);
+					tempDate.setYear(tempDate.getYear() - 1);
+				}
+				else {
+					tempDate.setMonth(tempDate.getMonth() - 1);
+				}
+	        }
+	        
+	        // now we go forwards to and add all the balances up
+	        double totalBalance = 0;
+			
+	        for (int i = 0; i < count; i++) {
+	        	Calendar cal = Calendar.getInstance();
+				cal.setTime(tempDate);			
+				int monthInt = cal.get(Calendar.MONTH);
+				int yearInt = cal.get(Calendar.YEAR);
+				
+				totalBalance += profile.getIncome(yearInt, monthInt + 1).getBalance();
+	        	income.add(totalBalance);
+	        	
+	        	if(tempDate.getMonth() == 11) {
+					tempDate.setMonth(0);
+					tempDate.setYear(tempDate.getYear() + 1);
+				}
+				else {
+					tempDate.setMonth(tempDate.getMonth() + 1);
+				}
+	        }
+	        
+	        int size = income.size();
+	        
+	        // if the graph is too small, we make sure that there is at least two points
+			if(size < 12) {
 				income.add(0, 0.0);
 			}
 	    }
@@ -444,6 +486,10 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	        
 	        double xScale = ((double) getWidth() - (2 * padding) - labelPadding) / (income.size() - 1);
 	        double yScale = ((double) getHeight() - 2 * padding - labelPadding) / (getMaxValue() - getMinValue());
+	        
+	        for(int i = 0; i < income.size(); i++) {
+	        	System.out.println(income.get(i));
+	        }
 	
 	        ArrayList<Point> graphPoints = new ArrayList<>();
 	        for (int i = 0; i < income.size(); i++) {
@@ -467,12 +513,31 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	                g2.setColor(gridColor);
 	                g2.drawLine(padding + labelPadding + 1 + pointWidth, y0, getWidth() - padding, y1);
 	                g2.setColor(Color.BLACK);
-	                String yLabel = "$" + ((Double) ((getMinValue() + (getMaxValue() - getMinValue()) * ((i * 1.0) / numberYDivisions)) * 100)) / 100.0 + "";
+	                
+	                String yLabel = "$0.00";
+	                if(getMaxValue() > 1) {
+	                	DecimalFormat f = new DecimalFormat("0.00");
+	                	yLabel = "$" + (int) ((getMinValue() + (getMaxValue() - getMinValue()) * ((i * 1.0) / numberYDivisions)));
+	                }
+	                
 	                FontMetrics metrics = g2.getFontMetrics();
 	                int labelWidth = metrics.stringWidth(yLabel);
 	                g2.drawString(yLabel, x0 - labelWidth - 5, y0 + (metrics.getHeight() / 2) - 3);
 	            }
 	            g2.drawLine(x0, y0, x1, y1);
+	        }
+	        Date tempDate = new GregorianCalendar(selectedYear, selectedMonth, 1).getTime();
+	        
+	        int size = income.size();
+	        
+	        for(int i = 1; i < size; i++) {
+	        	if(tempDate.getMonth() == 0) {
+					tempDate.setMonth(11);
+					tempDate.setYear(tempDate.getYear() - 1);
+				}
+				else {
+					tempDate.setMonth(tempDate.getMonth() - 1);
+				}
 	        }
 	        // and for x axis
 	        for (int i = 0; i < income.size(); i++) {
@@ -485,7 +550,22 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	                    g2.setColor(gridColor);
 	                    g2.drawLine(x0, getHeight() - padding - labelPadding - 1 - pointWidth, x1, padding);
 	                    g2.setColor(Color.BLACK);
-	                    String xLabel = i + "";
+	                    
+	                    Calendar cal = Calendar.getInstance();
+	                    cal.setTime(tempDate);
+	                    String m = new SimpleDateFormat("MMM").format(cal.getTime());
+	                    String y = Integer.toString(cal.get(Calendar.YEAR)).substring(2, 4);
+	                    
+	                    String xLabel = " " + m + " " + y;
+	                    System.out.println(i + " " + tempDate);
+	                    if(tempDate.getMonth() == 11) {
+	    					tempDate.setMonth(0);
+	    					tempDate.setYear(tempDate.getYear() + 1);
+	    				}
+	    				else {
+	    					tempDate.setMonth(tempDate.getMonth() + 1);
+	    				}
+	         
 	                    FontMetrics metrics = g2.getFontMetrics();
 	                    int labelWidth = metrics.stringWidth(xLabel);
 	                    g2.drawString(xLabel, x0 - labelWidth / 2, y0 + metrics.getHeight() + 3);
