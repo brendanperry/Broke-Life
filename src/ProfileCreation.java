@@ -57,8 +57,11 @@ public class ProfileCreation extends JFrame implements ActionListener, KeyListen
 		add(pane);
 
 		setVisible(true);
-	}
+	}//End of ProfileCreation constructor
 
+	
+	//This is where all the magic happens.
+	//The panel is built here so all of the components are found here
 	private void buildWindow() {
 
 		mainPanel = new JPanel();
@@ -117,6 +120,7 @@ public class ProfileCreation extends JFrame implements ActionListener, KeyListen
 	}//End of buildWindow
 
 	//ActionListeners for buttons
+	//This action listener is for the buttons create, and cancel
 	public void actionPerformed(ActionEvent e) {
 
 			if(e.getSource().equals(create)) {
@@ -133,6 +137,7 @@ public class ProfileCreation extends JFrame implements ActionListener, KeyListen
 					pList.add(name.getText() + ".bl");
 					new InitialWindow(pList);
 					dispose();
+					out.close();
 				}catch (Exception ex) {
 					JOptionPane.showMessageDialog(null, "Profile initialization failed");
 				}//End of Catch
@@ -183,17 +188,17 @@ public class ProfileCreation extends JFrame implements ActionListener, KeyListen
 				try {
 					if(Double.parseDouble(balance.getText()) > 1000000.00)
 						balanceEntry = false;
-				}
+				}//end of try statement
 				catch(Exception i){
 					JOptionPane.showMessageDialog(null, "Invalid character");
 					try {
 						balance.setText(balance.getText(0, balance.getText().length()-1));
-					}
+					}//End of inner try
 					catch(Exception j) {
 						JOptionPane.showMessageDialog(null, "null");
-					}
-				}
-			}
+					}//End of inner catch
+				}//End of catch
+			}//End of inner if statement
 
 			if(balance.getText().isEmpty()) 
 				balanceEntry = false;
@@ -201,7 +206,7 @@ public class ProfileCreation extends JFrame implements ActionListener, KeyListen
 			else
 				balanceEntry = true;
 			fieldsFilled();
-		}//End of if statement
+		}//End of outer if statement
 
 		if(e.getSource().equals(password)) {
 			fieldsFilled();

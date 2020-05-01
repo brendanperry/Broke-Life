@@ -18,9 +18,14 @@ import java.text.*;
  * sizes of the different components. 4/8/2020
  */
 
+/*
+ * This class holds all of the important
+ */
 
 @SuppressWarnings("serial")
 public class OverviewPanel extends JPanel implements KeyListener {
+	
+	//The following are all the panel components 
 	private Container pane;
 	private JTextField asset, debt, netWorth, netGoal, need, ratio;
 	private JLabel assetL, debtL, netWorthL, netGoalL, needL, ratioL, yourMoney, graphL;
@@ -29,16 +34,18 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	private Color bgColor = Color.decode("#3e92cc");
 	private Color fgColor = Color.decode("#25ced1");
 		
+	//Used to format the text boxes
 	private DecimalFormat dFormat = new DecimalFormat("$###,##0.00");
 	private DecimalFormat needFormat = new DecimalFormat("#####0.00");
-	private DecimalFormat ratioF = new DecimalFormat("%#00.00");
 
-	
+	//This is used to verify that the Net Goal textfield is filled
 	private boolean isFilled;
 
+	//These are used to bring in information from the needed classes
 	UserProfile profile;
 	BudgetPanel bp;
 	
+	//This is used as a start date for the profile.
 	private int selectedMonth = 1;
 	private int selectedYear = 2020;
 
@@ -54,17 +61,23 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	 */
 	public OverviewPanel(UserProfile userProfile) {
 		setBackground(bgColor);
-		//JLabel overviewText = new JLabel("Overview");
-		//add(overviewText);
-		
+	
+		//Sets the profile to the passed into the class
 		profile = userProfile;
 				
+		//The following gets the date and uses it to get the information from the profile
+		//for the selected month
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(new Date());			
 		selectedMonth = cal.get(Calendar.MONTH);
 		selectedYear = cal.get(Calendar.YEAR);
 
+		//This allows the information to be pulled in from the BudgetPanel.
+		//This was the easiest way to get the updated information needed to do the 
+		//Calculations this panel does
 		bp = new BudgetPanel(userProfile);
+		
+		//The pane holds everything
 		pane = new Container();
 		setSize(470,375);
 		pane.setBackground(bgColor);
@@ -72,8 +85,10 @@ public class OverviewPanel extends JPanel implements KeyListener {
 		pane.setLayout(new BorderLayout(10,10));
 		pane.setPreferredSize(new Dimension(300,300));
 
+		//Calls the buildPanel where all the magic happens
 		buildPanel();
 
+		//Adds the pane to the main overview panel
 		add(pane, BorderLayout.CENTER);
 
 		setVisible(true);
@@ -81,6 +96,9 @@ public class OverviewPanel extends JPanel implements KeyListener {
 
 	}//End of Constructor
 
+	
+	
+	
 	/*
 	 * This is where all the goodies are for the GUI
 	 * If you want to edit a button or a textfield they are found here
@@ -96,6 +114,10 @@ public class OverviewPanel extends JPanel implements KeyListener {
 
 	private void buildPanel() {
 
+		/*
+		 *The following is all the panels, buttons and textfields used 
+		 *in the panel. If anything visual related needs to be altered it will be here.
+		 */
 		innerMoney = new JPanel();
 		innerMoney.setLayout(new GridLayout(2,4,5,5));
 		innerMoney.setBorder(BorderFactory.createEmptyBorder(50,50,50,50));
@@ -136,7 +158,9 @@ public class OverviewPanel extends JPanel implements KeyListener {
 		netGoal.setPreferredSize(new Dimension(100,30));
 		netGoal.setText(needFormat.format(profile.getGoal()));
 		netGoal.addKeyListener(this);
-		//Boolean for netGoal textfield
+		
+		//Boolean for netGoal textfield initially set to false since it will default be
+		//empty.
 		isFilled = false;
 
 		netGoalL = new JLabel("NET WORTH GOAL");
@@ -161,6 +185,7 @@ public class OverviewPanel extends JPanel implements KeyListener {
 		ratioL.setForeground(Color.WHITE);
 		ratioL.setFont(new Font("Arial", Font.BOLD, 13));
 		
+		//Calls the yourMoneyMethod that does all the calculations for the textfields
 		yourMoneyMethod(selectedMonth, selectedYear);
 		
 		innerMoney.add(assetL);
@@ -171,10 +196,6 @@ public class OverviewPanel extends JPanel implements KeyListener {
 		innerMoney.add(netWorth);
 		innerMoney.add(needL);
 		innerMoney.add(need);
-		//innerMoney.add(debtL);
-		//innerMoney.add(debt);
-		//innerMoney.add(ratioL);
-		//innerMoney.add(ratio);
 		
 		buttonPanel = new JPanel(new FlowLayout());
 		buttonPanel.setBackground(bgColor);
@@ -191,19 +212,13 @@ public class OverviewPanel extends JPanel implements KeyListener {
 		innerWorth.setLayout(new BorderLayout(10,10));
 		innerWorth.setBackground(bgColor);
 		
-//		JLabel test = new JLabel("Just to add something");
-//		innerWorth.add(test, BorderLayout.CENTER);
-		
 		outerWorth = new JPanel();
 		outerWorth.setLayout(new BorderLayout(10,10));
 		outerWorth.setBackground(bgColor);
-		
-				
-				
 		outerWorth.setSize(450,500);
 		
-		//TODO
-		
+		//This call is for the GraphPanel class. Its a subclass in the Overview Panel class
+		//that builds the graph.
 		graph = new GraphPanel(profile);
 		outerWorth.add(graph, BorderLayout.CENTER);
 		outerWorth.setBorder(new EmptyBorder(20, 20, 20, 20));
@@ -215,7 +230,6 @@ public class OverviewPanel extends JPanel implements KeyListener {
 		graph.repaint();
 		
 		outerWorth.add(graphL, BorderLayout.NORTH);
-		//outerWorth.add(innerWorth, BorderLayout.CENTER);
 		pane.add(outerWorth, BorderLayout.CENTER);
 
 		pane.add(outerMoney, BorderLayout.NORTH);
@@ -224,23 +238,27 @@ public class OverviewPanel extends JPanel implements KeyListener {
 
 	}//End of buildPanel
 
+	
+	
+	
 	//This is just for net worth goal textfield only.
 	//The other textfields are not editable since they are 
 	//computed from profile information
 	@Override
 	public void keyPressed(KeyEvent e) {
 		netWorthGoalTest(e);
-	}
+	}//End of keyPressed method
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		netWorthGoalTest(e);
-	}
+	}//End of keyRelease method
 
 	@Override
 	public void keyTyped(KeyEvent e) {
 		netWorthGoalTest(e);
-	}
+	}//End of keyTyped method
+	
 	
 	/*
 	 * Updates the panel to reflect new data with the current month and year
@@ -249,7 +267,9 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	public void updateInfo() {
 		yourMoneyMethod(selectedMonth, selectedYear);
 		graph.repaint();
-	}
+	}//End of updateInfo() method
+	
+	
 	
 	/*
 	 * Updates the panel with a new month and year
@@ -259,30 +279,29 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	public void updateInfo(int month, int year) {
 		yourMoneyMethod(month, year);
 		graph.repaint();
-	}
+	}//End of updateInfo(month, year) method
 
-	//TODO
-	//For whenever we get the methods going for pulling info from save profiles
+	
 	//This method will update the different text fields based off of the data from 
 	//user profile
-	@SuppressWarnings("static-access")
+	@SuppressWarnings({ "deprecation" })
 	private void yourMoneyMethod(int month, int year) {
+		
+		//This allows a passed in month an year to figure out which month's information
+		// to display
 		selectedMonth = month;
 		selectedYear = year;
-		Date date = new GregorianCalendar(year, month, 1).getTime();
 		
+		//Sets the passed dates in to set up a new Date value
+		Date date = new GregorianCalendar(year, month, 1).getTime();
 		Date creationDate = profile.getCreationDate();
 		System.out.println(creationDate);
 		
+		//Gets the monthly balance from the current profile
 		double monthlyBalance = profile.getIncome(year, month + 1).getBalance();
-		//System.out.println("\n\nMonthly Balance: " + monthlyBalance);
 		double totalBalance = 0;
 		
 		Date tempDate = date;
-		
-		//System.out.println("Current Date: " + tempDate);
-
-		//System.out.println(creationDate);
 		
 		// getting the balance from every month before the current date
 		while(creationDate.equals(tempDate) || creationDate.before(tempDate)) {
@@ -297,34 +316,21 @@ public class OverviewPanel extends JPanel implements KeyListener {
 			if(tempDate.getMonth() == 0) {
 				tempDate.setMonth(11);
 				tempDate.setYear(tempDate.getYear() - 1);
-			}
+			}//End of if statement
 			else {
 				tempDate.setMonth(tempDate.getMonth() - 1);
-			}
+			}//End of else statement
 			
-			//System.out.println("New Date: " + tempDate);
-		}
+		}//End of while loop
 
 		asset.setText(dFormat.format(monthlyBalance));
-		//double sum = 0.00;
-		int i = 0;
-		
-		/*
-		while(i < profile.getNumberOfEvents()) {
-			sum += profile.getEvent(i).getAmount();
-			i++;
-		}*/
-		
-		
-		//double debtCalc = monthlyBalance - sum;
-		//debt.setText(dFormat.format(sum));
+
 		netWorth.setText(dFormat.format(totalBalance));
-		//double debtRatio = (sum/monthlyBalance);
-		//dFormat.format(debtRatio);
-		//System.out.println(debtRatio);
-		//ratio.setText(ratioF.format(debtRatio));
+		
 		need.setText(Double.toString(profile.getNeeded()));
 		
+		//Just checks to make sure the net goal textfield is filled to prevent
+		//null being passed in as a value
 		if(isFilled) {
 			if(Double.parseDouble(netGoal.getText()) != 0) {
 				double needed = Double.parseDouble(netGoal.getText()) - Double.parseDouble(netWorth.getText().replaceAll("[$,]", ""));
@@ -333,11 +339,14 @@ public class OverviewPanel extends JPanel implements KeyListener {
 				dFormat.format(needed);
 				need.setText(dFormat.format(needed));
 				
-			}
-		}
+			}//End of inner if statement
+		}//End of outer if statement
 		
 	}//End of yourMoneyMethod
 
+	
+	
+	
 	//This method is for the net worth goal text field.
 	//Checks to see if it is emtpy. If it is sets a boolean that will be used in
 	//the yourMoneyMethod for the needed text field.
@@ -345,6 +354,8 @@ public class OverviewPanel extends JPanel implements KeyListener {
 
 		if(e.getSource().equals(netGoal)) {
 			if(netGoal.getText().length() > 0) {
+				//Used to make sure that valid characters are being passed in along with
+				//limiting the size of string to a reasonable value
 				try {
 					
 					if(Double.parseDouble(netGoal.getText()) > 1000000.00)
@@ -363,22 +374,26 @@ public class OverviewPanel extends JPanel implements KeyListener {
 				}//End of catch
 			}//end of if statement
 		}//End of outer if statement
-
+		
 		if(netGoal.getText().isEmpty()) 
 			isFilled = false;
 
 		else {
 			profile.setGoal(Double.parseDouble(netGoal.getText()));
 			isFilled = true;
-		}
+		}//end of else statement
 	}//End of netWorthGoalTest
 
 
-	@SuppressWarnings("serial")
-	class GraphPanel extends JPanel {
 	
-	    private int width = 500;
-	    private int height = 400;
+	/*
+	 * This class creates the graphs used in the overview panel.
+	 * Made to keep everything for it together so that the overview panel class
+	 * didnt become too big and convoluted.
+	 */
+	class GraphPanel extends JPanel {
+		
+		//Components for the graph
 	    private int padding = 25;
 	    private int labelPadding = 25;
 	    private Color lineColor = new Color(44, 102, 230, 180);
@@ -388,25 +403,24 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	    private int pointWidth = 4;
 	    private int numberYDivisions = 10;
 	    
-	    //private GregorianCalendar calendar = new GregorianCalendar();
-	    //private int currentYear;
-	    //private Income currentMonthIncome;
-	    
+	    //Loads all the income for the year into an ArrayList that is used for
+	    //data points
 	    private ArrayList<Double> income = new ArrayList<Double>();
 	    
-	    //private List<Double> scores;
-	    
+	    //Used to get needed information from UserProfile
 	    UserProfile userProfile;
 	
+	    //Constructor that instantiates the class profile with the passed in profile
 	    public GraphPanel(UserProfile user) { 
 	    	userProfile = user;
-	    }
+	    }//End of constructor
 	    
 	    /*
 	     * This function updates the information that is to be put into the graph. This includes the monthly balances.
 	     * @author brendanperry
 	     */
-	    public void updateGraph() {
+	    @SuppressWarnings("deprecation")
+		public void updateGraph() {
 	    	income.clear();
 	    	Date date = new GregorianCalendar(selectedYear, selectedMonth, 1).getTime();
 			Date creationDate = profile.getCreationDate();
@@ -418,20 +432,17 @@ public class OverviewPanel extends JPanel implements KeyListener {
 			// find how many months to go back up to one year
 			while(creationDate.equals(tempDate) || creationDate.before(tempDate) && count <= 12) {
 				Calendar cal = Calendar.getInstance();
-				cal.setTime(tempDate);			
-				int monthInt = cal.get(Calendar.MONTH);
-				int yearInt = cal.get(Calendar.YEAR);
-
+				cal.setTime(tempDate);
+				
 				if(tempDate.getMonth() == 0) {
 					tempDate.setMonth(11);
 					tempDate.setYear(tempDate.getYear() - 1);
-				}
-				else {
+				}//End of if statement
+				else
 					tempDate.setMonth(tempDate.getMonth() - 1);
-				}
 				
 				count++;
-			}
+			}//End of while loop
 	        
 			
 			// roll back temp date to the furthers date with data
@@ -441,15 +452,17 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	        	if(tempDate.getMonth() == 0) {
 					tempDate.setMonth(11);
 					tempDate.setYear(tempDate.getYear() - 1);
-				}
-				else {
+				}//End of if statement
+				else 
 					tempDate.setMonth(tempDate.getMonth() - 1);
-				}
-	        }
+	        }//End of for loop
 	        
 	        // now we go forwards to and add all the balances up
 	        double totalBalance = 0;
 			
+	        //This for loop sums up the balance as the year goes on and adds
+	        //it into the income arraylist to represent each months total increase or 
+	        //decrease
 	        for (int i = 0; i < count; i++) {
 	        	Calendar cal = Calendar.getInstance();
 				cal.setTime(tempDate);			
@@ -462,41 +475,47 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	        	if(tempDate.getMonth() == 11) {
 					tempDate.setMonth(0);
 					tempDate.setYear(tempDate.getYear() + 1);
-				}
-				else {
+				}//End of if statement
+				else 
 					tempDate.setMonth(tempDate.getMonth() + 1);
-				}
-	        }
+				
+	        }//End of for loop
 	        
 	        int size = income.size();
 	        
 	        // if the graph is too small, we make sure that there is at least two points
-			if(size < 12) {
+			if(size < 12) 
 				income.add(0, 0.0);
-			}
-	    }
+	    }//end of updateGraph method
 	
-	    @Override
+	    
+	    //This method is responsible for making the graph and painting the panel
+	    @SuppressWarnings("deprecation")
+		@Override
 	    protected void paintComponent(Graphics g) {
 	        super.paintComponent(g);
 	        Graphics2D g2 = (Graphics2D) g;
 	        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	        
+	        //Used to make sure the points are up to date
 	        updateGraph();
 	        
 	        double xScale = ((double) getWidth() - (2 * padding) - labelPadding) / (income.size() - 1);
 	        double yScale = ((double) getHeight() - 2 * padding - labelPadding) / (getMaxValue() - getMinValue());
 	        
+	        //Used for testing
 	        for(int i = 0; i < income.size(); i++) {
 	        	System.out.println(income.get(i));
-	        }
+	        }//End of for loop
 	
 	        ArrayList<Point> graphPoints = new ArrayList<>();
+	        
+	        //Loads the graphPoints ArrayList with data points
 	        for (int i = 0; i < income.size(); i++) {
 	            int x1 = (int) (i * xScale + padding + labelPadding);
 	            int y1 = (int) ((getMaxValue() - income.get(i)) * yScale + padding);
 	            graphPoints.add(new Point(x1, y1));
-	        }
+	        }//End of for loop
 	
 	        // draw white background
 	        g2.setColor(Color.WHITE);
@@ -509,23 +528,26 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	            int x1 = pointWidth + padding + labelPadding;
 	            int y0 = getHeight() - ((i * (getHeight() - padding * 2 - labelPadding)) / numberYDivisions + padding + labelPadding);
 	            int y1 = y0;
+	            
 	            if (income.size() > 0) {
 	                g2.setColor(gridColor);
 	                g2.drawLine(padding + labelPadding + 1 + pointWidth, y0, getWidth() - padding, y1);
 	                g2.setColor(Color.BLACK);
 	                
+	                //Y axis label
 	                String yLabel = "$0.00";
 	                if(getMaxValue() > 1) {
-	                	DecimalFormat f = new DecimalFormat("0.00");
 	                	yLabel = "$" + (int) ((getMinValue() + (getMaxValue() - getMinValue()) * ((i * 1.0) / numberYDivisions)));
-	                }
+	                }//End of if statement
 	                
 	                FontMetrics metrics = g2.getFontMetrics();
 	                int labelWidth = metrics.stringWidth(yLabel);
 	                g2.drawString(yLabel, x0 - labelWidth - 5, y0 + (metrics.getHeight() / 2) - 3);
-	            }
+	            }//End of if statement
+	            
 	            g2.drawLine(x0, y0, x1, y1);
-	        }
+	        }//End of for loop
+	        
 	        Date tempDate = new GregorianCalendar(selectedYear, selectedMonth, 1).getTime();
 	        
 	        int size = income.size();
@@ -534,18 +556,23 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	        	if(tempDate.getMonth() == 0) {
 					tempDate.setMonth(11);
 					tempDate.setYear(tempDate.getYear() - 1);
-				}
-				else {
+				}//End of if statement
+				else 
 					tempDate.setMonth(tempDate.getMonth() - 1);
-				}
-	        }
+				
+	        }//End of for loop
+	        
+	        
 	        // and for x axis
 	        for (int i = 0; i < income.size(); i++) {
+	        	
 	            if (income.size() > 1) {
 	                int x0 = i * (getWidth() - padding * 2 - labelPadding) / (income.size() - 1) + padding + labelPadding;
 	                int x1 = x0;
 	                int y0 = getHeight() - padding - labelPadding;
 	                int y1 = y0 - pointWidth;
+	                
+	                
 	                if ((i % ((int) ((income.size() / 20.0)) + 1)) == 0) {
 	                    g2.setColor(gridColor);
 	                    g2.drawLine(x0, getHeight() - padding - labelPadding - 1 - pointWidth, x1, padding);
@@ -561,18 +588,19 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	                    if(tempDate.getMonth() == 11) {
 	    					tempDate.setMonth(0);
 	    					tempDate.setYear(tempDate.getYear() + 1);
-	    				}
-	    				else {
+	    				}//End of if statement
+	    				else 
 	    					tempDate.setMonth(tempDate.getMonth() + 1);
-	    				}
+	    				
 	         
 	                    FontMetrics metrics = g2.getFontMetrics();
 	                    int labelWidth = metrics.stringWidth(xLabel);
 	                    g2.drawString(xLabel, x0 - labelWidth / 2, y0 + metrics.getHeight() + 3);
-	                }
+	                }//End of inner if statement
+	                
 	                g2.drawLine(x0, y0, x1, y1);
-	            }
-	        }
+	            }//End of outer if statement
+	        }//End of for loop
 	
 	        // create x and y axes 
 	        g2.drawLine(padding + labelPadding, getHeight() - padding - labelPadding, padding + labelPadding, padding);
@@ -581,13 +609,15 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	        Stroke oldStroke = g2.getStroke();
 	        g2.setColor(lineColor);
 	        g2.setStroke(GRAPH_STROKE);
+	        
+	        
 	        for (int i = 0; i < graphPoints.size() - 1; i++) {
 	            int x1 = graphPoints.get(i).x;
 	            int y1 = graphPoints.get(i).y;
 	            int x2 = graphPoints.get(i + 1).x;
 	            int y2 = graphPoints.get(i + 1).y;
 	            g2.drawLine(x1, y1, x2, y2);
-	        }
+	        }//End of for loop
 	
 	        g2.setStroke(oldStroke);
 	        g2.setColor(pointColor);
@@ -597,39 +627,38 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	            int ovalW = pointWidth;
 	            int ovalH = pointWidth;
 	            g2.fillOval(x, y, ovalW, ovalH);
-	        }
+	        }//End of for loop
+	        
 	        g2.drawLine(0, 0, 1, 1);
 	        setVisible(true);
-	    }
+	    }//End of paintComponent method
 	
-	//    @Override
-	//    public Dimension getPreferredSize() {
-	//        return new Dimension(width, heigth);
-	//    }
+	
+	    //The following helper methods are getters and setters for values and income
 	    private double getMinValue() {
 	        double minIncome = Double.MAX_VALUE;
 	        for (Double value : income) {
 	            minIncome = Math.min(minIncome, value);
-	        }
+	        }//End of for loop
 	        return minIncome;
-	    }
+	    }//End of getMinValue method
 	
 	    private double getMaxValue() {
 	        double maxIncome = Double.MIN_VALUE;
 	        for (Double value : income) {
 	            maxIncome = Math.max(maxIncome, value);
-	        }
+	        }//End of for loop
 	        return maxIncome;
-	    }
+	    }//End of getMaxValue method
 	
-	    public void setScores(ArrayList<Double> income) {
+	    public void setIncome(ArrayList<Double> income) {
 	        this.income = income;
 	        invalidate();
 	        this.repaint();
-	    }
+	    }//End of setIncome method
 	
 	    public ArrayList<Double> getIncome() {
 	        return income;
-	    }
-	}
-}
+	    }//End of getIncome method
+	}//End of GraphPanel Class
+}//End of OverviewPanel Class
