@@ -87,7 +87,6 @@ public class ProfileCreation extends JFrame implements ActionListener, KeyListen
 		passwordLabel = new JLabel("Password:");
 		password.addKeyListener(this);
 
-
 		create = new JButton("Create");
 		create.setEnabled(false);
 		create.setBounds(10, 130, 100, 23);
@@ -126,8 +125,9 @@ public class ProfileCreation extends JFrame implements ActionListener, KeyListen
 					String filename = name.getText() + ".bl";
 					FileOutputStream file = new FileOutputStream(new File(".").getCanonicalPath() + "/Profiles/" + filename);
 					ObjectOutputStream out = new ObjectOutputStream(file);
-
-					UserProfile profile = new UserProfile(name.getText(), password.getText(), Double.parseDouble(balance.getText()), new Date());
+					
+					Date date = new GregorianCalendar(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH), 1).getTime();
+					UserProfile profile = new UserProfile(name.getText(), password.getText(), Double.parseDouble(balance.getText()), date);
 					profile.saveProfile();
 					
 					pList.add(name.getText() + ".bl");

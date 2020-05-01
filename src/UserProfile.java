@@ -62,7 +62,7 @@ public class UserProfile implements Serializable {
 	
 	
 	public void addEvent(Event e) {
-			events.add(e);
+		events.add(e);
 	}
 	
 	public Event getEvent(int i) {
@@ -309,6 +309,7 @@ public class UserProfile implements Serializable {
 		return this.need;
 	}
 	
-	
-	
+	public Date getCreationDate() {
+		return creationDate;
+	}
 }
