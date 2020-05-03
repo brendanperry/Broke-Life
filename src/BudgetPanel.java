@@ -484,6 +484,7 @@ public class BudgetPanel extends JPanel {
 						
 						totalBudgeted.setText(helper.formatCurrency(helper.currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
 						left = sum - helper.currencyToDouble(totalBudgeted.getText());
+						user.getIncome(tableYear, tableMonth).setBalance(left);
 						
 						if(left < 0) {
 							leftToBudget.setText("$0.00");
@@ -623,6 +624,7 @@ public class BudgetPanel extends JPanel {
 							}
 							
 							left = sum - helper.currencyToDouble(totalBudgeted.getText());
+							user.getIncome(tableYear, tableMonth).setBalance(left);
 							
 							if(left < 0) {
 								leftToBudget.setText("$0.00");
@@ -679,6 +681,7 @@ public class BudgetPanel extends JPanel {
 						}
 						
 						left = helper.currencyToDouble(totalIncome.getText()) - helper.currencyToDouble(totalBudgeted.getText());
+						user.getIncome(tableYear, tableMonth).setBalance(left);
 						
 						if(left < 0) {
 							leftToBudget.setText("$0.00");

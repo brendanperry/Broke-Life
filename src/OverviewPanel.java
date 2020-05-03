@@ -295,11 +295,11 @@ public class OverviewPanel extends JPanel implements KeyListener {
 		//Sets the passed dates in to set up a new Date value
 		Date date = new GregorianCalendar(year, month, 1).getTime();
 		Date creationDate = profile.getCreationDate();
-		System.out.println(creationDate);
 		
 		//Gets the monthly balance from the current profile
 		double monthlyBalance = profile.getIncome(year, month + 1).getBalance();
-		double totalBalance = 0;
+		double totalBalance = profile.getBalance();
+		System.out.println("WOOOOW" + totalBalance);
 		
 		Date tempDate = date;
 		
@@ -458,7 +458,7 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	        }//End of for loop
 	        
 	        // now we go forwards to and add all the balances up
-	        double totalBalance = 0;
+	        double totalBalance = profile.getBalance();
 			
 	        //This for loop sums up the balance as the year goes on and adds
 	        //it into the income arraylist to represent each months total increase or 
