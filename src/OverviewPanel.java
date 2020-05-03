@@ -39,7 +39,7 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	private DecimalFormat needFormat = new DecimalFormat("#####0.00");
 
 	//This is used to verify that the Net Goal textfield is filled
-	private boolean isFilled;
+	private boolean isFilled = true;
 
 	//These are used to bring in information from the needed classes
 	UserProfile profile;
@@ -154,7 +154,7 @@ public class OverviewPanel extends JPanel implements KeyListener {
 		netWorthL.setForeground(Color.WHITE);
 		netWorthL.setFont(new Font("Arial", Font.BOLD, 13));
 
-		netGoal = new JTextField(10);
+		netGoal = new JTextField("$0.00");
 		netGoal.setPreferredSize(new Dimension(100,30));
 		netGoal.setText(needFormat.format(profile.getGoal()));
 		netGoal.addKeyListener(this);
@@ -324,14 +324,13 @@ public class OverviewPanel extends JPanel implements KeyListener {
 		}//End of while loop
 
 		asset.setText(dFormat.format(monthlyBalance));
-
 		netWorth.setText(dFormat.format(totalBalance));
-		
 		need.setText(Double.toString(profile.getNeeded()));
+		
 		
 		//Just checks to make sure the net goal textfield is filled to prevent
 		//null being passed in as a value
-		if(isFilled) {
+		if(!netGoal.getText().isEmpty()) {
 			if(Double.parseDouble(netGoal.getText()) != 0) {
 				double needed = Double.parseDouble(netGoal.getText()) - Double.parseDouble(netWorth.getText().replaceAll("[$,]", ""));
 				profile.setNeeded(needed);

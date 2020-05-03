@@ -485,13 +485,7 @@ public class BudgetPanel extends JPanel {
 						totalBudgeted.setText(helper.formatCurrency(helper.currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
 						left = sum - helper.currencyToDouble(totalBudgeted.getText());
 						user.getIncome(tableYear, tableMonth).setBalance(left);
-						
-						if(left < 0) {
-							leftToBudget.setText("$0.00");
-						}
-						else {
-							leftToBudget.setText(helper.formatCurrency(sum - helper.currencyToDouble(totalBudgeted.getText())));
-						}
+						leftToBudget.setText(helper.formatCurrency(sum - helper.currencyToDouble(totalBudgeted.getText())));
 						
 						data.add(checkedData);
 						model.addRow(checkedData);
@@ -625,13 +619,8 @@ public class BudgetPanel extends JPanel {
 							
 							left = sum - helper.currencyToDouble(totalBudgeted.getText());
 							user.getIncome(tableYear, tableMonth).setBalance(left);
+							leftToBudget.setText(helper.formatCurrency(sum - helper.currencyToDouble(totalBudgeted.getText())));
 							
-							if(left < 0) {
-								leftToBudget.setText("$0.00");
-							}
-							else {
-								leftToBudget.setText(helper.formatCurrency(sum - helper.currencyToDouble(totalBudgeted.getText())));
-							}
 							
 							name.setText("");
 							cost.setText("0");
@@ -682,13 +671,7 @@ public class BudgetPanel extends JPanel {
 						
 						left = helper.currencyToDouble(totalIncome.getText()) - helper.currencyToDouble(totalBudgeted.getText());
 						user.getIncome(tableYear, tableMonth).setBalance(left);
-						
-						if(left < 0) {
-							leftToBudget.setText("$0.00");
-						}
-						else {
-							leftToBudget.setText(helper.formatCurrency(left));
-						}
+						leftToBudget.setText(helper.formatCurrency(left));
 											
 						String title = data.get(row)[0];
 						int percent = Integer.parseInt(data.get(row)[2]);
@@ -1073,13 +1056,7 @@ public class BudgetPanel extends JPanel {
 			
 			left = sum - currencyToDouble(totalBudgeted.getText());
 			user.getIncome(tableYear, tableMonth).setBalance(left);
-			
-			if(left < 0) {
-				leftToBudget.setText("$0.00");
-			}
-			else {
-				leftToBudget.setText(formatCurrency(sum - currencyToDouble(totalBudgeted.getText())));
-			}
+			leftToBudget.setText(formatCurrency(sum - currencyToDouble(totalBudgeted.getText())));
 		}
 		
 		/*

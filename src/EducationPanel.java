@@ -39,7 +39,7 @@ public class EducationPanel extends JFrame {
 					
 					+ "HEADING \n\n"
 					+ "\u2022 At the top of the application you can see the current month. This can be changed by selecting the back or forward arrow. \n"
-					+ "\u2022 The menu bar allows you to save work you have done to your profile, load a new profile, access this window again, or view educational information. \n\n"
+					+ "\u2022 The menu bar allows you to save work you have done to your profile, load a new profile, access this window again, view educational information, or print out a monthly report. \n\n"
 					
 					+ "BUDGET \n\n"
 					+ "The budgeting section is the heart of BrokeLife. This is where you will be putting in your information.\n"
@@ -54,6 +54,7 @@ public class EducationPanel extends JFrame {
 					+ "\u2022 The category field is used to group similar events together. \n\n"
 					+ "All of the entered events can be seen in the table.\n\n"
 					+ "You can also modify or delete events by selecting the drop down next to the add new event button.\n\n"
+					+ "Debts can be entered in as an expense. If your debts are more than you money, you will have a negative balance. Any interest payments on debts can beb entered in as later expenses.\n\n"
 					
 					+ "CALENDAR \n\n"
 					+ "The calendar section is here to help you keep your financial life in order. It will show your upcoming events and lets you see when things are due.\n\n"
@@ -71,7 +72,7 @@ public class EducationPanel extends JFrame {
 			information = new JTextArea(
 					"Financial Philosophy\n\n" + 
 					"BrokeLife is here to help you grow and learn how to handle your money.\n\n" + 
-					"\u2022 By entering in every expense, you are forced to see the money go, and also you are able to see how it impacts the rest of your financial health.\n" + 
+					"\u2022 By entering in every expense, you are forced to see the money go, and you also are able to see how it impacts the rest of your financial health.\n" + 
 					"\u2022Having all of your events listed out can also help you avoid overdraft fees by making sure you have enough money in your account to pay for everything that you need.\n" + 
 					"\u2022We believe in saving money. Using BrokeLife, you can set aside money to save in your budget and watch your net worth grow.\n\n" + 
 					
@@ -82,7 +83,7 @@ public class EducationPanel extends JFrame {
 					"Financial Steps\n\n" + 
 					"\u2022 The first step to any good financial plan is to have a safety net. Anything can happen including job loss.\n" + 
 					"\u2022 We recommend the first step people take is to save $1,000 as an emergency fund. This is only used when absolutely necessary and hopefully it never needs to be.\n" + 
-					"\u2022 The next step we recommend is to begin paying off your debts starting with the debts that have the highest interest rate. This will help save you the most money.\n" + 
+					"\u2022 The next step we recommend is to begin paying off your debts starting with the debts that have the highest interest rate. This will help save you the most money.\n" +
 					"\u2022 Once you are debt free (besides a mortgage), you should boost the emergency fund up to 3 to 6 months worth of expenses. This will help protect you and provide peace of mind.\n" + 
 					"\u2022 We recommend beginning to save money for retirement after this step; however, this is beyond the scope of BrokeLife. The main goal of this application is to help you get your financial life in order and learn how to handle your money.\n"  
 					);
