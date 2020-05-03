@@ -60,12 +60,16 @@ public class MainFrame extends JFrame {
 	BudgetPanel budgetPanel;		
 	CalendarPanel calendarPanel;
 	OverviewPanel overviewPanel;
+	
+	UserProfile user;
 
 	public MainFrame(UserProfile user) {
 		getContentPane().setBackground(Color.decode("#25ced1"));
 		setTitle("BrokeLife - " + user.getName());
 		setSize(1250, 800);
 		setResizable(false);
+		
+		this.user = user;
 		
 		setIconImage(Toolkit.getDefaultToolkit().getImage("src/logo.png"));
 		
@@ -272,23 +276,26 @@ public class MainFrame extends JFrame {
 	//Refresh calendar
 	 class btnPreviousMonthClicked implements ActionListener{
         public void actionPerformed (ActionEvent e){
-        	if (calendarPanel.getCurrentMonth() == 0){
-        		calendarPanel.setCurrentMonth(11);
-        		calendarPanel.setCurrentYear(calendarPanel.getCurrentYear()-1);
-            } else{
-                calendarPanel.setCurrentMonth(calendarPanel.getCurrentMonth()-1);
-            }
-            calendarPanel.refreshCalendar(calendarPanel.getCurrentMonth(), calendarPanel.getCurrentYear());
-            overviewPanel.updateInfo(calendarPanel.getCurrentMonth(), calendarPanel.getCurrentYear());
-            
-            try {
-				budgetPanel.loadFromHeader(calendarPanel.getCurrentMonth() + 1, calendarPanel.getCurrentYear());
-			} catch (ParseException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-            
-    		monthHeading.setText(calendarPanel.getCurrentMonthString());
+        	if(calendarPanel.getCurrentMonth() > user.getCreationDate().getMonth()) {
+	        	if (calendarPanel.getCurrentMonth() == 0){
+	        		calendarPanel.setCurrentMonth(11);
+	        		calendarPanel.setCurrentYear(calendarPanel.getCurrentYear()-1);
+	            } else{
+	                calendarPanel.setCurrentMonth(calendarPanel.getCurrentMonth()-1);
+	            }
+        	
+	            calendarPanel.refreshCalendar(calendarPanel.getCurrentMonth(), calendarPanel.getCurrentYear());
+	            overviewPanel.updateInfo(calendarPanel.getCurrentMonth(), calendarPanel.getCurrentYear());
+	            
+	            try {
+					budgetPanel.loadFromHeader(calendarPanel.getCurrentMonth() + 1, calendarPanel.getCurrentYear());
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+	            
+	    		monthHeading.setText(calendarPanel.getCurrentMonthString());
+        	}
         }
     }
 	
