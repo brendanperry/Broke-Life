@@ -39,7 +39,7 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	private DecimalFormat needFormat = new DecimalFormat("#####0.00");
 
 	//This is used to verify that the Net Goal textfield is filled
-	private boolean isFilled;
+	private boolean isFilled = true;
 
 	//These are used to bring in information from the needed classes
 	UserProfile profile;
@@ -154,7 +154,7 @@ public class OverviewPanel extends JPanel implements KeyListener {
 		netWorthL.setForeground(Color.WHITE);
 		netWorthL.setFont(new Font("Arial", Font.BOLD, 13));
 
-		netGoal = new JTextField(10);
+		netGoal = new JTextField("$0.00");
 		netGoal.setPreferredSize(new Dimension(100,30));
 		netGoal.setText(needFormat.format(profile.getGoal()));
 		netGoal.addKeyListener(this);
@@ -295,11 +295,10 @@ public class OverviewPanel extends JPanel implements KeyListener {
 		//Sets the passed dates in to set up a new Date value
 		Date date = new GregorianCalendar(year, month, 1).getTime();
 		Date creationDate = profile.getCreationDate();
-		System.out.println(creationDate);
 		
 		//Gets the monthly balance from the current profile
 		double monthlyBalance = profile.getIncome(year, month + 1).getBalance();
-		double totalBalance = 0;
+		double totalBalance = profile.getBalance();
 		
 		Date tempDate = date;
 		
@@ -311,7 +310,6 @@ public class OverviewPanel extends JPanel implements KeyListener {
 			int yearInt = cal.get(Calendar.YEAR);
 			
 			totalBalance += profile.getIncome(yearInt, monthInt + 1).getBalance();
-			//System.out.println("Total Balance: " + totalBalance);
 			
 			if(tempDate.getMonth() == 0) {
 				tempDate.setMonth(11);
@@ -324,14 +322,13 @@ public class OverviewPanel extends JPanel implements KeyListener {
 		}//End of while loop
 
 		asset.setText(dFormat.format(monthlyBalance));
-
 		netWorth.setText(dFormat.format(totalBalance));
-		
 		need.setText(Double.toString(profile.getNeeded()));
+		
 		
 		//Just checks to make sure the net goal textfield is filled to prevent
 		//null being passed in as a value
-		if(isFilled) {
+		if(!netGoal.getText().isEmpty()) {
 			if(Double.parseDouble(netGoal.getText()) != 0) {
 				double needed = Double.parseDouble(netGoal.getText()) - Double.parseDouble(netWorth.getText().replaceAll("[$,]", ""));
 				profile.setNeeded(needed);
@@ -458,7 +455,7 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	        }//End of for loop
 	        
 	        // now we go forwards to and add all the balances up
-	        double totalBalance = 0;
+	        double totalBalance = profile.getBalance();
 			
 	        //This for loop sums up the balance as the year goes on and adds
 	        //it into the income arraylist to represent each months total increase or 
@@ -502,11 +499,6 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	        
 	        double xScale = ((double) getWidth() - (2 * padding) - labelPadding) / (income.size() - 1);
 	        double yScale = ((double) getHeight() - 2 * padding - labelPadding) / (getMaxValue() - getMinValue());
-	        
-	        //Used for testing
-	        for(int i = 0; i < income.size(); i++) {
-	        	System.out.println(income.get(i));
-	        }//End of for loop
 	
 	        ArrayList<Point> graphPoints = new ArrayList<>();
 	        
@@ -584,7 +576,6 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	                    String y = Integer.toString(cal.get(Calendar.YEAR)).substring(2, 4);
 	                    
 	                    String xLabel = " " + m + " " + y;
-	                    System.out.println(i + " " + tempDate);
 	                    if(tempDate.getMonth() == 11) {
 	    					tempDate.setMonth(0);
 	    					tempDate.setYear(tempDate.getYear() + 1);
