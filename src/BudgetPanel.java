@@ -580,11 +580,13 @@ public class BudgetPanel extends JPanel {
 										recurTotalCost += costCurrent;
 									}
 								
-								System.out.println(recurTotalCost);
 								totalBudgeted.setText(helper.formatCurrency(helper.currencyToDouble(totalBudgeted.getText()) - recurTotalCost));
 							}
+							else {
+								totalBudgeted.setText(helper.formatCurrency(helper.currencyToDouble(totalBudgeted.getText()) - costCurrent));
+							}
 							
-							// if new cost is recurring calculate the total amount to take away
+							// if new cost is recurring calculate the total amount to take add
 							int newRepeat = helper.recurStringToInt(checkedData[4]);
 							if(newRepeat != 0 && newRepeat != 365) {
 								double recurTotalCost = helper.currencyToDouble(checkedData[1]);
