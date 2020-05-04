@@ -53,7 +53,6 @@ public class CalendarPanel extends JPanel {
 	private ArrayList<Event> recurring = new ArrayList<Event>();
 	
 	public CalendarPanel(UserProfile user) {
-		System.out.println("Hello");
 		this.userProfile = user;
 		setLayout(null);
 		setSize(1250,650);
