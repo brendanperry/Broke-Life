@@ -16,14 +16,30 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.sql.Date;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Locale;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.ColumnText;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 
 //import com.itextpdf.awt.geom.Rectangle;
 //import com.itextpdf.text.Document;
@@ -331,6 +347,25 @@ public class MainFrame extends JFrame {
     	user.saveProfile();
     	user.sortEvents();
     	Event[] events = user.getEvents(new Date(BudgetPanel.tableYear - 1900, BudgetPanel.tableMonth - 1, 1), new Date(BudgetPanel.tableYear - 1900,BudgetPanel.tableMonth - 1, 31));
+    	Event[] recur = user.getEvents(new Date(user.getCreationDate().getYear() - 1900, user.getCreationDate().getMonth() - 1, 0), new Date(BudgetPanel.tableYear - 1900,BudgetPanel.tableMonth - 1, 31));
+    	DecimalFormat df  = new DecimalFormat("$#,###,###.##");
+    	
+    	Event[] nonRecur = user.getNonRecuringEvents(events);
+    	recur = user.getRecurringEvents(recur);
+    	
+    	Event[] compiled = new Event[(recur.length + nonRecur.length)];
+    	
+    	if(events.length > 0)
+    	for(int i =0; i < nonRecur.length; i++) {
+    		compiled[i] = nonRecur[i];
+    	}
+    	
+    	if(recur.length > 0)
+    	for(int i=0; i < recur.length; i++) {
+    		compiled[i+nonRecur.length] = recur[i];
+    	}
+    	
+    	events = compiled;
     	
     	int year = BudgetPanel.tableYear;
     	int month = BudgetPanel.tableMonth;
@@ -363,7 +398,7 @@ public class MainFrame extends JFrame {
            canvas.moveTo(20, 750);
            canvas.lineTo(570, 750);
            
-           canvas.closePathStroke();
+           
            
            f = new com.itextpdf.text.Font(bfBold, 10);
            ct.setSimpleColumn(700f, 50f, 20f, 750f);
@@ -390,7 +425,7 @@ public class MainFrame extends JFrame {
         	   PdfPCell c1 = new PdfPCell(new Paragraph(events[row].getTitle(),f));
         	   expenses.addCell(c1);
         	   
-        	   PdfPCell c2 = new PdfPCell(new Paragraph("$" + events[row].getAmount(),f));
+        	   PdfPCell c2 = new PdfPCell(new Paragraph(df.format(events[row].getAmount()),f));
         	   expenses.addCell(c2);
         	   
         	   PdfPCell c3 = new PdfPCell(new Paragraph(events[row].getPercentage() + "%",f));
@@ -411,7 +446,7 @@ public class MainFrame extends JFrame {
            
            f = new com.itextpdf.text.Font(bfBold, 10);
            ct.setSimpleColumn(700f, 50f, 20f, (nextPos));
-           ct.addElement(new Paragraph("Total Spent: $" + user.sumEvents(events, month), f));
+           ct.addElement(new Paragraph("Total Spent: " + df.format(user.sumEvents(events, month)), f));
            ct.go();
            PdfPTable income = new PdfPTable(3);
            income.setTotalWidth(300);
@@ -451,7 +486,7 @@ public class MainFrame extends JFrame {
            
            f = new com.itextpdf.text.Font(bfBold, 10);
            ct.setSimpleColumn(700f, 50f, 140f, (nextPos));
-           ct.addElement(new Paragraph("Total Income: $" + monthIncome.sumIncome(), f));
+           ct.addElement(new Paragraph("Total Income: " + df.format(monthIncome.sumIncome()), f));
            ct.go();
            
            f = new com.itextpdf.text.Font(bfBold, 10);
@@ -460,21 +495,60 @@ public class MainFrame extends JFrame {
            ct.addElement(new Paragraph("Overview", f));
            ct.go();
            
+           double balance = user.getBalance();
+           int initYear = user.getCreationDate().getYear();
+           int initMonth = user.getCreationDate().getMonth();
+           
+           do {
+        	   balance += user.getIncome(initYear + 1900, initMonth + 1).getBalance();
+	        	if(initMonth == 11) {
+					initMonth = 0;
+					initYear++;
+				}//End of if statement
+				else 
+					initMonth++;
+           } while(initYear < year && initMonth < month);
+                      
+           
+           String goal = "\nNet Worth Goal: ";
+           
+           if(user.need <= 0) {
+        	   goal += "Net worth goal has been met. Congratulations! Please set a new goal within the Overview Panel.";
+           } else {
+        	   goal += "$ " + user.goal + " (" + NumberFormat.getCurrencyInstance(Locale.US).format(user.need) + " needed to achieve goal)";
+           }
+           
+           
+           
            nextPos = nextPos - 12;
            f= new com.itextpdf.text.Font(bf, 10);
-           ct.setSimpleColumn(700f, 50f, 20f, (nextPos));
-           ct.addElement(new Paragraph("Money Left to Budget: $" + BudgetPanel.left + "\nNet Gain/Loss: $" + (monthIncome.sumIncome() - user.sumEvents(events, month)), f));
+           ct.setSimpleColumn(700f, 50f, 50f, (nextPos));
+           ct.addElement(new Paragraph("Money Left to Budget: " + df.format(BudgetPanel.left)
+        		   + "\nNet Gain/Loss:        " + df.format(monthIncome.sumIncome() - user.sumEvents(events, month))
+        		   + "\nEnd of Month Balance: " + df.format(balance) + goal, f));
+           
+           
            ct.go();
            
+           canvas.setRGBColorStroke(128, 128, 128);
+           canvas.moveTo(20, 20);
+           canvas.lineTo(570, 20);
+           
+           f = new com.itextpdf.text.Font(bf, 10);
+           f.setColor(128, 128, 128);
+           ct.setSimpleColumn(700f, 50f, 20f, 5f);
+           Phrase footer = new Phrase("BrokeLife program created by Drew Albert, Zachary Barrow, Andrew Hansel, and Brendan Perry (2020)",f);
+           
+           ColumnText.showTextAligned(canvas, Element.ALIGN_CENTER, footer, (document.right() - document.left()) / 2 + document.leftMargin(),document.bottom() - 10, 0);
+       
+           
+           ct.go();
+           
+           canvas.closePathStroke();
            document.close();
            writer.close();
-        } catch (DocumentException e)
-        {
-           e.printStackTrace();
-        } catch (FileNotFoundException e)
-        {
-           e.printStackTrace();
-        }
+        } catch (DocumentException e){} 
+        catch (FileNotFoundException e){}
         
         JOptionPane.showMessageDialog(null, "Report has been generated!");
     }

@@ -12,13 +12,6 @@ import java.awt.event.*;
 import java.text.*;
 
 /*
- * @author Andrew Hansel
- * - So far a basic framework has been created.
- * I need some of the other methods to work before I can tweak the methods and
- * sizes of the different components. 4/8/2020
- */
-
-/*
  * This class holds all of the important
  */
 
