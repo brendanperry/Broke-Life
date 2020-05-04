@@ -226,18 +226,29 @@ public class UserProfile implements Serializable {
 		return total;
 	}
 
+	/*
+	 * Adds income object to the saved data
+	 * @param income - the object to be saved
+	 */
 	public void addIncome(Income income) {
 		monthlyIncome.add(income);
 	}
 	
+	/*
+	 * Checks to see if the month has been created yet
+	 * @param year - the year of the month to check
+	 * @param month - the month of the year to check
+	 * @return - returns true if month is new, or false if not
+	 */
 	public boolean isNewMonth(int year, int month) {
-		Income income = new Income(year, month);
-
+		Income income = new Income(month, year);
+		
 		for(int i = 0; i < monthlyIncome.size(); i++) {
 			if(monthlyIncome.get(i).equals(income))
 				return false;
 		}
 		
+		monthlyIncome.add(income);
 		return true;
 	}
 	
@@ -247,14 +258,13 @@ public class UserProfile implements Serializable {
 	 * @param month - the specified month
 	 */
 	public Income getIncome(int year, int month) {
-		Income income = new Income(year, month);
+		Income income = new Income(month, year);
 
 		for(int i = 0; i < monthlyIncome.size(); i++) {
 			if(monthlyIncome.get(i).equals(income))
 				return monthlyIncome.get(i);
 		}
-		
-		addIncome(income);
+
 		return income;
 	}
 	

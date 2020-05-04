@@ -459,7 +459,7 @@ public class BudgetPanel extends JPanel {
 						int repeat = helper.recurStringToInt(repeating.getSelectedItem().toString());
 						double recurTotalCost = helper.currencyToDouble(cost.getText());
 						
-						if(repeat != 0 && repeat != 365) {
+						if(repeat != 0 && repeat != 365 && repeat != 30) {
 							// find last day of the selected month
 							int finalDay = 0;
 							if(tableMonth == 1 || tableMonth == 3 || tableMonth == 5 || tableMonth == 7 || tableMonth == 8 || tableMonth == 10 || tableMonth == 12) {
@@ -557,7 +557,7 @@ public class BudgetPanel extends JPanel {
 							}
 							
 							// if old cost is recurring calculate the total amount to take away
-							if(repeat != 0 && repeat != 365) {
+							if(repeat != 0 && repeat != 365 && repeat != 30) {
 								double recurTotalCost = costCurrent;
 								// find last day of the selected month
 									int finalDay = 0;
@@ -588,7 +588,7 @@ public class BudgetPanel extends JPanel {
 							
 							// if new cost is recurring calculate the total amount to take add
 							int newRepeat = helper.recurStringToInt(checkedData[4]);
-							if(newRepeat != 0 && newRepeat != 365) {
+							if(newRepeat != 0 && newRepeat != 365 && newRepeat != 30) {
 								double recurTotalCost = helper.currencyToDouble(checkedData[1]);
 								// find last day of the selected month
 									int finalDay = 0;
@@ -612,6 +612,9 @@ public class BudgetPanel extends JPanel {
 									}
 								
 								totalBudgeted.setText(helper.formatCurrency(helper.currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
+							}
+							else {
+								totalBudgeted.setText(helper.formatCurrency(helper.currencyToDouble(totalBudgeted.getText()) + helper.currencyToDouble(checkedData[1])));
 							}
 														
 							for(int i = 0; i < 6; i++) {
@@ -642,7 +645,7 @@ public class BudgetPanel extends JPanel {
 					
 					if(row != -1) {
 						// if old cost is recurring calculate the total amount to take away
-						if(repeat != 0 && repeat != 365) {
+						if(repeat != 0 && repeat != 365 && repeat != 30) {
 							double recurTotalCost = costCurrent;
 							// find last day of the selected month
 								int finalDay = 0;
@@ -891,7 +894,7 @@ public class BudgetPanel extends JPanel {
 			Event[] lastYearEvents = user.getEvents(format.parse(lastYearStartDay), format.parse(lastYearEndDay));
 			
 			boolean isNew = user.isNewMonth(tableYear, tableMonth);
-			
+
 			if(isNew) {
 				lastMonthEvents = user.getEvents(format.parse(prevMStartDay), format.parse(prevMEndDay));
 				
@@ -927,9 +930,12 @@ public class BudgetPanel extends JPanel {
 						}
 						
 						// calculate the cost of recurring events over the whole month
-						double recurTotalCost = 0;
-						for(int j = dayInt; j <= finalDay; j+= repeating) {
-							recurTotalCost += cost;
+						double recurTotalCost = cost;
+						if(repeating != 30) {
+							recurTotalCost = 0;
+							for(int j = dayInt; j <= finalDay; j+= repeating) {
+								recurTotalCost += cost;
+							}
 						}
 					
 						String[] newData = {title, formatCurrency(cost), percent, day, recurIntToString(repeating), category};
@@ -968,10 +974,6 @@ public class BudgetPanel extends JPanel {
 				
 				sum = pay1 + pay2 + pay3 + pay4 + tempTips + tempMisc1 + tempMisc2 + tempMisc3 + tempMisc4;
 				totalIncome.setText(formatCurrency(sum));
-				//TODO
-				//I changed this
-				//user.setBalance(sum);
-				//System.out.println("BUDGET PANEL: " + user.getIncome(tableYear, tableMonth).getBalance());
 			}
 			catch(Exception e) {
 				System.out.println(e);
