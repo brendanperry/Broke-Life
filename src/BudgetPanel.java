@@ -483,8 +483,7 @@ public class BudgetPanel extends JPanel {
 						}
 						
 						totalBudgeted.setText(helper.formatCurrency(helper.currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
-						left = sum - helper.currencyToDouble(totalBudgeted.getText());
-						user.getIncome(tableYear, tableMonth).setBalance(left);
+						user.getIncome(tableYear, tableMonth).setBalance(sum - helper.currencyToDouble(totalBudgeted.getText()));
 						leftToBudget.setText(helper.formatCurrency(sum - helper.currencyToDouble(totalBudgeted.getText())));
 						
 						data.add(checkedData);
@@ -622,8 +621,7 @@ public class BudgetPanel extends JPanel {
 								model.setValueAt(checkedData[i], row, i);
 							}
 							
-							left = sum - helper.currencyToDouble(totalBudgeted.getText());
-							user.getIncome(tableYear, tableMonth).setBalance(left);
+							user.getIncome(tableYear, tableMonth).setBalance(sum - helper.currencyToDouble(totalBudgeted.getText()));
 							leftToBudget.setText(helper.formatCurrency(sum - helper.currencyToDouble(totalBudgeted.getText())));
 							
 							
@@ -674,9 +672,8 @@ public class BudgetPanel extends JPanel {
 							totalBudgeted.setText(helper.formatCurrency(helper.currencyToDouble(totalBudgeted.getText()) - costCurrent));
 						}
 						
-						left = helper.currencyToDouble(totalIncome.getText()) - helper.currencyToDouble(totalBudgeted.getText());
-						user.getIncome(tableYear, tableMonth).setBalance(left);
-						leftToBudget.setText(helper.formatCurrency(left));
+						user.getIncome(tableYear, tableMonth).setBalance(sum - helper.currencyToDouble(totalBudgeted.getText()));
+						leftToBudget.setText(helper.formatCurrency(sum - helper.currencyToDouble(totalBudgeted.getText())));
 											
 						String title = data.get(row)[0];
 						int percent = Integer.parseInt(data.get(row)[2]);
@@ -1058,8 +1055,7 @@ public class BudgetPanel extends JPanel {
 				}
 			}
 			
-			left = sum - currencyToDouble(totalBudgeted.getText());
-			user.getIncome(tableYear, tableMonth).setBalance(left);
+			user.getIncome(tableYear, tableMonth).setBalance(sum - currencyToDouble(totalBudgeted.getText()));
 			leftToBudget.setText(formatCurrency(sum - currencyToDouble(totalBudgeted.getText())));
 		}
 		
@@ -1170,14 +1166,8 @@ public class BudgetPanel extends JPanel {
 			totalIncome.setText(formatCurrency(sum));
 			updatePercentages();
 			
-			left = sum - currencyToDouble(totalBudgeted.getText());
-			user.getIncome(tableYear, tableMonth).setBalance(left);
-			if(left < 0) {
-				leftToBudget.setText("$0.00");
-			}
-			else {
-				leftToBudget.setText(formatCurrency(sum - currencyToDouble(totalBudgeted.getText())));
-			}
+			user.getIncome(tableYear, tableMonth).setBalance(sum - currencyToDouble(totalBudgeted.getText()));
+			leftToBudget.setText(formatCurrency(sum - currencyToDouble(totalBudgeted.getText())));
 		}
 		
 		/*
@@ -1245,7 +1235,13 @@ public class BudgetPanel extends JPanel {
 		 */
 		public double currencyToDouble(String numberText) {
 			String noFormatting = numberText.replaceAll("[$,]", "");
-			return Double.parseDouble(noFormatting);
+			try {
+				return Double.parseDouble(noFormatting);
+			}
+			catch(Exception e) {
+				JOptionPane.showMessageDialog(null, "Invalid Data");
+				return 0;
+			}
 		}
 		
 		/*

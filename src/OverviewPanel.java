@@ -520,10 +520,7 @@ public class OverviewPanel extends JPanel implements KeyListener {
 	                g2.setColor(Color.BLACK);
 	                
 	                //Y axis label
-	                String yLabel = "$0.00";
-	                if(getMaxValue() > 1) {
-	                	yLabel = "$" + (int) ((getMinValue() + (getMaxValue() - getMinValue()) * ((i * 1.0) / numberYDivisions)));
-	                }//End of if statement
+	                String yLabel = "$" + (int) ((getMinValue() + (getMaxValue() - getMinValue()) * ((i * 1.0) / numberYDivisions)));
 	                
 	                FontMetrics metrics = g2.getFontMetrics();
 	                int labelWidth = metrics.stringWidth(yLabel);
