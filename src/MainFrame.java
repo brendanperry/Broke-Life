@@ -166,6 +166,7 @@ public class MainFrame extends JFrame {
 		
 		monthHeading.setText(calendarPanel.getCurrentMonthString());
 		
+		//Updates Calendar and Overview panel information when their respective tab is clicked.
 		ChangeListener changeListener = new ChangeListener() {
 		      public void stateChanged(ChangeEvent changeEvent) {
 		        JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();

@@ -1,8 +1,6 @@
-/**
  /**
  * GUI class providing a calendar view of Events associated with a given UserProfile
  * Displays Events scheduled for a selected date as well as upcoming Events 
- * 04/03/2020
  * Zach Barrow
  */
 
@@ -99,7 +97,11 @@ public class CalendarPanel extends JPanel {
    
 		updateLists();
         
-        //Used to select a certain day in order to display the Events scheduled
+        /**Used to select a certain day in order to display the Events scheduled
+		 *Finds events for a single day or the current day and the next three day's events.
+		 *Displays events on respective lists
+		 *If empty calendar cell is clicked, selected day shows events for the current day. 
+		 */
         tblCalendar.addMouseListener(new MouseAdapter() {
         	public void mouseClicked(MouseEvent e) {
         		int row = tblCalendar.rowAtPoint(e.getPoint());
@@ -208,16 +210,26 @@ public class CalendarPanel extends JPanel {
         int weekdayOfMonthBeginning = gc.get(GregorianCalendar.DAY_OF_WEEK);
         
         //Fill table with days
-        
         for (int i=1; i <= daysInCurrentMonth; i++){
             int row = new Integer((i + weekdayOfMonthBeginning-2)/7);
             int column  =  (i + weekdayOfMonthBeginning-2)%7;
             tblCalendar.setValueAt(i, row, column);
         }
+        
+        //Design calendar with days of interest highlighted
         tblCalendar.setDefaultRenderer(tblCalendar.getColumnClass(0), new tblCalendarRenderer());
 
 	}
 	
+	/** Renders table to highlight specific days.
+	 * 	Current day: Teal
+	 *  Single Occurrence: Purple
+	 *	Daily: Violet
+	 *	Weekly: Blue
+	 *  Bi-weekly: Pink
+	 *  Monthly: Red
+	 *  Yearly: Yellow
+	 */
 	private class tblCalendarRenderer extends DefaultTableCellRenderer{
         public Component getTableCellRendererComponent (JTable table, Object value, boolean selected, boolean focused, int row, int column){
             super.getTableCellRendererComponent(table, value, selected, focused, row, column);
@@ -229,40 +241,6 @@ public class CalendarPanel extends JPanel {
             }
             
             monthEvents = userProfile.getEvents(new Date(currentYear-1900, currentMonth, 1), new Date(currentYear-1900, currentMonth, daysInCurrentMonth));
-
-//            DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-//			
-//            int month = currentMonth + 1;
-//			String m = Integer.toString(month);
-//			String y = Integer.toString(currentYear);
-//			
-//			String startDay = y + "-" + m + "-" + "1";
-//			String endDay = y + "-" + m + "-";
-//			
-//			if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
-//				// last day is 31st
-//				endDay += "31";
-//			}
-//			else if(month == 2) {
-//				// last day is 28th
-//				endDay += "28";
-//			}
-//			else {
-//				// last day is 30th
-//				endDay += "30";
-//			}
-//			
-//			Date start = null;
-//			Date end = null;
-//			try {
-//				start = format.parse(startDay);
-//				end = format.parse(endDay);
-//			} catch (ParseException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			
-//         monthEvents = userProfile.getEvents(start, end);
             
             int eventDay = 0;
             for (int i = 0; i <monthEvents.length; i++) {
@@ -351,6 +329,8 @@ public class CalendarPanel extends JPanel {
 		return lblCurrentMonth.getText()  + " " + currentYear;
 	}
 	
+	/** Updates Selected Day and Upcoming Events lists with event information for the current month. 
+	 */
 	public void updateLists() {
     	listUpcoming.removeAllElements();
 		String listEvent;
