@@ -936,7 +936,6 @@ public class BudgetPanel extends JPanel {
 						}
 					
 						String[] newData = {title, formatCurrency(cost), percent, day, recurIntToString(repeating), category};
-						
 						totalBudgeted.setText(formatCurrency(currencyToDouble(totalBudgeted.getText()) + recurTotalCost));
 						
 						data.add(newData);
@@ -1016,7 +1015,7 @@ public class BudgetPanel extends JPanel {
 				
 				int repeating = events[i].getRecurPeriod();
 				
-				if(repeating == 0) {
+				if(repeating == 0 || repeating == 30) {
 					String[] newData = {title, formatCurrency(cost), percent, day, "None", category};
 					
 					totalBudgeted.setText(formatCurrency(currencyToDouble(totalBudgeted.getText()) + cost));
