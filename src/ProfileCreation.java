@@ -1,5 +1,8 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.io.*;
 import java.util.*;
@@ -38,10 +41,14 @@ public class ProfileCreation extends JFrame implements ActionListener, KeyListen
 	 * -fixed bug that allowed empty fields to pass into profiles.
 	 * -reorganized code to try to implement the dry method.
 	 * -pulled from original code commented out at the bottom
+	 * @throws IOException image could not be loaded
 	 */
-	public ProfileCreation(ArrayList<String> profileList) {
+	public ProfileCreation(ArrayList<String> profileList) throws IOException {
 		super(title);
 
+		BufferedImage logo = ImageIO.read(this.getClass().getResource("logo.png"));
+		setIconImage(logo);
+		
 		pList = profileList;
 
 		pane = new Container();

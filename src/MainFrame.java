@@ -1,3 +1,4 @@
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
@@ -9,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -79,7 +81,7 @@ public class MainFrame extends JFrame {
 	
 	UserProfile user;
 
-	public MainFrame(UserProfile user) {
+	public MainFrame(UserProfile user) throws IOException {
 		getContentPane().setBackground(Color.decode("#25ced1"));
 		setTitle("BrokeLife - " + user.getName());
 		setSize(1250, 800);
@@ -87,7 +89,8 @@ public class MainFrame extends JFrame {
 		
 		this.user = user;
 		
-		setIconImage(Toolkit.getDefaultToolkit().getImage("src/logo.png"));
+		BufferedImage logo = ImageIO.read(this.getClass().getResource("logo.png"));
+		setIconImage(logo);
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -342,7 +345,12 @@ public class MainFrame extends JFrame {
         }
     }
      
-    
+    /**
+     * Creates a PDF report with the information stored within User Profile
+     * @param user - the loaded user profile
+     * @throws MalformedURLException - Image could not be loaded
+     * @throws IOException - Image could not be loaded
+     */
     public void createReport(UserProfile user) throws MalformedURLException, IOException {
     	Document document = new Document();
     	user.saveProfile();
@@ -390,7 +398,7 @@ public class MainFrame extends JFrame {
            com.itextpdf.text.Font f = new com.itextpdf.text.Font(bfBold, 16);
            ct.addElement(new Paragraph("BrokeLife Activity for " + user.getName() + " in the month of " + month + "/" + year, f));
            ct.go();
-           Image logo = Image.getInstance("logo-full.png");
+           Image logo = Image.getInstance(this.getClass().getResource("logo-full.png"));
            logo.scaleAbsolute(150, 75);
            logo.setAbsolutePosition(20f, 750f);
            document.add(logo);
@@ -548,8 +556,12 @@ public class MainFrame extends JFrame {
            canvas.closePathStroke();
            document.close();
            writer.close();
-        } catch (DocumentException e){} 
-        catch (FileNotFoundException e){}
+        } catch (DocumentException e){
+        		e.printStackTrace();
+        } 
+        catch (FileNotFoundException e){
+        	e.printStackTrace();
+        }
         
         JOptionPane.showMessageDialog(null, "Report has been generated!");
     }

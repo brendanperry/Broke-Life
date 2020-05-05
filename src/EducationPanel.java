@@ -1,6 +1,9 @@
 import java.awt.BorderLayout;
 import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
@@ -18,11 +21,12 @@ public class EducationPanel extends JFrame {
 	 * @params type determines what information is loaded into the panel.
 	 * @author brendanperry
 	 */
-	public EducationPanel(int type) {
+	public EducationPanel(int type) throws IOException {
 		setSize(500, 500);
 		setTitle("Education");
 		setLayout(new BorderLayout());
-		setIconImage(Toolkit.getDefaultToolkit().getImage("src/logo.png"));
+		BufferedImage logo = ImageIO.read(this.getClass().getResource("logo.png"));
+		setIconImage(logo);
 		JLabel title;
 		JTextArea information;
 		

@@ -2,12 +2,14 @@ import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -54,7 +56,8 @@ public class InitialWindow extends JFrame{
 		    // If Nimbus is not available, you can set the GUI to another look and feel.
 		}
 		
-		setIconImage(Toolkit.getDefaultToolkit().getImage("src/logo.png"));
+		BufferedImage logo = ImageIO.read(this.getClass().getResource("logo.png"));
+		setIconImage(logo);
 		
     	JTextArea text;
     	JList<String> profileList = new JList<String>(list);
@@ -139,7 +142,11 @@ public class InitialWindow extends JFrame{
         	newProfile = new JButton("Create a New Profile");
         	newProfile.addActionListener(new ActionListener() {
         		public void actionPerformed(ActionEvent arg0) {
-        			ProfileCreation pc = new ProfileCreation(profileNames);
+        			try {
+						ProfileCreation pc = new ProfileCreation(profileNames);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
         			dispose();
         		}
         	});
